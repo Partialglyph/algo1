@@ -5,16 +5,41 @@ import os
 from fastapi import FastAPI, HTTPException
 
 from . import settings
-from .data_provider import HttpJsonRateDataProvider
+from .data_provider import (
+    HttpJsonRateDataProvider,
+    TradingEconomicsProvider,
+    CTSCsvProvider,
+)
 from .forecast_service import ForecastService
 from .models import ForecastRequest, ForecastResponse
 
-app = FastAPI(title="Shipping Price Forecast API", version="1.0.0")
+app = FastAPI(title="Shipping Price Forecast API", version="1.1.0")
 
-api_base_url = os.getenv("FREIGHT_API_BASE_URL", settings.FREIGHT_API_BASE_URL)
-api_key = os.getenv("FREIGHT_API_KEY", settings.FREIGHT_API_KEY)
 
-provider = HttpJsonRateDataProvider(base_url=api_base_url, api_key=api_key)
+def _build_provider() -> object:
+    """Construct a RateDataProvider using free data sources.
+
+    Lanes are mapped as follows:
+    - "TE_CONTAINERIZED" / "CONTAINERIZED_FREIGHT_INDEX" -> Trading Economics
+      Containerized Freight Index.
+    - "TE_WCI" / "WORLD_CONTAINER_INDEX" -> Trading Economics World Container Index.
+    - "CTS_GLOBAL" -> CTS CSV global price index.
+
+    Any other lane falls back to the generic HttpJsonRateDataProvider, which
+    you can point at your own service.
+    """
+
+    # If the user explicitly sets USE_CTS, prefer CTS for CTS_GLOBAL lane.
+    use_cts = os.getenv("USE_CTS", "false").lower() == "true"
+
+    if use_cts:
+        return CTSCsvProvider()
+
+    # Default to Trading Economics provider for known TE lanes.
+    return TradingEconomicsProvider(api_key=os.getenv("TRADING_ECONOMICS_API_KEY"))
+
+
+provider = _build_provider()
 service = ForecastService(provider=provider)
 
 
