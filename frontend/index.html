@@ -385,7 +385,7 @@
     .alert.error { background: rgba(224,92,92,0.1); border: 1px solid rgba(224,92,92,0.25); color: #f08080; display: block; }
     .alert.info  { background: rgba(79,124,255,0.08); border: 1px solid rgba(79,124,255,0.2); color: #9ab2ff; display: block; }
 
-    /* ── Responsive ──────────────────────────────────── */
+    /* ── Responsive ─────────────────────────────────── */
     @media (max-width: 900px) {
       main {
         grid-template-columns: 1fr;
@@ -440,7 +440,27 @@
 
         <div class="field">
           <label for="inp-lane">Lane / Series</label>
-          <input id="inp-lane" type="text" placeholder="e.g. TE_WCI" value="TE_WCI" autocomplete="off" />
+          <select id="inp-lane">
+            <option value="Australasia &amp; Oceania to Europe Price Index (2026)">AO → Europe</option>
+            <option value="Australasia &amp; Oceania to North America Price Index (2026)">AO → North America</option>
+            <option value="Australasia &amp; Oceania to South &amp; Central America Price Index (2026)">AO → South &amp; Central America</option>
+            <option value="Australasia &amp; Oceania to Far East Price Index (2026)">AO → Far East</option>
+            <option value="Australasia &amp; Oceania to Sub Saharan Africa Price Index (2026)">AO → Sub Saharan Africa</option>
+            <option value="Australasia &amp; Oceania to Australasia &amp; Oceania Price Index (2026)">AO → AO</option>
+            <option value="Australasia &amp; Oceania to Indian Sub Cont &amp; Middle East Price Index (2026)">AO → ISC &amp; Middle East</option>
+            <option value="Europe to Europe Price Index (2026)">Europe → Europe</option>
+            <option value="Europe to Sub Saharan Africa Price Index (2026)">Europe → Sub Saharan Africa</option>
+            <option value="Europe to South &amp; Central America Price Index (2026)">Europe → South &amp; Central America</option>
+            <option value="Europe to Australasia &amp; Oceania Price Index (2026)">Europe → AO</option>
+            <option value="Europe to Far East Price Index (2026)">Europe → Far East</option>
+            <option value="Europe to North America Price Index (2026)">Europe → North America</option>
+            <option value="Europe to Indian Sub Cont &amp; Middle East Price Index (2026)">Europe → ISC &amp; Middle East</option>
+            <option value="Far East to South &amp; Central America Price Index (2026)">Far East → South &amp; Central America</option>
+            <option value="Far East to Europe Price Index (2026)">Far East → Europe</option>
+            <option value="Far East to Indian Sub Cont &amp; Middle East Price Index (2026)">Far East → ISC &amp; Middle East</option>
+            <option value="Far East to Australasia &amp; Oceania Price Index (2026)">Far East → AO</option>
+            <option value="Far East to North America Price Index (2026)">Far East → North America</option>
+          </select>
         </div>
 
         <div class="field">
@@ -468,9 +488,9 @@
       <div>
         <p class="sidebar-section-label">Quick Lanes</p>
         <div class="lane-chips">
-          <button class="lane-chip active" onclick="setLane('TE_WCI', this)">World Container Index</button>
-          <button class="lane-chip" onclick="setLane('TE_CONTAINERIZED', this)">Containerized Freight Index</button>
-          <button class="lane-chip" onclick="setLane('CTS_GLOBAL', this)">CTS Global</button>
+          <button class="lane-chip active" onclick="setLane('Australasia &amp; Oceania to Europe Price Index (2026)', this)">AO → Europe</button>
+          <button class="lane-chip" onclick="setLane('Far East to Europe Price Index (2026)', this)">Far East → Europe</button>
+          <button class="lane-chip" onclick="setLane('Far East to North America Price Index (2026)', this)">Far East → North America</button>
         </div>
       </div>
 
@@ -534,7 +554,7 @@
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
                 </svg>
               </div>
-              <p>Configure a lane and click Run Forecast</p>
+              <p>Choose a lane and click Run Forecast</p>
             </div>
             <canvas id="forecast-chart" style="display:none;"></canvas>
           </div>
@@ -583,11 +603,6 @@
 
 <script>
   /* ── API Bridge ──────────────────────────────────── */
-  /*
-   * Set window.AXION_API_BASE on the server before this script runs.
-   * Example: <script>window.AXION_API_BASE = 'https://your-domain.com';</script>
-   * All calls route through fetchAPI() so base URL is one place to change.
-   */
   function getBase() {
     const inp = document.getElementById('inp-base').value.trim();
     return inp || window.AXION_API_BASE || 'http://localhost:8000';
@@ -604,14 +619,12 @@
   /* ── State ───────────────────────────────────────── */
   let chartInstance = null;
 
-  /* ── Quick-lane helper ───────────────────────────── */
   function setLane(lane, btn) {
     document.getElementById('inp-lane').value = lane;
     document.querySelectorAll('.lane-chip').forEach(c => c.classList.remove('active'));
     if (btn) btn.classList.add('active');
   }
 
-  /* ── UI helpers ──────────────────────────────────── */
   function fmt(n) {
     if (n == null || isNaN(n)) return '—';
     return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n);
@@ -636,7 +649,6 @@
       : `<div class="status-dot" style="${text === 'Ready' ? '' : 'background:var(--amber)'}"></div><span>${text}</span>`;
   }
 
-  /* ── Run forecast ────────────────────────────────── */
   async function runForecast() {
     setAlert('', '');
     const btn = document.getElementById('btn-run');
@@ -669,7 +681,6 @@
     }
   }
 
-  /* ── Render ──────────────────────────────────────── */
   function renderResults(data) {
     const wf = data.weekly_forecast || [];
 
@@ -693,7 +704,6 @@
       data.lane + ' · ' + data.horizon_weeks + '-wk horizon · ' +
       data.num_paths.toLocaleString() + ' paths';
 
-    /* Chart */
     const labels   = wf.map(w => w.week_end);
     const p05      = wf.map(w => w.p05);
     const p50      = wf.map(w => w.p50);
@@ -792,7 +802,6 @@
       }
     });
 
-    /* Table */
     const tbody = document.getElementById('table-body');
     tbody.innerHTML = wf.map((w, i) => {
       const prev  = i === 0 ? data.last_observed_value : wf[i - 1].expected;
