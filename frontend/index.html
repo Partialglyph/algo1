@@ -1,447 +1,818 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Axion — Reimagining Neural Precision</title>
+  <title>Shipping Forecast</title>
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
-    /* ─── Design Tokens ─────────────────────── */
+    /* ── Tokens ─────────────────────────────────────── */
     :root {
-      --cream:   #f5f3ed;
-      --cream-2: #eeece5;
-      --dark:    #1a1814;
-      --dark-2:  #201e1b;
-      --text:    #1a1814;
-      --text-m:  #4a4840;
-      --border:  rgba(26,24,20,0.14);
+      --bg:        #0f1117;
+      --surface:   #161921;
+      --surface-2: #1c2030;
+      --border:    rgba(255,255,255,0.07);
+      --border-2:  rgba(255,255,255,0.12);
 
-      --font-display: 'Cormorant Garamond', Georgia, serif;
-      --font-body:    'DM Sans', 'Helvetica Neue', sans-serif;
+      --text:      #e8eaf0;
+      --text-m:    #8b909e;
+      --text-f:    #484e5c;
 
-      --text-xs:   clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem);
-      --text-sm:   clamp(0.875rem, 0.8rem  + 0.35vw, 1rem);
-      --text-base: clamp(1rem,     0.95rem + 0.25vw, 1.125rem);
-      --text-lg:   clamp(1.125rem, 1rem    + 0.75vw, 1.5rem);
-      --text-xl:   clamp(1.5rem,   1.2rem  + 1.25vw, 2.25rem);
-      --text-2xl:  clamp(2rem,     1.2rem  + 2.5vw,  3.5rem);
-      --text-3xl:  clamp(2.5rem,   1rem    + 4vw,    5rem);
+      --accent:    #4f7cff;
+      --accent-h:  #3a66e8;
+      --green:     #34c78a;
+      --red:       #e05c5c;
+      --amber:     #f5a623;
 
-      --space-1:  0.25rem;
-      --space-2:  0.5rem;
-      --space-3:  0.75rem;
-      --space-4:  1rem;
-      --space-5:  1.25rem;
-      --space-6:  1.5rem;
-      --space-8:  2rem;
-      --space-10: 2.5rem;
-      --space-12: 3rem;
-      --space-16: 4rem;
-      --space-20: 5rem;
-      --space-24: 6rem;
+      --font: 'Inter', 'Helvetica Neue', sans-serif;
 
-      --radius-sm: 0.25rem;
-      --transition: 180ms cubic-bezier(0.16,1,0.3,1);
+      --r-sm: 6px;
+      --r-md: 10px;
+      --r-lg: 14px;
+
+      --t: 160ms cubic-bezier(0.16,1,0.3,1);
     }
 
-    /* ─── Reset ──────────────────────────── */
+    /* ── Reset ──────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    html { -webkit-font-smoothing: antialiased; font-size: 16px; }
     body {
-      font-family: var(--font-body);
-      font-size: var(--text-base);
+      font-family: var(--font);
+      background: var(--bg);
       color: var(--text);
-      background: var(--cream);
       min-height: 100dvh;
-      line-height: 1.6;
+      line-height: 1.55;
     }
-    img { display: block; max-width: 100%; height: auto; }
-    button { cursor: pointer; background: none; border: none; font: inherit; }
+    button { cursor: pointer; font: inherit; }
+    input, select { font: inherit; color: inherit; }
     a { color: inherit; text-decoration: none; }
 
-    /* ─── Page wrapper — matches reference border ── */
-    .page-border {
-      max-width: 1080px;
-      margin: 0 auto;
-      border: 1px solid var(--border);
+    /* ── Layout ─────────────────────────────────────── */
+    .app {
+      display: grid;
+      grid-template-rows: 56px 1fr;
+      min-height: 100dvh;
+    }
+
+    /* ── Nav ─────────────────────────────────────────── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 clamp(16px, 3vw, 32px);
+      gap: 24px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .nav-logo-mark {
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      border-radius: var(--r-sm);
+      display: grid;
+      place-items: center;
+    }
+
+    .nav-logo-mark svg { width: 16px; height: 16px; }
+
+    .nav-spacer { flex: 1; }
+
+    .nav-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--text-m);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    /* ── Main content ────────────────────────────────── */
+    main {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      height: calc(100dvh - 56px);
       overflow: hidden;
     }
 
-    /* ─── HERO SECTION ─────────────────────── */
-    .hero {
-      background: var(--cream);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      min-height: 640px;
-      position: relative;
-    }
-
-    .hero-copy {
-      padding: clamp(var(--space-12), 6vw, var(--space-20)) clamp(var(--space-8), 5vw, var(--space-16));
+    /* ── Sidebar ─────────────────────────────────────── */
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      gap: var(--space-8);
+      gap: 28px;
     }
 
-    .hero h1 {
-      font-family: var(--font-display);
-      font-size: var(--text-3xl);
-      font-weight: 400;
-      line-height: 1.1;
-      letter-spacing: -0.01em;
-      color: var(--dark);
-      max-width: 12ch;
-    }
-
-    .hero-body {
-      font-size: var(--text-sm);
-      font-weight: 300;
-      color: var(--text-m);
-      max-width: 38ch;
-      line-height: 1.65;
-    }
-
-    .hero-tag {
-      display: inline-block;
-      background: var(--cream-2);
-      border: 1px solid var(--border);
-      font-family: var(--font-body);
-      font-size: var(--text-xs);
-      font-weight: 400;
-      letter-spacing: 0.08em;
+    .sidebar-section-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
+      color: var(--text-f);
+      margin-bottom: 10px;
+    }
+
+    /* Form controls */
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+
+    label {
+      font-size: 0.75rem;
+      font-weight: 500;
       color: var(--text-m);
-      padding: var(--space-3) var(--space-5);
-      align-self: flex-start;
     }
 
-    /* ─── Brain illustration panel ───────────── */
-    .hero-visual {
-      background: var(--dark);
-      position: relative;
-      overflow: hidden;
-      min-height: 560px;
+    input[type="text"], input[type="number"], select {
+      background: var(--bg);
+      border: 1px solid var(--border-2);
+      border-radius: var(--r-sm);
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      color: var(--text);
+      width: 100%;
+      outline: none;
+      transition: border-color var(--t);
     }
 
-    /* Pixel-art corner fragments */
-    .pixel-frag {
-      position: absolute;
-      background: var(--cream);
-    }
-    .pf-tl-1 { top: 0;   left: 0;  width: 36px; height: 36px; }
-    .pf-tl-2 { top: 36px; left: 0; width: 18px; height: 18px; }
-    .pf-br-1 { bottom: 0;  right: 0;  width: 64px; height: 36px; }
-    .pf-br-2 { bottom: 36px; right: 64px; width: 32px; height: 18px; }
-    .pf-br-3 { bottom: 36px; right: 0; width: 32px; height: 18px; }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus { border-color: var(--accent); }
 
-    /* Brain SVG wireframe */
-    .brain-wrap {
-      position: absolute;
-      inset: 0;
+    select { appearance: none; }
+
+    .btn-run {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--r-sm);
+      padding: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      transition: background var(--t), opacity var(--t);
+      margin-top: 4px;
+    }
+    .btn-run:hover { background: var(--accent-h); }
+    .btn-run:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    /* Lane chips */
+    .lane-chips {
       display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .brain-wrap svg {
-      width: 88%;
-      height: 88%;
-      opacity: 0.92;
+      flex-direction: column;
+      gap: 4px;
     }
 
-    /* ─── DARK SECTION ────────────────────── */
-    .dark-section {
-      background: var(--dark-2);
-      color: #d6d3cc;
-      padding: clamp(var(--space-10), 5vw, var(--space-16)) clamp(var(--space-8), 6vw, var(--space-16));
+    .lane-chip {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 7px 10px;
+      font-size: 0.78rem;
+      color: var(--text-m);
+      text-align: left;
+      transition: background var(--t), border-color var(--t), color var(--t);
+    }
+    .lane-chip:hover { background: var(--surface-2); color: var(--text); }
+    .lane-chip.active {
+      background: rgba(79,124,255,0.12);
+      border-color: rgba(79,124,255,0.35);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ── Content area ────────────────────────────────── */
+    .content {
+      overflow-y: auto;
+      padding: clamp(20px, 3vw, 36px);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ── KPI row ─────────────────────────────────────── */
+    .kpi-row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      align-items: center;
-      gap: var(--space-8);
-      min-height: 240px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
     }
 
-    .dark-section h2 {
-      font-family: var(--font-display);
-      font-size: var(--text-2xl);
-      font-weight: 300;
-      line-height: 1.15;
-      color: #f0ede6;
-      margin-bottom: var(--space-4);
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 18px 20px;
     }
 
-    .dark-section-body {
-      font-size: var(--text-sm);
-      font-weight: 300;
-      color: #8a877f;
-      max-width: 36ch;
-      line-height: 1.7;
-    }
-
-    .dark-section-right {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-    }
-
-    /* Dot grid decoration */
-    .dot-grid {
-      width: 220px;
-      height: 120px;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px);
-      background-size: 14px 14px;
-      border-radius: var(--radius-sm);
-    }
-
-    /* CTA Button */
-    .btn-cta {
-      display: inline-block;
-      background: var(--cream);
-      color: var(--dark);
-      font-family: var(--font-body);
-      font-size: var(--text-xs);
+    .kpi-label {
+      font-size: 0.7rem;
       font-weight: 500;
       letter-spacing: 0.07em;
       text-transform: uppercase;
-      padding: var(--space-3) var(--space-6);
-      border: 1px solid transparent;
-      transition: background var(--transition), color var(--transition);
-      cursor: pointer;
+      color: var(--text-m);
+      margin-bottom: 8px;
     }
-    .btn-cta:hover { background: #e8e5dd; }
 
-    /* ─── MARQUEE DIVIDER ─────────────────── */
-    .marquee-bar {
-      background: var(--dark-2);
-      border-top: 1px solid rgba(255,255,255,0.06);
-      overflow: hidden;
-      padding: var(--space-4) 0;
+    .kpi-value {
+      font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
     }
-    .marquee-track {
-      display: flex;
-      gap: var(--space-8);
-      font-family: var(--font-body);
-      font-size: var(--text-xs);
-      font-weight: 400;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #5a5751;
-      white-space: nowrap;
-      animation: marquee 22s linear infinite;
-    }
-    @keyframes marquee {
-      from { transform: translateX(0); }
-      to   { transform: translateX(-50%); }
-    }
-    .marquee-track span { flex-shrink: 0; }
 
-    /* ─── PARTNER LOGOS BAR ───────────────── */
-    .logos-bar {
-      background: var(--dark-2);
-      border-top: 1px solid rgba(255,255,255,0.06);
-      padding: var(--space-6) clamp(var(--space-8), 6vw, var(--space-16));
+    .kpi-delta {
+      font-size: 0.72rem;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+    .kpi-delta.up   { color: var(--green); }
+    .kpi-delta.down { color: var(--red); }
+    .kpi-delta.neu  { color: var(--text-m); }
+
+    /* ── Panel / card ────────────────────────────────── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+    }
+
+    .panel-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: var(--space-6);
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
     }
-    .logo-item {
+
+    .panel-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.01em;
+    }
+
+    .panel-sub {
+      font-size: 0.72rem;
+      color: var(--text-m);
+      margin-top: 2px;
+    }
+
+    .panel-body { padding: 20px; }
+
+    /* ── Chart area ──────────────────────────────────── */
+    .chart-area {
+      width: 100%;
+      height: 240px;
+      position: relative;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* ── Table ───────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    thead tr { border-bottom: 1px solid var(--border); }
+
+    th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-m);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--surface-2); }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 0.68rem;
+      font-weight: 600;
+    }
+    .tag-green { background: rgba(52,199,138,0.12); color: var(--green); }
+    .tag-red   { background: rgba(224,92,92,0.12);  color: var(--red); }
+    .tag-amber { background: rgba(245,166,35,0.12);  color: var(--amber); }
+
+    /* ── Empty state ─────────────────────────────────── */
+    .empty {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: var(--space-2);
-      opacity: 0.45;
-      filter: invert(1);
-    }
-    .logo-item svg { width: 20px; height: 20px; }
-    .logo-item span {
-      font-family: var(--font-body);
-      font-size: var(--text-xs);
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      color: #f0ede6;
+      justify-content: center;
+      gap: 10px;
+      padding: 60px 20px;
+      color: var(--text-m);
+      text-align: center;
     }
 
-    /* ─── API INTEGRATION HOOK ──────────────── */
-    /*
-      To connect this frontend to your algorithm backend:
-      1. Set window.AXION_API_BASE = 'https://your-domain.com/api'
-         (or use a <script> tag on your server that sets this)
-      2. Call fetchForecast(payload) anywhere in this file
-      3. The function returns a Promise<Response>
+    .empty-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      display: grid;
+      place-items: center;
+      color: var(--text-f);
+    }
 
-      Example usage:
-        fetchForecast({ region: 'north-sea', hours: 48 })
-          .then(r => r.json())
-          .then(data => renderForecast(data))
-    */
+    .empty p { font-size: 0.82rem; max-width: 28ch; line-height: 1.5; }
 
-    /* ─── Responsive ──────────────────────── */
-    @media (max-width: 720px) {
-      .hero { grid-template-columns: 1fr; }
-      .hero-visual { min-height: 320px; }
-      .dark-section { grid-template-columns: 1fr; }
-      .dark-section-right { justify-content: flex-start; }
-      .logos-bar { flex-wrap: wrap; gap: var(--space-4); justify-content: center; }
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border-2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Alert ───────────────────────────────────────── */
+    .alert { border-radius: var(--r-sm); padding: 10px 14px; font-size: 0.8rem; display: none; }
+    .alert.error { background: rgba(224,92,92,0.1); border: 1px solid rgba(224,92,92,0.25); color: #f08080; display: block; }
+    .alert.info  { background: rgba(79,124,255,0.08); border: 1px solid rgba(79,124,255,0.2); color: #9ab2ff; display: block; }
+
+    /* ── Responsive ──────────────────────────────────── */
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        height: auto;
+        overflow: visible;
+      }
+      .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .content { height: auto; }
+    }
+
+    @media (max-width: 560px) {
+      .kpi-row { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 360px) {
+      .kpi-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-<div class="page-border">
+<div class="app">
 
-  <!-- ── HERO ────────────────────────────── -->
-  <section class="hero">
-
-    <div class="hero-copy">
-      <h1>Reimagining Neural Precision, without Invasion.</h1>
-      <p class="hero-body">
-        Axion’s neural interface captures the same signal once thought possible only through surgery, yet it works entirely from the surface.
-      </p>
-      <div class="hero-tag">
-        No implants.&nbsp; Just science that listens, learns, and adapts.
-      </div>
-    </div>
-
-    <div class="hero-visual" role="img" aria-label="Wireframe illustration of a human brain">
-
-      <div class="pixel-frag pf-tl-1"></div>
-      <div class="pixel-frag pf-tl-2"></div>
-      <div class="pixel-frag pf-br-1"></div>
-      <div class="pixel-frag pf-br-2"></div>
-      <div class="pixel-frag pf-br-3"></div>
-
-      <div class="brain-wrap">
-        <svg viewBox="0 0 520 480" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <style>
-            .bn  { stroke: rgba(230,220,200,0.55); stroke-width: 0.6; fill: none; }
-            .bn2 { stroke: rgba(230,220,200,0.25); stroke-width: 0.4; fill: none; }
-          </style>
-          <path class="bn" d="M255 60 C230 48 190 50 165 65 C135 82 115 110 105 138 C92 172 90 208 95 240 C100 270 110 298 125 320 C140 344 158 362 175 372 C192 382 210 380 228 378 C238 376 248 372 255 368 C262 372 272 376 282 378 C300 380 318 382 335 372 C352 362 370 344 385 320 C400 298 410 270 415 240 C420 208 418 172 405 138 C395 110 375 82 345 65 C320 50 280 48 255 60Z"/>
-          <path class="bn2" d="M175 100 C200 90 230 88 255 92 C280 88 310 90 335 100"/>
-          <path class="bn2" d="M140 150 C170 135 210 128 255 132 C300 128 340 135 370 150"/>
-          <path class="bn2" d="M120 200 C155 185 200 178 255 180 C310 178 355 185 390 200"/>
-          <path class="bn2" d="M118 250 C155 238 200 232 255 234 C310 232 355 238 392 250"/>
-          <path class="bn2" d="M122 300 C158 290 202 285 255 287 C308 285 352 290 388 300"/>
-          <path class="bn2" d="M175 75 C172 120 170 180 172 240 C174 300 178 345 185 370"/>
-          <path class="bn2" d="M210 68 C208 115 207 180 208 245 C209 310 212 355 218 375"/>
-          <path class="bn2" d="M255 60 C255 120 255 200 255 280 C255 340 255 365 255 370"/>
-          <path class="bn2" d="M300 68 C302 115 303 180 302 245 C301 310 298 355 292 375"/>
-          <path class="bn2" d="M335 75 C338 120 340 180 338 240 C336 300 332 345 325 370"/>
-          <path class="bn" d="M195 78 C193 130 190 200 192 265 C194 320 198 355 204 372" stroke-width="0.9" stroke="rgba(230,220,200,0.7)"/>
-          <path class="bn" d="M315 78 C317 130 320 200 318 265 C316 320 312 355 306 372" stroke-width="0.9" stroke="rgba(230,220,200,0.7)"/>
-          <ellipse class="bn" cx="255" cy="400" rx="72" ry="38" stroke="rgba(230,220,200,0.45)"/>
-          <path class="bn2" d="M200 395 C225 388 245 385 255 386 C265 385 285 388 310 395"/>
-          <path class="bn2" d="M195 408 C220 400 242 396 255 397 C268 396 290 400 315 408"/>
-          <path class="bn" d="M240 435 C242 450 244 462 245 470 L265 470 C266 462 268 450 270 435" stroke="rgba(230,220,200,0.4)"/>
-          <circle cx="160" cy="160" r="2" fill="rgba(230,220,200,0.3)"/>
-          <circle cx="200" cy="130" r="1.5" fill="rgba(230,220,200,0.3)"/>
-          <circle cx="255" cy="145" r="2" fill="rgba(230,220,200,0.35)"/>
-          <circle cx="310" cy="130" r="1.5" fill="rgba(230,220,200,0.3)"/>
-          <circle cx="350" cy="160" r="2" fill="rgba(230,220,200,0.3)"/>
-          <circle cx="145" cy="220" r="1.5" fill="rgba(230,220,200,0.25)"/>
-          <circle cx="365" cy="220" r="1.5" fill="rgba(230,220,200,0.25)"/>
-          <path class="bn2" d="M160 160 L200 130 L255 145 L310 130 L350 160"/>
-          <path class="bn2" d="M145 220 L192 200 L255 208 L318 200 L365 220"/>
-          <path class="bn2" d="M130 270 L178 255 L255 260 L332 255 L380 270"/>
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">
+      <div class="nav-logo-mark">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M2 12 L5 6 L8 9 L11 4 L14 8" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
+      Shipping Forecast
     </div>
-
-  </section>
-
-  <!-- ── DARK / LIFE HANDS-FREE ─────────────── -->
-  <section class="dark-section">
-    <div class="dark-section-copy">
-      <h2>Life, hands-free.</h2>
-      <p class="dark-section-body">
-        With a lightweight headband and intuitive interface, users can navigate, communicate, and connect using only thought and gaze.
-      </p>
+    <div class="nav-spacer"></div>
+    <div class="nav-status" id="nav-status">
+      <div class="status-dot"></div>
+      <span>Ready</span>
     </div>
-    <div class="dark-section-right">
-      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:var(--space-6);">
-        <div class="dot-grid"></div>
-        <button class="btn-cta" type="button">Check out the team</button>
+  </nav>
+
+  <main>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <div>
+        <p class="sidebar-section-label">Configuration</p>
+
+        <div class="field">
+          <label for="inp-lane">Lane / Series</label>
+          <input id="inp-lane" type="text" placeholder="e.g. TE_WCI" value="TE_WCI" autocomplete="off" />
+        </div>
+
+        <div class="field">
+          <label for="inp-horizon">Forecast Horizon (weeks)</label>
+          <input id="inp-horizon" type="number" min="1" max="52" value="8" />
+        </div>
+
+        <div class="field">
+          <label for="inp-paths">Monte Carlo Paths</label>
+          <input id="inp-paths" type="number" min="100" max="100000" value="5000" />
+        </div>
+
+        <div class="field">
+          <label for="inp-lookback">Lookback Period (days)</label>
+          <input id="inp-lookback" type="number" min="60" max="1825" value="365" />
+        </div>
+
+        <button class="btn-run" id="btn-run" type="button" onclick="runForecast()">
+          Run Forecast
+        </button>
       </div>
-    </div>
-  </section>
 
-  <!-- ── MARQUEE DIVIDER ───────────────────── -->
-  <div class="marquee-bar" aria-hidden="true">
-    <div class="marquee-track">
-      <span>We’re collaborating with top rehabilitation hospitals to validate Axion’s technology through real-world pilots</span>
-      <span>&nbsp;&nbsp;&middot;&nbsp;&nbsp;</span>
-      <span>We’re collaborating with top rehabilitation hospitals to validate Axion’s technology through real-world pilots</span>
-      <span>&nbsp;&nbsp;&middot;&nbsp;&nbsp;</span>
-      <span>We’re collaborating with top rehabilitation hospitals to validate Axion’s technology through real-world pilots</span>
-      <span>&nbsp;&nbsp;&middot;&nbsp;&nbsp;</span>
-    </div>
-  </div>
+      <div class="divider"></div>
 
-  <!-- ── PARTNER LOGOS ────────────────────── -->
-  <div class="logos-bar">
-    <div class="logo-item">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor" opacity="0.5"/>
-      </svg>
-      <span>Logoipsum</span>
-    </div>
-    <div class="logo-item">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect x="3" y="3" width="8" height="8" rx="1.5" fill="currentColor" opacity="0.45"/>
-        <rect x="13" y="3" width="8" height="8" rx="1.5" fill="currentColor" opacity="0.3"/>
-        <rect x="3" y="13" width="8" height="8" rx="1.5" fill="currentColor" opacity="0.3"/>
-        <rect x="13" y="13" width="8" height="8" rx="1.5" fill="currentColor" opacity="0.5"/>
-      </svg>
-      <span>Logoipsum University</span>
-    </div>
-    <div class="logo-item">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4" opacity="0.6"/>
-        <path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="1.4" opacity="0.6"/>
-      </svg>
-      <span>Logoipsum</span>
-    </div>
-    <div class="logo-item">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M12 3l9 18H3L12 3z" stroke="currentColor" stroke-width="1.4" fill="none" opacity="0.55"/>
-        <circle cx="12" cy="16" r="1.5" fill="currentColor" opacity="0.55"/>
-      </svg>
-      <span>Logoipsum Foundation</span>
-    </div>
-  </div>
+      <div>
+        <p class="sidebar-section-label">Quick Lanes</p>
+        <div class="lane-chips">
+          <button class="lane-chip active" onclick="setLane('TE_WCI', this)">World Container Index</button>
+          <button class="lane-chip" onclick="setLane('TE_CONTAINERIZED', this)">Containerized Freight Index</button>
+          <button class="lane-chip" onclick="setLane('CTS_GLOBAL', this)">CTS Global</button>
+        </div>
+      </div>
 
-</div><!-- .page-border -->
+      <div class="divider"></div>
+
+      <div>
+        <p class="sidebar-section-label">API Endpoint</p>
+        <div class="field">
+          <label for="inp-base">Base URL</label>
+          <input id="inp-base" type="text" placeholder="http://localhost:8000" value="" />
+        </div>
+        <p style="font-size:0.7rem; color:var(--text-f); line-height:1.5;">
+          Leave blank to use <code style="background:var(--surface-2);padding:1px 4px;border-radius:3px;font-size:0.68rem;">window.AXION_API_BASE</code> or localhost.
+        </p>
+      </div>
+
+    </aside>
+
+    <!-- CONTENT -->
+    <section class="content">
+
+      <div class="alert" id="alert"></div>
+
+      <!-- KPI row -->
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-label">Last Observed</div>
+          <div class="kpi-value" id="kpi-last">—</div>
+          <div class="kpi-delta neu" id="kpi-last-date"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">8-Wk Median (p50)</div>
+          <div class="kpi-value" id="kpi-p50">—</div>
+          <div class="kpi-delta neu" id="kpi-p50-label">Week-end projection</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Upside (p95)</div>
+          <div class="kpi-value" id="kpi-p95">—</div>
+          <div class="kpi-delta up" id="kpi-p95-delta"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Annualised Vol.</div>
+          <div class="kpi-value" id="kpi-vol">—</div>
+          <div class="kpi-delta neu">Realised volatility</div>
+        </div>
+      </div>
+
+      <!-- Chart panel -->
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Weekly Forecast</div>
+            <div class="panel-sub" id="chart-sub">Run a forecast to see projections</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="chart-area" id="chart-area">
+            <div class="empty" id="chart-empty">
+              <div class="empty-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+              </div>
+              <p>Configure a lane and click Run Forecast</p>
+            </div>
+            <canvas id="forecast-chart" style="display:none;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table panel -->
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Weekly Breakdown</div>
+            <div class="panel-sub">p05 / p50 / p95 confidence intervals</div>
+          </div>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <div class="table-wrap">
+            <table id="forecast-table">
+              <thead>
+                <tr>
+                  <th>Week end</th>
+                  <th>Expected</th>
+                  <th>p05</th>
+                  <th>p50</th>
+                  <th>p95</th>
+                  <th>Signal</th>
+                </tr>
+              </thead>
+              <tbody id="table-body">
+                <tr>
+                  <td colspan="6">
+                    <div class="empty" style="padding:40px 20px;"><p>No data yet</p></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
+  /* ── API Bridge ──────────────────────────────────── */
   /*
-   * AXION FRONTEND — API BRIDGE
-   * -------------------------------------------------------
-   * When a domain is provisioned and the shipping_forecast
-   * algorithm is deployed, set AXION_API_BASE to the root URL
-   * of the backend (e.g. https://axion.yourdomain.com).
-   *
-   * All fetch calls should go through fetchAPI() so headers
-   * and base URL are managed in one place.
-   *
-   * Example:
-   *   fetchAPI('/forecast', { method: 'POST', body: JSON.stringify(payload) })
-   *     .then(r => r.json())
-   *     .then(data => renderForecast(data))
+   * Set window.AXION_API_BASE on the server before this script runs.
+   * Example: <script>window.AXION_API_BASE = 'https://your-domain.com';</script>
+   * All calls route through fetchAPI() so base URL is one place to change.
    */
-  const AXION_API_BASE = window.AXION_API_BASE || '';
-
-  function fetchAPI(path, options = {}) {
-    const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
-    return fetch(AXION_API_BASE + path, { ...options, headers });
+  function getBase() {
+    const inp = document.getElementById('inp-base').value.trim();
+    return inp || window.AXION_API_BASE || 'http://localhost:8000';
   }
 
-  // Expose globally for other scripts or inline handlers
-  window.axionAPI = { fetch: fetchAPI, base: AXION_API_BASE };
+  function fetchAPI(path, options = {}) {
+    const base = getBase().replace(/\/$/, '');
+    const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+    return fetch(base + path, { ...options, headers });
+  }
+
+  window.axionAPI = { fetch: fetchAPI };
+
+  /* ── State ───────────────────────────────────────── */
+  let chartInstance = null;
+
+  /* ── Quick-lane helper ───────────────────────────── */
+  function setLane(lane, btn) {
+    document.getElementById('inp-lane').value = lane;
+    document.querySelectorAll('.lane-chip').forEach(c => c.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  }
+
+  /* ── UI helpers ──────────────────────────────────── */
+  function fmt(n) {
+    if (n == null || isNaN(n)) return '—';
+    return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n);
+  }
+
+  function fmtPct(n) {
+    if (n == null || isNaN(n)) return '—';
+    return (n * 100).toFixed(1) + '%';
+  }
+
+  function setAlert(msg, type) {
+    const el = document.getElementById('alert');
+    if (!msg) { el.className = 'alert'; el.textContent = ''; return; }
+    el.className = 'alert ' + type;
+    el.textContent = msg;
+  }
+
+  function setStatus(text, loading) {
+    const el = document.getElementById('nav-status');
+    el.innerHTML = loading
+      ? `<div class="spinner"></div><span>${text}</span>`
+      : `<div class="status-dot" style="${text === 'Ready' ? '' : 'background:var(--amber)'}"></div><span>${text}</span>`;
+  }
+
+  /* ── Run forecast ────────────────────────────────── */
+  async function runForecast() {
+    setAlert('', '');
+    const btn = document.getElementById('btn-run');
+    btn.disabled = true;
+    btn.textContent = 'Running…';
+    setStatus('Fetching…', true);
+
+    const payload = {
+      lane:          document.getElementById('inp-lane').value.trim(),
+      horizon_weeks: parseInt(document.getElementById('inp-horizon').value) || 8,
+      num_paths:     parseInt(document.getElementById('inp-paths').value)   || 5000,
+      lookback_days: parseInt(document.getElementById('inp-lookback').value) || 365,
+    };
+
+    try {
+      const res = await fetchAPI('/forecast', { method: 'POST', body: JSON.stringify(payload) });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: res.statusText }));
+        throw new Error(err.detail || 'Request failed');
+      }
+      const data = await res.json();
+      renderResults(data);
+      setStatus('Updated');
+    } catch (e) {
+      setAlert('Could not reach the API: ' + e.message + '. Make sure the backend is running and the base URL is set correctly.', 'error');
+      setStatus('Error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Run Forecast';
+    }
+  }
+
+  /* ── Render ──────────────────────────────────────── */
+  function renderResults(data) {
+    const wf = data.weekly_forecast || [];
+
+    document.getElementById('kpi-last').textContent      = fmt(data.last_observed_value);
+    document.getElementById('kpi-last-date').textContent = data.last_observed_date || '';
+    document.getElementById('kpi-vol').textContent       = fmtPct(data.annualized_volatility);
+
+    if (wf.length) {
+      const last = wf[wf.length - 1];
+      document.getElementById('kpi-p50').textContent      = fmt(last.p50);
+      document.getElementById('kpi-p50-label').textContent = 'At week ' + data.horizon_weeks;
+      document.getElementById('kpi-p95').textContent      = fmt(last.p95);
+
+      const delta = ((last.p95 - data.last_observed_value) / data.last_observed_value * 100);
+      const dEl   = document.getElementById('kpi-p95-delta');
+      dEl.textContent = (delta >= 0 ? '+' : '') + delta.toFixed(1) + '% vs last observed';
+      dEl.className   = 'kpi-delta ' + (delta >= 0 ? 'up' : 'down');
+    }
+
+    document.getElementById('chart-sub').textContent =
+      data.lane + ' · ' + data.horizon_weeks + '-wk horizon · ' +
+      data.num_paths.toLocaleString() + ' paths';
+
+    /* Chart */
+    const labels   = wf.map(w => w.week_end);
+    const p05      = wf.map(w => w.p05);
+    const p50      = wf.map(w => w.p50);
+    const p95      = wf.map(w => w.p95);
+    const expected = wf.map(w => w.expected);
+
+    document.getElementById('chart-empty').style.display = 'none';
+    const canvas = document.getElementById('forecast-chart');
+    canvas.style.display = 'block';
+
+    if (chartInstance) chartInstance.destroy();
+    const ctx = canvas.getContext('2d');
+
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'p95',
+            data: p95,
+            borderColor: 'rgba(79,124,255,0.3)',
+            backgroundColor: 'rgba(79,124,255,0.07)',
+            borderWidth: 1,
+            pointRadius: 0,
+            fill: '+2',
+            tension: 0.3,
+          },
+          {
+            label: 'Expected',
+            data: expected,
+            borderColor: '#4f7cff',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: '#4f7cff',
+            tension: 0.3,
+          },
+          {
+            label: 'p50',
+            data: p50,
+            borderColor: '#34c78a',
+            backgroundColor: 'transparent',
+            borderWidth: 1.5,
+            borderDash: [4, 3],
+            pointRadius: 0,
+            tension: 0.3,
+          },
+          {
+            label: 'p05',
+            data: p05,
+            borderColor: 'rgba(79,124,255,0.3)',
+            backgroundColor: 'transparent',
+            borderWidth: 1,
+            pointRadius: 0,
+            tension: 0.3,
+          },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              color: '#8b909e',
+              boxWidth: 12,
+              font: { family: 'Inter', size: 11 },
+              padding: 16,
+            }
+          },
+          tooltip: {
+            backgroundColor: '#1c2030',
+            borderColor: 'rgba(255,255,255,0.07)',
+            borderWidth: 1,
+            titleColor: '#e8eaf0',
+            bodyColor: '#8b909e',
+            padding: 10,
+            callbacks: {
+              label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y),
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid:  { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, maxRotation: 0 },
+          },
+          y: {
+            grid:  { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, callback: v => fmt(v) },
+          }
+        }
+      }
+    });
+
+    /* Table */
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = wf.map((w, i) => {
+      const prev  = i === 0 ? data.last_observed_value : wf[i - 1].expected;
+      const trend = w.expected > prev * 1.005 ? 'up' : w.expected < prev * 0.995 ? 'down' : 'flat';
+      const tag   = trend === 'up'
+        ? '<span class="tag tag-green">&#8593; Rising</span>'
+        : trend === 'down'
+        ? '<span class="tag tag-red">&#8595; Falling</span>'
+        : '<span class="tag tag-amber">&#8594; Flat</span>';
+
+      return `<tr>
+        <td>${w.week_end}</td>
+        <td>${fmt(w.expected)}</td>
+        <td>${fmt(w.p05)}</td>
+        <td>${fmt(w.p50)}</td>
+        <td>${fmt(w.p95)}</td>
+        <td>${tag}</td>
+      </tr>`;
+    }).join('');
+  }
 </script>
 
 </body>
