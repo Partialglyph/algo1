@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field, validator
 
@@ -39,6 +39,18 @@ class ForecastRequest(BaseModel):
         return v
 
 
+class EventRiskResponse(BaseModel):
+    """Event intelligence overlay returned alongside every forecast."""
+    regime_label: str
+    net_risk_score: float
+    sigma_multiplier: float
+    delta_mu_daily: float
+    explanation: List[str]
+    article_count: int
+    disruption_count: int
+    top_headlines: List[str]
+
+
 class ForecastResponse(BaseModel):
     lane: str
     generated_at: datetime
@@ -46,6 +58,8 @@ class ForecastResponse(BaseModel):
     num_paths: int
     last_observed_date: date
     last_observed_value: float
+    historical_points: List[RatePoint] = Field(default_factory=list)
     daily_forecast: List[DailyForecastPoint]
     weekly_forecast: List[WeeklyForecastPoint]
     annualized_volatility: float
+    event_risk: Optional[EventRiskResponse] = None
