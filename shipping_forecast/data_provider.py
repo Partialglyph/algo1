@@ -203,3 +203,120 @@ class CTSCsvProvider(RateDataProvider):
 
         points.sort(key=lambda rp: rp.date)
         return points
+
+class ExcelDataProvider(RateDataProvider):
+    """
+    Parses the wide-format shipping index Excel file where each lane is laid out as:
+
+      Row N:   <lane name>                      (col 0, may have leading space)
+      Row N+1: Year, Jan, Feb, Mar, ..., Dec    (col 0 = "Year", cols 1-12 = month names)
+      Row N+2: 2026, 98, 109, ...               (col 0 = year int, cols 1-12 = index values)
+      Row N+3: 2025, 118, 135, ...
+      Row N+4: Change: ...
+      Row N+5: *All Cargo types
+    """
+
+    MONTH_MAP = {
+        "jan": 1, "feb": 2, "mar": 3, "apr": 4,
+        "may": 5, "jun": 6, "jul": 7, "aug": 8,
+        "sep": 9, "oct": 10, "nov": 11, "dec": 12,
+    }
+
+    def __init__(self, xlsx_path: Optional[str] = None) -> None:
+        self._xlsx_path = xlsx_path or settings.EXCEL_DATA_PATH
+
+    async def get_historical_rates(
+        self,
+        lane: str,
+        start_date: date,
+        end_date: date,
+    ) -> List[RatePoint]:
+        import calendar
+        from pathlib import Path
+
+        try:
+            import pandas as pd
+        except ImportError as exc:
+            raise ValueError("pandas is required for ExcelDataProvider. Run: pip install pandas openpyxl") from exc
+
+        path = Path(self._xlsx_path)
+        if not path.exists():
+            raise ValueError(
+                f"Excel data file not found at '{path}'. "
+                f"Make sure data.xlsx is in the project root (C:\\Users\\owenk\\algo1)."
+            )
+
+        df = pd.read_excel(path, sheet_name=0, header=None)
+        lane_clean = lane.strip().lower()
+
+        # Find the row where col 0 matches the lane name
+        match_idx = None
+        for i in range(len(df)):
+            cell = str(df.iloc[i, 0]).strip().lower()
+            if cell == lane_clean:
+                match_idx = i
+                break
+
+        if match_idx is None:
+            raise ValueError(
+                f"Lane '{lane}' not found in Excel file. "
+                f"Check that the lane name exactly matches a section header in data.xlsx."
+            )
+
+        # Row after lane name should be: Year, Jan, Feb, ... Dec
+        header_row = df.iloc[match_idx + 1]
+        headers = [str(h).strip().lower() for h in header_row]
+
+        if headers[0] != "year":
+            raise ValueError(
+                f"Expected 'Year' header row after lane name at row {match_idx + 1}, "
+                f"got '{headers[0]}'."
+            )
+
+        # Map month name -> column index
+        month_col: dict = {}
+        for col_i, h in enumerate(headers):
+            if h in self.MONTH_MAP:
+                month_col[h] = col_i
+
+        # Read year data rows until Change: or *All Cargo types
+        points: List[RatePoint] = []
+        for row_i in range(match_idx + 2, min(match_idx + 20, len(df))):
+            row = df.iloc[row_i]
+            year_raw = str(row.iloc[0]).strip()
+
+            if year_raw.startswith("Change") or year_raw.startswith("*") or year_raw in ("nan", ""):
+                break
+
+            try:
+                year = int(float(year_raw))
+            except (ValueError, TypeError):
+                break
+
+            for month_name, col_i in month_col.items():
+                raw = row.iloc[col_i]
+                if pd.isna(raw):
+                    continue
+                try:
+                    value = float(raw)
+                except (ValueError, TypeError):
+                    continue
+
+                month_num = self.MONTH_MAP[month_name]
+                last_day = calendar.monthrange(year, month_num)[1]
+                d = date(year, month_num, last_day)
+
+                if start_date <= d <= end_date:
+                    points.append(RatePoint(date=d, value=max(value, settings.MIN_PRICE)))
+
+        points.sort(key=lambda rp: rp.date)
+
+        if len(points) < settings.MIN_DATA_POINTS:
+            raise ValueError(
+                f"Only {len(points)} data points found for lane '{lane}' "
+                f"in the date range {start_date} to {end_date}. "
+                f"Need at least {settings.MIN_DATA_POINTS}. "
+                f"Try increasing lookback_days to 730 or more."
+            )
+
+        return points
