@@ -39,6 +39,11 @@ class ForecastRequest(BaseModel):
         return v
 
 
+class LaneListResponse(BaseModel):
+    """Response model for the /lanes endpoint."""
+    lanes: List[str]
+
+
 class EventRiskResponse(BaseModel):
     """Event intelligence overlay returned alongside every forecast."""
     regime_label: str
