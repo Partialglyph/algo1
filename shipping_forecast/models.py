@@ -1,12 +1,17 @@
 from datetime import date, datetime
 from typing import List
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class RatePoint(BaseModel):
     date: date
     value: float = Field(..., gt=0.0)
+
+
+class HistoricalPoint(BaseModel):
+    date: date
+    value: float
 
 
 class DailyForecastPoint(BaseModel):
@@ -31,8 +36,9 @@ class ForecastRequest(BaseModel):
     num_paths: int = Field(5000, ge=100, le=100_000)
     lookback_days: int = Field(365, ge=60, le=1825)
 
-    @validator("lane")
-    def lane_not_empty(cls, v: str) -> str:  # type: ignore[override]
+    @field_validator("lane")
+    @classmethod
+    def lane_not_empty(cls, v: str) -> str:
         v = v.strip()
         if not v:
             raise ValueError("lane must not be empty")
@@ -46,6 +52,11 @@ class ForecastResponse(BaseModel):
     num_paths: int
     last_observed_date: date
     last_observed_value: float
+    historical_points: List[HistoricalPoint]
     daily_forecast: List[DailyForecastPoint]
     weekly_forecast: List[WeeklyForecastPoint]
     annualized_volatility: float
+
+
+class LaneListResponse(BaseModel):
+    lanes: List[str]

@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta
 
 from .data_provider import RateDataProvider
 from .mc_model import MonteCarloShippingForecaster
-from .models import ForecastRequest, ForecastResponse
+from .models import ForecastRequest, ForecastResponse, HistoricalPoint
 from . import settings
 
 
@@ -37,6 +37,12 @@ class ForecastService:
         weekly = forecaster.summarize_weekly(daily)
         sigma_annual = forecaster.estimate_annualized_volatility(paths)
 
+        historical_tail = history[-18:]
+        historical_points = [
+            HistoricalPoint(date=p.date, value=p.value)
+            for p in historical_tail
+        ]
+
         return ForecastResponse(
             lane=req.lane,
             generated_at=datetime.utcnow(),
@@ -44,6 +50,7 @@ class ForecastService:
             num_paths=req.num_paths,
             last_observed_date=last_point.date,
             last_observed_value=last_point.value,
+            historical_points=historical_points,
             daily_forecast=daily,
             weekly_forecast=weekly,
             annualized_volatility=sigma_annual,

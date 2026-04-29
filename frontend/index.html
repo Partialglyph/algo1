@@ -10,7 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
-    /* ── Tokens ─────────────────────────────────────── */
     :root {
       --bg:        #0f1117;
       --surface:   #161921;
@@ -37,9 +36,13 @@
       --t: 160ms cubic-bezier(0.16,1,0.3,1);
     }
 
-    /* ── Reset ──────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { -webkit-font-smoothing: antialiased; font-size: 16px; }
+
+    html {
+      -webkit-font-smoothing: antialiased;
+      font-size: 16px;
+    }
+
     body {
       font-family: var(--font);
       background: var(--bg);
@@ -47,18 +50,17 @@
       min-height: 100dvh;
       line-height: 1.55;
     }
+
     button { cursor: pointer; font: inherit; }
     input, select { font: inherit; color: inherit; }
     a { color: inherit; text-decoration: none; }
 
-    /* ── Layout ─────────────────────────────────────── */
     .app {
       display: grid;
       grid-template-rows: 56px 1fr;
       min-height: 100dvh;
     }
 
-    /* ── Nav ─────────────────────────────────────────── */
     nav {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -110,7 +112,6 @@
       background: var(--green);
     }
 
-    /* ── Main content ────────────────────────────────── */
     main {
       display: grid;
       grid-template-columns: 280px 1fr;
@@ -118,7 +119,6 @@
       overflow: hidden;
     }
 
-    /* ── Sidebar ─────────────────────────────────────── */
     .sidebar {
       background: var(--surface);
       border-right: 1px solid var(--border);
@@ -138,8 +138,12 @@
       margin-bottom: 10px;
     }
 
-    /* Form controls */
-    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
 
     label {
       font-size: 0.75rem;
@@ -161,7 +165,9 @@
 
     input[type="text"]:focus,
     input[type="number"]:focus,
-    select:focus { border-color: var(--accent); }
+    select:focus {
+      border-color: var(--accent);
+    }
 
     select { appearance: none; }
 
@@ -178,6 +184,7 @@
       transition: background var(--t), opacity var(--t);
       margin-top: 4px;
     }
+
     .btn-run:hover { background: var(--accent-h); }
     .btn-run:disabled { opacity: 0.45; cursor: not-allowed; }
 
@@ -187,7 +194,6 @@
       margin: 4px 0;
     }
 
-    /* Lane chips */
     .lane-chips {
       display: flex;
       flex-direction: column;
@@ -204,7 +210,9 @@
       text-align: left;
       transition: background var(--t), border-color var(--t), color var(--t);
     }
+
     .lane-chip:hover { background: var(--surface-2); color: var(--text); }
+
     .lane-chip.active {
       background: rgba(79,124,255,0.12);
       border-color: rgba(79,124,255,0.35);
@@ -212,7 +220,6 @@
       font-weight: 500;
     }
 
-    /* ── Content area ────────────────────────────────── */
     .content {
       overflow-y: auto;
       padding: clamp(20px, 3vw, 36px);
@@ -221,7 +228,6 @@
       gap: 24px;
     }
 
-    /* ── KPI row ─────────────────────────────────────── */
     .kpi-row {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -257,11 +263,11 @@
       font-weight: 500;
       margin-top: 4px;
     }
+
     .kpi-delta.up   { color: var(--green); }
     .kpi-delta.down { color: var(--red); }
     .kpi-delta.neu  { color: var(--text-m); }
 
-    /* ── Panel / card ────────────────────────────────── */
     .panel {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -291,10 +297,9 @@
 
     .panel-body { padding: 20px; }
 
-    /* ── Chart area ──────────────────────────────────── */
     .chart-area {
       width: 100%;
-      height: 240px;
+      height: 280px;
       position: relative;
     }
 
@@ -303,7 +308,6 @@
       height: 100% !important;
     }
 
-    /* ── Table ───────────────────────────────────────── */
     .table-wrap { overflow-x: auto; }
 
     table {
@@ -342,11 +346,11 @@
       font-size: 0.68rem;
       font-weight: 600;
     }
-    .tag-green { background: rgba(52,199,138,0.12); color: var(--green); }
-    .tag-red   { background: rgba(224,92,92,0.12);  color: var(--red); }
-    .tag-amber { background: rgba(245,166,35,0.12);  color: var(--amber); }
 
-    /* ── Empty state ─────────────────────────────────── */
+    .tag-green { background: rgba(52,199,138,0.12); color: var(--green); }
+    .tag-red   { background: rgba(224,92,92,0.12); color: var(--red); }
+    .tag-amber { background: rgba(245,166,35,0.12); color: var(--amber); }
+
     .empty {
       display: flex;
       flex-direction: column;
@@ -368,7 +372,11 @@
       color: var(--text-f);
     }
 
-    .empty p { font-size: 0.82rem; max-width: 28ch; line-height: 1.5; }
+    .empty p {
+      font-size: 0.82rem;
+      max-width: 28ch;
+      line-height: 1.5;
+    }
 
     .spinner {
       width: 20px;
@@ -378,14 +386,36 @@
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
     }
+
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Alert ───────────────────────────────────────── */
-    .alert { border-radius: var(--r-sm); padding: 10px 14px; font-size: 0.8rem; display: none; }
-    .alert.error { background: rgba(224,92,92,0.1); border: 1px solid rgba(224,92,92,0.25); color: #f08080; display: block; }
-    .alert.info  { background: rgba(79,124,255,0.08); border: 1px solid rgba(79,124,255,0.2); color: #9ab2ff; display: block; }
+    .alert {
+      border-radius: var(--r-sm);
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      display: none;
+    }
 
-    /* ── Responsive ─────────────────────────────────── */
+    .alert.error {
+      background: rgba(224,92,92,0.1);
+      border: 1px solid rgba(224,92,92,0.25);
+      color: #f08080;
+      display: block;
+    }
+
+    .alert.info {
+      background: rgba(79,124,255,0.08);
+      border: 1px solid rgba(79,124,255,0.2);
+      color: #9ab2ff;
+      display: block;
+    }
+
+    .chart-footnote {
+      margin-top: 10px;
+      font-size: 0.72rem;
+      color: var(--text-f);
+    }
+
     @media (max-width: 900px) {
       main {
         grid-template-columns: 1fr;
@@ -393,10 +423,12 @@
         height: auto;
         overflow: visible;
       }
+
       .sidebar {
         border-right: none;
         border-bottom: 1px solid var(--border);
       }
+
       .content { height: auto; }
     }
 
@@ -412,8 +444,6 @@
 <body>
 
 <div class="app">
-
-  <!-- NAV -->
   <nav>
     <div class="nav-logo">
       <div class="nav-logo-mark">
@@ -431,35 +461,14 @@
   </nav>
 
   <main>
-
-    <!-- SIDEBAR -->
     <aside class="sidebar">
-
       <div>
         <p class="sidebar-section-label">Configuration</p>
 
         <div class="field">
           <label for="inp-lane">Lane / Series</label>
           <select id="inp-lane">
-            <option value="Australasia &amp; Oceania to Europe Price Index (2026)">AO → Europe</option>
-            <option value="Australasia &amp; Oceania to North America Price Index (2026)">AO → North America</option>
-            <option value="Australasia &amp; Oceania to South &amp; Central America Price Index (2026)">AO → South &amp; Central America</option>
-            <option value="Australasia &amp; Oceania to Far East Price Index (2026)">AO → Far East</option>
-            <option value="Australasia &amp; Oceania to Sub Saharan Africa Price Index (2026)">AO → Sub Saharan Africa</option>
-            <option value="Australasia &amp; Oceania to Australasia &amp; Oceania Price Index (2026)">AO → AO</option>
-            <option value="Australasia &amp; Oceania to Indian Sub Cont &amp; Middle East Price Index (2026)">AO → ISC &amp; Middle East</option>
-            <option value="Europe to Europe Price Index (2026)">Europe → Europe</option>
-            <option value="Europe to Sub Saharan Africa Price Index (2026)">Europe → Sub Saharan Africa</option>
-            <option value="Europe to South &amp; Central America Price Index (2026)">Europe → South &amp; Central America</option>
-            <option value="Europe to Australasia &amp; Oceania Price Index (2026)">Europe → AO</option>
-            <option value="Europe to Far East Price Index (2026)">Europe → Far East</option>
-            <option value="Europe to North America Price Index (2026)">Europe → North America</option>
-            <option value="Europe to Indian Sub Cont &amp; Middle East Price Index (2026)">Europe → ISC &amp; Middle East</option>
-            <option value="Far East to South &amp; Central America Price Index (2026)">Far East → South &amp; Central America</option>
-            <option value="Far East to Europe Price Index (2026)">Far East → Europe</option>
-            <option value="Far East to Indian Sub Cont &amp; Middle East Price Index (2026)">Far East → ISC &amp; Middle East</option>
-            <option value="Far East to Australasia &amp; Oceania Price Index (2026)">Far East → AO</option>
-            <option value="Far East to North America Price Index (2026)">Far East → North America</option>
+            <option value="">Loading lanes…</option>
           </select>
         </div>
 
@@ -487,11 +496,7 @@
 
       <div>
         <p class="sidebar-section-label">Quick Lanes</p>
-        <div class="lane-chips">
-          <button class="lane-chip active" onclick="setLane('Australasia &amp; Oceania to Europe Price Index (2026)', this)">AO → Europe</button>
-          <button class="lane-chip" onclick="setLane('Far East to Europe Price Index (2026)', this)">Far East → Europe</button>
-          <button class="lane-chip" onclick="setLane('Far East to North America Price Index (2026)', this)">Far East → North America</button>
-        </div>
+        <div class="lane-chips" id="lane-chips"></div>
       </div>
 
       <div class="divider"></div>
@@ -506,15 +511,11 @@
           Leave blank to use <code style="background:var(--surface-2);padding:1px 4px;border-radius:3px;font-size:0.68rem;">window.AXION_API_BASE</code> or localhost.
         </p>
       </div>
-
     </aside>
 
-    <!-- CONTENT -->
     <section class="content">
-
       <div class="alert" id="alert"></div>
 
-      <!-- KPI row -->
       <div class="kpi-row">
         <div class="kpi-card">
           <div class="kpi-label">Last Observed</div>
@@ -529,21 +530,20 @@
         <div class="kpi-card">
           <div class="kpi-label">Upside (p95)</div>
           <div class="kpi-value" id="kpi-p95">—</div>
-          <div class="kpi-delta up" id="kpi-p95-delta"></div>
+          <div class="kpi-delta neu" id="kpi-p95-delta"></div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Annualised Vol.</div>
           <div class="kpi-value" id="kpi-vol">—</div>
-          <div class="kpi-delta neu">Realised volatility</div>
+          <div class="kpi-delta neu">Simulated volatility</div>
         </div>
       </div>
 
-      <!-- Chart panel -->
       <div class="panel">
         <div class="panel-head">
           <div>
-            <div class="panel-title">Weekly Forecast</div>
-            <div class="panel-sub" id="chart-sub">Run a forecast to see projections</div>
+            <div class="panel-title">History + Forecast</div>
+            <div class="panel-sub" id="chart-sub">Load lanes and run a forecast</div>
           </div>
         </div>
         <div class="panel-body">
@@ -558,15 +558,17 @@
             </div>
             <canvas id="forecast-chart" style="display:none;"></canvas>
           </div>
+          <div class="chart-footnote">
+            Historical observations are shown in grey. Forecast expectation and uncertainty band begin after the last observed point.
+          </div>
         </div>
       </div>
 
-      <!-- Table panel -->
       <div class="panel">
         <div class="panel-head">
           <div>
             <div class="panel-title">Weekly Breakdown</div>
-            <div class="panel-sub">p05 / p50 / p95 confidence intervals</div>
+            <div class="panel-sub">Expected path and forecast interval by week</div>
           </div>
         </div>
         <div class="panel-body" style="padding:0;">
@@ -593,16 +595,13 @@
           </div>
         </div>
       </div>
-
     </section>
   </main>
 </div>
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
-  /* ── API Bridge ──────────────────────────────────── */
   function getBase() {
     const inp = document.getElementById('inp-base').value.trim();
     return inp || window.AXION_API_BASE || 'http://localhost:8000';
@@ -616,14 +615,8 @@
 
   window.axionAPI = { fetch: fetchAPI };
 
-  /* ── State ───────────────────────────────────────── */
   let chartInstance = null;
-
-  function setLane(lane, btn) {
-    document.getElementById('inp-lane').value = lane;
-    document.querySelectorAll('.lane-chip').forEach(c => c.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-  }
+  let availableLanes = [];
 
   function fmt(n) {
     if (n == null || isNaN(n)) return '—';
@@ -637,7 +630,11 @@
 
   function setAlert(msg, type) {
     const el = document.getElementById('alert');
-    if (!msg) { el.className = 'alert'; el.textContent = ''; return; }
+    if (!msg) {
+      el.className = 'alert';
+      el.textContent = '';
+      return;
+    }
     el.className = 'alert ' + type;
     el.textContent = msg;
   }
@@ -646,29 +643,110 @@
     const el = document.getElementById('nav-status');
     el.innerHTML = loading
       ? `<div class="spinner"></div><span>${text}</span>`
-      : `<div class="status-dot" style="${text === 'Ready' ? '' : 'background:var(--amber)'}"></div><span>${text}</span>`;
+      : `<div class="status-dot" style="${text === 'Ready' || text === 'Updated' ? '' : 'background:var(--amber)'}"></div><span>${text}</span>`;
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function shortLaneLabel(lane) {
+    return lane
+      .replace(/\s*Price Index\s*\(\d{4}\)\s*$/i, '')
+      .replaceAll('Australasia & Oceania', 'AO')
+      .replaceAll('South & Central America', 'South & Central America')
+      .replaceAll('Indian Sub Cont & Middle East', 'ISC & Middle East');
+  }
+
+  function setLane(lane, btn) {
+    document.getElementById('inp-lane').value = lane;
+    document.querySelectorAll('.lane-chip').forEach(c => c.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  }
+
+  async function loadLanes() {
+    const select = document.getElementById('inp-lane');
+    const chips = document.getElementById('lane-chips');
+    const runBtn = document.getElementById('btn-run');
+
+    try {
+      runBtn.disabled = true;
+      setAlert('', '');
+      setStatus('Loading lanes…', true);
+
+      const res = await fetchAPI('/lanes');
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: res.statusText }));
+        throw new Error(err.detail || 'Could not load lanes');
+      }
+
+      const data = await res.json();
+      availableLanes = Array.isArray(data.lanes) ? data.lanes : [];
+
+      if (!availableLanes.length) {
+        throw new Error('No lanes were returned by the backend');
+      }
+
+      select.innerHTML = availableLanes
+        .map((lane, i) => `<option value="${escapeHtml(lane)}" ${i === 0 ? 'selected' : ''}>${escapeHtml(shortLaneLabel(lane))}</option>`)
+        .join('');
+
+      chips.innerHTML = availableLanes.slice(0, 3).map((lane, i) => {
+        const safeLabel = escapeHtml(shortLaneLabel(lane));
+        const safeLane = JSON.stringify(lane).replaceAll('"', '&quot;');
+        return `<button class="lane-chip ${i === 0 ? 'active' : ''}" type="button" onclick="setLane(${safeLane}, this)">${safeLabel}</button>`;
+      }).join('');
+
+      runBtn.disabled = false;
+      setStatus('Ready');
+    } catch (e) {
+      select.innerHTML = `<option value="">Could not load lanes</option>`;
+      chips.innerHTML = '';
+      runBtn.disabled = true;
+      setAlert('Could not load lanes from the API: ' + e.message, 'error');
+      setStatus('Error');
+    }
   }
 
   async function runForecast() {
     setAlert('', '');
+
     const btn = document.getElementById('btn-run');
     btn.disabled = true;
     btn.textContent = 'Running…';
     setStatus('Fetching…', true);
 
     const payload = {
-      lane:          document.getElementById('inp-lane').value.trim(),
+      lane: document.getElementById('inp-lane').value.trim(),
       horizon_weeks: parseInt(document.getElementById('inp-horizon').value) || 8,
-      num_paths:     parseInt(document.getElementById('inp-paths').value)   || 5000,
+      num_paths: parseInt(document.getElementById('inp-paths').value) || 5000,
       lookback_days: parseInt(document.getElementById('inp-lookback').value) || 365,
     };
 
+    if (!payload.lane) {
+      setAlert('Please select a lane before running a forecast.', 'error');
+      setStatus('Ready');
+      btn.disabled = false;
+      btn.textContent = 'Run Forecast';
+      return;
+    }
+
     try {
-      const res = await fetchAPI('/forecast', { method: 'POST', body: JSON.stringify(payload) });
+      const res = await fetchAPI('/forecast', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+
       if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: res.statusText }));
         throw new Error(err.detail || 'Request failed');
       }
+
       const data = await res.json();
       renderResults(data);
       setStatus('Updated');
@@ -683,32 +761,64 @@
 
   function renderResults(data) {
     const wf = data.weekly_forecast || [];
+    const hp = data.historical_points || [];
 
-    document.getElementById('kpi-last').textContent      = fmt(data.last_observed_value);
+    document.getElementById('kpi-last').textContent = fmt(data.last_observed_value);
     document.getElementById('kpi-last-date').textContent = data.last_observed_date || '';
-    document.getElementById('kpi-vol').textContent       = fmtPct(data.annualized_volatility);
+    document.getElementById('kpi-vol').textContent = fmtPct(data.annualized_volatility);
 
     if (wf.length) {
       const last = wf[wf.length - 1];
-      document.getElementById('kpi-p50').textContent      = fmt(last.p50);
+      document.getElementById('kpi-p50').textContent = fmt(last.p50);
       document.getElementById('kpi-p50-label').textContent = 'At week ' + data.horizon_weeks;
-      document.getElementById('kpi-p95').textContent      = fmt(last.p95);
+      document.getElementById('kpi-p95').textContent = fmt(last.p95);
 
       const delta = ((last.p95 - data.last_observed_value) / data.last_observed_value * 100);
-      const dEl   = document.getElementById('kpi-p95-delta');
+      const dEl = document.getElementById('kpi-p95-delta');
       dEl.textContent = (delta >= 0 ? '+' : '') + delta.toFixed(1) + '% vs last observed';
-      dEl.className   = 'kpi-delta ' + (delta >= 0 ? 'up' : 'down');
+      dEl.className = 'kpi-delta ' + (delta >= 0 ? 'up' : 'down');
+    } else {
+      document.getElementById('kpi-p50').textContent = '—';
+      document.getElementById('kpi-p50-label').textContent = 'Week-end projection';
+      document.getElementById('kpi-p95').textContent = '—';
+      document.getElementById('kpi-p95-delta').textContent = '';
+      document.getElementById('kpi-p95-delta').className = 'kpi-delta neu';
     }
 
     document.getElementById('chart-sub').textContent =
-      data.lane + ' · ' + data.horizon_weeks + '-wk horizon · ' +
+      data.lane + ' · ' +
+      data.horizon_weeks + '-wk horizon · ' +
       data.num_paths.toLocaleString() + ' paths';
 
-    const labels   = wf.map(w => w.week_end);
-    const p05      = wf.map(w => w.p05);
-    const p50      = wf.map(w => w.p50);
-    const p95      = wf.map(w => w.p95);
+    const histLabels = hp.map(p => p.date);
+    const histValues = hp.map(p => p.value);
+
+    const forecastLabels = wf.map(w => w.week_end);
     const expected = wf.map(w => w.expected);
+    const p05 = wf.map(w => w.p05);
+    const p95 = wf.map(w => w.p95);
+
+    const labels = [...histLabels, ...forecastLabels];
+
+    const historicalSeries = [
+      ...histValues,
+      ...Array(forecastLabels.length).fill(null),
+    ];
+
+    const expectedSeries = [
+      ...Array(histLabels.length).fill(null),
+      ...expected,
+    ];
+
+    const p05Series = [
+      ...Array(histLabels.length).fill(null),
+      ...p05,
+    ];
+
+    const p95Series = [
+      ...Array(histLabels.length).fill(null),
+      ...p95,
+    ];
 
     document.getElementById('chart-empty').style.display = 'none';
     const canvas = document.getElementById('forecast-chart');
@@ -723,42 +833,41 @@
         labels,
         datasets: [
           {
-            label: 'p95',
-            data: p95,
-            borderColor: 'rgba(79,124,255,0.3)',
-            backgroundColor: 'rgba(79,124,255,0.07)',
-            borderWidth: 1,
-            pointRadius: 0,
-            fill: '+2',
-            tension: 0.3,
-          },
-          {
-            label: 'Expected',
-            data: expected,
-            borderColor: '#4f7cff',
+            label: 'Historical',
+            data: historicalSeries,
+            borderColor: 'rgba(232,234,240,0.55)',
             backgroundColor: 'transparent',
             borderWidth: 2,
-            pointRadius: 3,
-            pointBackgroundColor: '#4f7cff',
-            tension: 0.3,
+            pointRadius: 0,
+            tension: 0.2,
           },
           {
-            label: 'p50',
-            data: p50,
-            borderColor: '#34c78a',
-            backgroundColor: 'transparent',
-            borderWidth: 1.5,
-            borderDash: [4, 3],
+            label: 'p95',
+            data: p95Series,
+            borderColor: 'rgba(79,124,255,0.28)',
+            backgroundColor: 'rgba(79,124,255,0.08)',
+            borderWidth: 1,
             pointRadius: 0,
+            fill: '+1',
             tension: 0.3,
           },
           {
             label: 'p05',
-            data: p05,
-            borderColor: 'rgba(79,124,255,0.3)',
+            data: p05Series,
+            borderColor: 'rgba(79,124,255,0.28)',
             backgroundColor: 'transparent',
             borderWidth: 1,
             pointRadius: 0,
+            tension: 0.3,
+          },
+          {
+            label: 'Forecast',
+            data: expectedSeries,
+            borderColor: '#4f7cff',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            pointRadius: 2,
+            pointBackgroundColor: '#4f7cff',
             tension: 0.3,
           },
         ]
@@ -785,28 +894,51 @@
             bodyColor: '#8b909e',
             padding: 10,
             callbacks: {
-              label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y),
+              label: ctx => {
+                if (ctx.parsed.y == null) return '';
+                return ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y);
+              },
             }
           }
         },
         scales: {
           x: {
-            grid:  { color: 'rgba(255,255,255,0.04)' },
-            ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, maxRotation: 0 },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: {
+              color: '#8b909e',
+              font: { size: 11, family: 'Inter' },
+              maxRotation: 0,
+            },
           },
           y: {
-            grid:  { color: 'rgba(255,255,255,0.04)' },
-            ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, callback: v => fmt(v) },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: {
+              color: '#8b909e',
+              font: { size: 11, family: 'Inter' },
+              callback: v => fmt(v),
+            },
           }
         }
       }
     });
 
     const tbody = document.getElementById('table-body');
+    if (!wf.length) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6">
+            <div class="empty" style="padding:40px 20px;"><p>No forecast data returned</p></div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
     tbody.innerHTML = wf.map((w, i) => {
-      const prev  = i === 0 ? data.last_observed_value : wf[i - 1].expected;
+      const prev = i === 0 ? data.last_observed_value : wf[i - 1].expected;
       const trend = w.expected > prev * 1.005 ? 'up' : w.expected < prev * 0.995 ? 'down' : 'flat';
-      const tag   = trend === 'up'
+
+      const tag = trend === 'up'
         ? '<span class="tag tag-green">&#8593; Rising</span>'
         : trend === 'down'
         ? '<span class="tag tag-red">&#8595; Falling</span>'
@@ -822,6 +954,10 @@
       </tr>`;
     }).join('');
   }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    loadLanes();
+  });
 </script>
 
 </body>

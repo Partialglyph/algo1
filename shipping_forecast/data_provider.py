@@ -21,14 +21,11 @@ class RateDataProvider(ABC):
         """Return historical rate points in ascending date order."""
         raise NotImplementedError
 
+    async def list_lanes(self) -> List[str]:
+        raise NotImplementedError("This provider does not support lane discovery")
+
 
 class HttpJsonRateDataProvider(RateDataProvider):
-    """Generic JSON provider kept for backward compatibility.
-
-    You can point this at any REST service that returns a JSON array of
-    objects with a date and value field.
-    """
-
     def __init__(
         self,
         base_url: str,
@@ -81,7 +78,7 @@ class HttpJsonRateDataProvider(RateDataProvider):
             value = max(float(raw_value), settings.MIN_PRICE)
             try:
                 d = date.fromisoformat(str(raw_date))
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 raise ValueError(f"Invalid date in freight API response: {raw_date}") from exc
             points.append(RatePoint(date=d, value=value))
 
@@ -90,13 +87,6 @@ class HttpJsonRateDataProvider(RateDataProvider):
 
 
 class TradingEconomicsProvider(RateDataProvider):
-    """Data provider using the free Trading Economics API.
-
-    Trading Economics exposes commodities and indices through REST endpoints.
-    A very limited `guest:guest` key works for experimentation, but the
-    recommended path is to register for a free developer key.[web:48][web:59][web:61][web:66][web:67]
-    """
-
     def __init__(self, api_key: Optional[str] = None, timeout_seconds: float = 10.0) -> None:
         self._api_key = api_key or settings.TRADING_ECONOMICS_API_KEY
         self._timeout = timeout_seconds
@@ -128,7 +118,6 @@ class TradingEconomicsProvider(RateDataProvider):
 
         points: List[RatePoint] = []
         for item in data:
-            # Historical markets endpoint returns fields such as Symbol, Date, Close.[web:60]
             raw_date = item.get("Date") or item.get("date")
             raw_value = item.get("Close") or item.get("close")
             if raw_date is None or raw_value is None:
@@ -136,7 +125,7 @@ class TradingEconomicsProvider(RateDataProvider):
             value = max(float(raw_value), settings.MIN_PRICE)
             try:
                 d = date.fromisoformat(str(raw_date).split("T")[0])
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 raise ValueError(f"Invalid date in Trading Economics response: {raw_date}") from exc
             points.append(RatePoint(date=d, value=value))
 
@@ -154,15 +143,6 @@ class TradingEconomicsProvider(RateDataProvider):
 
 
 class CTSCsvProvider(RateDataProvider):
-    """Local CSV provider for CTS free global price index data.
-
-    CTS offers free monthly global container price indices and volumes after
-    free registration.[web:37]
-    You are expected to download the latest CSV and place it at the path
-    configured in settings. This provider reads that file and filters by
-    date range.
-    """
-
     def __init__(self, csv_path: Optional[str] = None) -> None:
         self._csv_path = csv_path or settings.CTS_FREE_CSV_PATH
 
@@ -172,7 +152,6 @@ class CTSCsvProvider(RateDataProvider):
         start_date: date,
         end_date: date,
     ) -> List[RatePoint]:
-        # `lane` is ignored here; CTS free data is typically a single global index.
         import csv
         from pathlib import Path
 
@@ -191,7 +170,6 @@ class CTSCsvProvider(RateDataProvider):
                 try:
                     d = date.fromisoformat(str(raw_date))
                 except Exception:
-                    # Skip malformed rows
                     continue
                 if d < start_date or d > end_date:
                     continue
@@ -204,18 +182,8 @@ class CTSCsvProvider(RateDataProvider):
         points.sort(key=lambda rp: rp.date)
         return points
 
+
 class ExcelDataProvider(RateDataProvider):
-    """
-    Parses the wide-format shipping index Excel file where each lane is laid out as:
-
-      Row N:   <lane name>                      (col 0, may have leading space)
-      Row N+1: Year, Jan, Feb, Mar, ..., Dec    (col 0 = "Year", cols 1-12 = month names)
-      Row N+2: 2026, 98, 109, ...               (col 0 = year int, cols 1-12 = index values)
-      Row N+3: 2025, 118, 135, ...
-      Row N+4: Change: ...
-      Row N+5: *All Cargo types
-    """
-
     MONTH_MAP = {
         "jan": 1, "feb": 2, "mar": 3, "apr": 4,
         "may": 5, "jun": 6, "jul": 7, "aug": 8,
@@ -224,6 +192,56 @@ class ExcelDataProvider(RateDataProvider):
 
     def __init__(self, xlsx_path: Optional[str] = None) -> None:
         self._xlsx_path = xlsx_path or settings.EXCEL_DATA_PATH
+
+    async def list_lanes(self) -> List[str]:
+        from pathlib import Path
+
+        try:
+            import pandas as pd
+        except ImportError as exc:
+            raise ValueError("pandas is required for ExcelDataProvider. Run: pip install pandas openpyxl") from exc
+
+        path = Path(self._xlsx_path)
+        if not path.exists():
+            raise ValueError(
+                f"Excel data file not found at '{path}'. "
+                f"Make sure data.xlsx is in the project root."
+            )
+
+        df = pd.read_excel(path, sheet_name=0, header=None)
+        lanes: List[str] = []
+        seen: set[str] = set()
+
+        for i in range(len(df)):
+            raw = df.iloc[i, 0]
+            if pd.isna(raw):
+                continue
+            cell = str(raw).strip()
+            cell_lower = cell.lower()
+
+            if not cell:
+                continue
+            if cell_lower == "year":
+                continue
+            if cell_lower.startswith("change"):
+                continue
+            if cell.startswith("*"):
+                continue
+
+            try:
+                float(cell)
+                continue
+            except Exception:
+                pass
+
+            if cell not in seen:
+                seen.add(cell)
+                lanes.append(cell)
+
+        if not lanes:
+            raise ValueError("No lane headers found in Excel file.")
+
+        return lanes
 
     async def get_historical_rates(
         self,
@@ -249,7 +267,6 @@ class ExcelDataProvider(RateDataProvider):
         df = pd.read_excel(path, sheet_name=0, header=None)
         lane_clean = lane.strip().lower()
 
-        # Find the row where col 0 matches the lane name
         match_idx = None
         for i in range(len(df)):
             cell = str(df.iloc[i, 0]).strip().lower()
@@ -263,7 +280,6 @@ class ExcelDataProvider(RateDataProvider):
                 f"Check that the lane name exactly matches a section header in data.xlsx."
             )
 
-        # Row after lane name should be: Year, Jan, Feb, ... Dec
         header_row = df.iloc[match_idx + 1]
         headers = [str(h).strip().lower() for h in header_row]
 
@@ -273,13 +289,11 @@ class ExcelDataProvider(RateDataProvider):
                 f"got '{headers[0]}'."
             )
 
-        # Map month name -> column index
-        month_col: dict = {}
+        month_col: dict[str, int] = {}
         for col_i, h in enumerate(headers):
             if h in self.MONTH_MAP:
                 month_col[h] = col_i
 
-        # Read year data rows until Change: or *All Cargo types
         points: List[RatePoint] = []
         for row_i in range(match_idx + 2, min(match_idx + 20, len(df))):
             row = df.iloc[row_i]
