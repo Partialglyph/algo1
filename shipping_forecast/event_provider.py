@@ -20,7 +20,7 @@ class EventArticle:
     url: str
     source: str
     published: Optional[datetime]
-    tone: float  # GDELT tone: negative value = more negative coverage
+    tone: float  # GDELT tone: negative = more negative coverage
 
 
 @dataclass
@@ -35,7 +35,7 @@ class EventFeed:
 class GDELTEventProvider:
     """
     Fetches recent news articles from the GDELT 2.0 DOC API for a given trade lane.
-    Requires no API key — GDELT is free and open.
+    Requires no API key -- GDELT is free and open.
     Docs: https://blog.gdeltproject.org/gdelt-doc-2-0-api-debuts/
     """
 
@@ -44,9 +44,14 @@ class GDELTEventProvider:
         self.max_articles = max_articles
 
     def _build_query(self, keywords: list[str]) -> str:
-        # Use the two most relevant keywords joined with OR for broad coverage.
-        terms = keywords[:2]
-        return " OR ".join(f'"{t}"' for t in terms)
+        """
+        Build a broad OR query using unquoted single-word terms and short phrases.
+        Strict multi-word quoted phrases reliably return zero results from GDELT;
+        unquoted OR terms cast a wide enough net to capture relevant articles.
+        We use all keywords (up to 6) so the query covers the lane's full context.
+        """
+        terms = keywords[:6]
+        return " OR ".join(terms)
 
     async def fetch(self, lane: str) -> EventFeed:
         keywords = get_keywords_for_lane(lane)
