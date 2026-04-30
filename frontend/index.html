@@ -346,6 +346,177 @@
     .tag-red   { background: rgba(224,92,92,0.12);  color: var(--red); }
     .tag-amber { background: rgba(245,166,35,0.12);  color: var(--amber); }
 
+    /* ── Event Risk Panel ────────────────────────────── */
+    .risk-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 700px) {
+      .risk-grid { grid-template-columns: 1fr; }
+    }
+
+    .risk-left {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .regime-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 12px;
+      border-radius: 99px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      width: fit-content;
+    }
+    .regime-badge .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .regime-normal   { background: rgba(52,199,138,0.12); color: var(--green); }
+    .regime-normal   .dot { background: var(--green); }
+    .regime-elevated { background: rgba(245,166,35,0.12); color: var(--amber); }
+    .regime-elevated .dot { background: var(--amber); }
+    .regime-severe   { background: rgba(224,92,92,0.12); color: var(--red); }
+    .regime-severe   .dot { background: var(--red); }
+    .regime-none     { background: rgba(139,144,158,0.12); color: var(--text-m); }
+    .regime-none     .dot { background: var(--text-f); }
+
+    .risk-meta-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .risk-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .risk-meta-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-f);
+    }
+
+    .risk-meta-value {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Score bar */
+    .score-bar-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .score-bar-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .score-bar-title {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-m);
+    }
+
+    .score-bar-pct {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .score-bar-track {
+      height: 5px;
+      border-radius: 99px;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.5s cubic-bezier(0.16,1,0.3,1);
+    }
+
+    .fill-green  { background: var(--green); }
+    .fill-amber  { background: var(--amber); }
+    .fill-red    { background: var(--red); }
+
+    /* Explanation bullets */
+    .risk-explanation {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .risk-explanation li {
+      font-size: 0.78rem;
+      color: var(--text-m);
+      list-style: none;
+      padding-left: 14px;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .risk-explanation li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 7px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--text-f);
+    }
+
+    /* Headlines */
+    .risk-right {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .headlines-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-f);
+    }
+
+    .headline-item {
+      padding: 10px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      font-size: 0.76rem;
+      color: var(--text-m);
+      line-height: 1.45;
+    }
+
+    .no-headlines {
+      font-size: 0.76rem;
+      color: var(--text-f);
+      font-style: italic;
+    }
+
     /* ── Empty state ─────────────────────────────────── */
     .empty {
       display: flex;
@@ -538,6 +709,64 @@
         </div>
       </div>
 
+      <!-- Event Risk panel -->
+      <div class="panel" id="risk-panel" style="display:none;">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Event Risk &amp; Regime Analysis</div>
+            <div class="panel-sub" id="risk-panel-sub">GDELT news signal · last 14 days</div>
+          </div>
+          <div id="risk-regime-badge"></div>
+        </div>
+        <div class="panel-body">
+          <div class="risk-grid">
+
+            <!-- Left col: score + meta + explanation -->
+            <div class="risk-left">
+
+              <div class="score-bar-wrap">
+                <div class="score-bar-label">
+                  <span class="score-bar-title">Net Risk Score</span>
+                  <span class="score-bar-pct" id="risk-score-pct">0%</span>
+                </div>
+                <div class="score-bar-track">
+                  <div class="score-bar-fill" id="risk-score-fill" style="width:0%"></div>
+                </div>
+              </div>
+
+              <div class="risk-meta-row">
+                <div class="risk-meta-item">
+                  <span class="risk-meta-label">Articles (14d)</span>
+                  <span class="risk-meta-value" id="risk-article-count">—</span>
+                </div>
+                <div class="risk-meta-item">
+                  <span class="risk-meta-label">Disruption Events</span>
+                  <span class="risk-meta-value" id="risk-disruption-count">—</span>
+                </div>
+                <div class="risk-meta-item">
+                  <span class="risk-meta-label">Vol Multiplier</span>
+                  <span class="risk-meta-value" id="risk-sigma">—</span>
+                </div>
+                <div class="risk-meta-item">
+                  <span class="risk-meta-label">Drift Adj. (daily)</span>
+                  <span class="risk-meta-value" id="risk-delta-mu">—</span>
+                </div>
+              </div>
+
+              <ul class="risk-explanation" id="risk-explanation"></ul>
+
+            </div>
+
+            <!-- Right col: headlines -->
+            <div class="risk-right">
+              <span class="headlines-label">Top Headlines</span>
+              <div id="risk-headlines"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
       <!-- Chart panel -->
       <div class="panel">
         <div class="panel-head">
@@ -649,6 +878,62 @@
       : `<div class="status-dot" style="${text === 'Ready' ? '' : 'background:var(--amber)'}"></div><span>${text}</span>`;
   }
 
+  /* ── Event Risk Renderer ─────────────────────────── */
+  function renderEventRisk(er) {
+    const panel = document.getElementById('risk-panel');
+
+    if (!er) {
+      panel.style.display = 'none';
+      return;
+    }
+
+    panel.style.display = '';
+
+    // Regime badge
+    const label = er.regime_label || 'Unknown';
+    let badgeClass = 'regime-none';
+    if (label === 'Normal') badgeClass = 'regime-normal';
+    else if (label.toLowerCase().includes('elevated')) badgeClass = 'regime-elevated';
+    else if (label.toLowerCase().includes('severe')) badgeClass = 'regime-severe';
+
+    document.getElementById('risk-regime-badge').innerHTML =
+      `<div class="regime-badge ${badgeClass}"><div class="dot"></div>${label}</div>`;
+
+    // Score bar
+    const score = er.net_risk_score || 0;
+    const scorePct = Math.round(score * 100);
+    document.getElementById('risk-score-pct').textContent = scorePct + '%';
+    const fill = document.getElementById('risk-score-fill');
+    fill.style.width = scorePct + '%';
+    fill.className = 'score-bar-fill ' + (score < 0.33 ? 'fill-green' : score < 0.66 ? 'fill-amber' : 'fill-red');
+
+    // Meta values
+    document.getElementById('risk-article-count').textContent    = er.article_count ?? '—';
+    document.getElementById('risk-disruption-count').textContent = er.disruption_count ?? '—';
+    document.getElementById('risk-sigma').textContent =
+      er.sigma_multiplier != null ? 'x' + er.sigma_multiplier.toFixed(2) : '—';
+    document.getElementById('risk-delta-mu').textContent =
+      er.delta_mu_daily != null ? (er.delta_mu_daily >= 0 ? '+' : '') + er.delta_mu_daily.toFixed(4) : '—';
+
+    // Sub label
+    document.getElementById('risk-panel-sub').textContent =
+      'GDELT news signal · ' + (er.article_count || 0) + ' articles · last 14 days';
+
+    // Explanation bullets
+    const expEl = document.getElementById('risk-explanation');
+    const explanations = er.explanation || [];
+    expEl.innerHTML = explanations.length
+      ? explanations.map(e => `<li>${e}</li>`).join('')
+      : '<li>No explanation available.</li>';
+
+    // Headlines
+    const hlEl = document.getElementById('risk-headlines');
+    const headlines = er.top_headlines || [];
+    hlEl.innerHTML = headlines.length
+      ? headlines.map(h => `<div class="headline-item">${h}</div>`).join('')
+      : '<p class="no-headlines">No headlines retrieved for this lane.</p>';
+  }
+
   async function runForecast() {
     setAlert('', '');
     const btn = document.getElementById('btn-run');
@@ -703,6 +988,8 @@
     document.getElementById('chart-sub').textContent =
       data.lane + ' · ' + data.horizon_weeks + '-wk horizon · ' +
       data.num_paths.toLocaleString() + ' paths';
+
+    renderEventRisk(data.event_risk || null);
 
     const labels   = wf.map(w => w.week_end);
     const p05      = wf.map(w => w.p05);
