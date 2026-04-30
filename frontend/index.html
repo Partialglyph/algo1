@@ -10,55 +10,36 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
-    /* ── Tokens ─────────────────────────────────────── */
     :root {
       --bg:        #0f1117;
       --surface:   #161921;
       --surface-2: #1c2030;
       --border:    rgba(255,255,255,0.07);
       --border-2:  rgba(255,255,255,0.12);
-
       --text:      #e8eaf0;
       --text-m:    #8b909e;
       --text-f:    #484e5c;
-
       --accent:    #4f7cff;
       --accent-h:  #3a66e8;
       --green:     #34c78a;
       --red:       #e05c5c;
       --amber:     #f5a623;
-
       --font: 'Inter', 'Helvetica Neue', sans-serif;
-
       --r-sm: 6px;
       --r-md: 10px;
       --r-lg: 14px;
-
       --t: 160ms cubic-bezier(0.16,1,0.3,1);
     }
 
-    /* ── Reset ──────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { -webkit-font-smoothing: antialiased; font-size: 16px; }
-    body {
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100dvh;
-      line-height: 1.55;
-    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100dvh; line-height: 1.55; }
     button { cursor: pointer; font: inherit; }
     input, select { font: inherit; color: inherit; }
     a { color: inherit; text-decoration: none; }
 
-    /* ── Layout ─────────────────────────────────────── */
-    .app {
-      display: grid;
-      grid-template-rows: 56px 1fr;
-      min-height: 100dvh;
-    }
+    .app { display: grid; grid-template-rows: 56px 1fr; min-height: 100dvh; }
 
-    /* ── Nav ─────────────────────────────────────────── */
     nav {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -70,316 +51,69 @@
       top: 0;
       z-index: 10;
     }
-
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      color: var(--text);
-      flex-shrink: 0;
-    }
-
-    .nav-logo-mark {
-      width: 28px;
-      height: 28px;
-      background: var(--accent);
-      border-radius: var(--r-sm);
-      display: grid;
-      place-items: center;
-    }
-
+    .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.02em; color: var(--text); flex-shrink: 0; }
+    .nav-logo-mark { width: 28px; height: 28px; background: var(--accent); border-radius: var(--r-sm); display: grid; place-items: center; }
     .nav-logo-mark svg { width: 16px; height: 16px; }
-
     .nav-spacer { flex: 1; }
+    .nav-status { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-m); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
 
-    .nav-status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.75rem;
-      color: var(--text-m);
-    }
+    main { display: grid; grid-template-columns: 280px 1fr; height: calc(100dvh - 56px); overflow: hidden; }
 
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--green);
-    }
-
-    /* ── Main content ────────────────────────────────── */
-    main {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      height: calc(100dvh - 56px);
-      overflow: hidden;
-    }
-
-    /* ── Sidebar ─────────────────────────────────────── */
-    .sidebar {
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      padding: 24px 16px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-    }
-
-    .sidebar-section-label {
-      font-size: 0.65rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-f);
-      margin-bottom: 10px;
-    }
-
-    /* Form controls */
+    .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 24px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 28px; }
+    .sidebar-section-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-f); margin-bottom: 10px; }
     .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-
-    label {
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--text-m);
-    }
-
-    input[type="text"], input[type="number"], select {
-      background: var(--bg);
-      border: 1px solid var(--border-2);
-      border-radius: var(--r-sm);
-      padding: 8px 10px;
-      font-size: 0.85rem;
-      color: var(--text);
-      width: 100%;
-      outline: none;
-      transition: border-color var(--t);
-    }
-
-    input[type="text"]:focus,
-    input[type="number"]:focus,
-    select:focus { border-color: var(--accent); }
-
+    label { font-size: 0.75rem; font-weight: 500; color: var(--text-m); }
+    input[type="text"], input[type="number"], select { background: var(--bg); border: 1px solid var(--border-2); border-radius: var(--r-sm); padding: 8px 10px; font-size: 0.85rem; color: var(--text); width: 100%; outline: none; transition: border-color var(--t); }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus { border-color: var(--accent); }
     select { appearance: none; }
-
-    .btn-run {
-      width: 100%;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: var(--r-sm);
-      padding: 10px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      transition: background var(--t), opacity var(--t);
-      margin-top: 4px;
-    }
+    .btn-run { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: var(--r-sm); padding: 10px; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.02em; transition: background var(--t), opacity var(--t); margin-top: 4px; }
     .btn-run:hover { background: var(--accent-h); }
     .btn-run:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 4px 0;
-    }
-
-    /* Lane chips */
-    .lane-chips {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .lane-chip {
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      padding: 7px 10px;
-      font-size: 0.78rem;
-      color: var(--text-m);
-      text-align: left;
-      transition: background var(--t), border-color var(--t), color var(--t);
-    }
+    .divider { height: 1px; background: var(--border); margin: 4px 0; }
+    .lane-chips { display: flex; flex-direction: column; gap: 4px; }
+    .lane-chip { background: none; border: 1px solid var(--border); border-radius: var(--r-sm); padding: 7px 10px; font-size: 0.78rem; color: var(--text-m); text-align: left; transition: background var(--t), border-color var(--t), color var(--t); }
     .lane-chip:hover { background: var(--surface-2); color: var(--text); }
-    .lane-chip.active {
-      background: rgba(79,124,255,0.12);
-      border-color: rgba(79,124,255,0.35);
-      color: var(--accent);
-      font-weight: 500;
-    }
+    .lane-chip.active { background: rgba(79,124,255,0.12); border-color: rgba(79,124,255,0.35); color: var(--accent); font-weight: 500; }
 
-    /* ── Content area ────────────────────────────────── */
-    .content {
-      overflow-y: auto;
-      padding: clamp(20px, 3vw, 36px);
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
+    .content { overflow-y: auto; padding: clamp(20px, 3vw, 36px); display: flex; flex-direction: column; gap: 24px; }
 
-    /* ── KPI row ─────────────────────────────────────── */
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 14px;
-    }
-
-    .kpi-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r-md);
-      padding: 18px 20px;
-    }
-
-    .kpi-label {
-      font-size: 0.7rem;
-      font-weight: 500;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: var(--text-m);
-      margin-bottom: 8px;
-    }
-
-    .kpi-value {
-      font-size: clamp(1.4rem, 2.5vw, 1.8rem);
-      font-weight: 300;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .kpi-delta {
-      font-size: 0.72rem;
-      font-weight: 500;
-      margin-top: 4px;
-    }
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 18px 20px; }
+    .kpi-label { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-m); margin-bottom: 8px; }
+    .kpi-value { font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 300; letter-spacing: -0.02em; color: var(--text); font-variant-numeric: tabular-nums; }
+    .kpi-delta { font-size: 0.72rem; font-weight: 500; margin-top: 4px; }
     .kpi-delta.up   { color: var(--green); }
     .kpi-delta.down { color: var(--red); }
     .kpi-delta.neu  { color: var(--text-m); }
 
-    /* ── Panel / card ────────────────────────────────── */
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r-md);
-    }
-
-    .panel-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .panel-title {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--text);
-      letter-spacing: 0.01em;
-    }
-
-    .panel-sub {
-      font-size: 0.72rem;
-      color: var(--text-m);
-      margin-top: 2px;
-    }
-
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .panel-title { font-size: 0.82rem; font-weight: 600; color: var(--text); letter-spacing: 0.01em; }
+    .panel-sub { font-size: 0.72rem; color: var(--text-m); margin-top: 2px; }
     .panel-body { padding: 20px; }
 
-    /* ── Chart area ──────────────────────────────────── */
-    .chart-area {
-      width: 100%;
-      height: 240px;
-      position: relative;
-    }
+    .chart-area { width: 100%; height: 280px; position: relative; }
+    canvas { width: 100% !important; height: 100% !important; }
 
-    canvas {
-      width: 100% !important;
-      height: 100% !important;
-    }
-
-    /* ── Table ───────────────────────────────────────── */
     .table-wrap { overflow-x: auto; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
-      font-variant-numeric: tabular-nums;
-    }
-
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
     thead tr { border-bottom: 1px solid var(--border); }
-
-    th {
-      padding: 10px 14px;
-      text-align: left;
-      font-size: 0.68rem;
-      font-weight: 600;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: var(--text-m);
-      white-space: nowrap;
-    }
-
-    td {
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border);
-      color: var(--text);
-    }
-
+    th { padding: 10px 14px; text-align: left; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-m); white-space: nowrap; }
+    td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text); }
     tbody tr:last-child td { border-bottom: none; }
     tbody tr:hover td { background: var(--surface-2); }
-
-    .tag {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 99px;
-      font-size: 0.68rem;
-      font-weight: 600;
-    }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 0.68rem; font-weight: 600; }
     .tag-green { background: rgba(52,199,138,0.12); color: var(--green); }
     .tag-red   { background: rgba(224,92,92,0.12);  color: var(--red); }
     .tag-amber { background: rgba(245,166,35,0.12);  color: var(--amber); }
 
-    /* ── Event Risk Panel ────────────────────────────── */
-    .risk-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    @media (max-width: 700px) {
-      .risk-grid { grid-template-columns: 1fr; }
-    }
-
-    .risk-left {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .regime-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 5px 12px;
-      border-radius: 99px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      width: fit-content;
-    }
-    .regime-badge .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
+    /* Event Risk */
+    .risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 700px) { .risk-grid { grid-template-columns: 1fr; } }
+    .risk-left { display: flex; flex-direction: column; gap: 16px; }
+    .regime-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; width: fit-content; }
+    .regime-badge .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .regime-normal   { background: rgba(52,199,138,0.12); color: var(--green); }
     .regime-normal   .dot { background: var(--green); }
     .regime-elevated { background: rgba(245,166,35,0.12); color: var(--amber); }
@@ -388,203 +122,48 @@
     .regime-severe   .dot { background: var(--red); }
     .regime-none     { background: rgba(139,144,158,0.12); color: var(--text-m); }
     .regime-none     .dot { background: var(--text-f); }
+    .risk-meta-row { display: flex; gap: 20px; flex-wrap: wrap; }
+    .risk-meta-item { display: flex; flex-direction: column; gap: 3px; }
+    .risk-meta-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-f); }
+    .risk-meta-value { font-size: 0.88rem; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+    .score-bar-wrap { display: flex; flex-direction: column; gap: 6px; }
+    .score-bar-label { display: flex; justify-content: space-between; align-items: center; }
+    .score-bar-title { font-size: 0.7rem; font-weight: 500; color: var(--text-m); }
+    .score-bar-pct { font-size: 0.7rem; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+    .score-bar-track { height: 5px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 99px; transition: width 0.5s cubic-bezier(0.16,1,0.3,1); }
+    .fill-green { background: var(--green); }
+    .fill-amber { background: var(--amber); }
+    .fill-red   { background: var(--red); }
+    .risk-explanation { display: flex; flex-direction: column; gap: 6px; }
+    .risk-explanation li { font-size: 0.78rem; color: var(--text-m); list-style: none; padding-left: 14px; position: relative; line-height: 1.5; }
+    .risk-explanation li::before { content: ''; position: absolute; left: 0; top: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--text-f); }
+    .risk-right { display: flex; flex-direction: column; gap: 10px; }
+    .headlines-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-f); }
+    .headline-item { padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 0.76rem; color: var(--text-m); line-height: 1.45; }
+    .no-headlines { font-size: 0.76rem; color: var(--text-f); font-style: italic; }
 
-    .risk-meta-row {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .risk-meta-item {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .risk-meta-label {
-      font-size: 0.65rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-f);
-    }
-
-    .risk-meta-value {
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: var(--text);
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Score bar */
-    .score-bar-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .score-bar-label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .score-bar-title {
-      font-size: 0.7rem;
-      font-weight: 500;
-      color: var(--text-m);
-    }
-
-    .score-bar-pct {
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--text);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .score-bar-track {
-      height: 5px;
-      border-radius: 99px;
-      background: var(--surface-2);
-      overflow: hidden;
-    }
-
-    .score-bar-fill {
-      height: 100%;
-      border-radius: 99px;
-      transition: width 0.5s cubic-bezier(0.16,1,0.3,1);
-    }
-
-    .fill-green  { background: var(--green); }
-    .fill-amber  { background: var(--amber); }
-    .fill-red    { background: var(--red); }
-
-    /* Explanation bullets */
-    .risk-explanation {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .risk-explanation li {
-      font-size: 0.78rem;
-      color: var(--text-m);
-      list-style: none;
-      padding-left: 14px;
-      position: relative;
-      line-height: 1.5;
-    }
-
-    .risk-explanation li::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 7px;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--text-f);
-    }
-
-    /* Headlines */
-    .risk-right {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .headlines-label {
-      font-size: 0.65rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-f);
-    }
-
-    .headline-item {
-      padding: 10px 12px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      font-size: 0.76rem;
-      color: var(--text-m);
-      line-height: 1.45;
-    }
-
-    .no-headlines {
-      font-size: 0.76rem;
-      color: var(--text-f);
-      font-style: italic;
-    }
-
-    /* ── Empty state ─────────────────────────────────── */
-    .empty {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 60px 20px;
-      color: var(--text-m);
-      text-align: center;
-    }
-
-    .empty-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--surface-2);
-      display: grid;
-      place-items: center;
-      color: var(--text-f);
-    }
-
+    .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 60px 20px; color: var(--text-m); text-align: center; }
+    .empty-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; color: var(--text-f); }
     .empty p { font-size: 0.82rem; max-width: 28ch; line-height: 1.5; }
-
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 2px solid var(--border-2);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border-2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── Alert ───────────────────────────────────────── */
     .alert { border-radius: var(--r-sm); padding: 10px 14px; font-size: 0.8rem; display: none; }
     .alert.error { background: rgba(224,92,92,0.1); border: 1px solid rgba(224,92,92,0.25); color: #f08080; display: block; }
     .alert.info  { background: rgba(79,124,255,0.08); border: 1px solid rgba(79,124,255,0.2); color: #9ab2ff; display: block; }
 
-    /* ── Responsive ─────────────────────────────────── */
     @media (max-width: 900px) {
-      main {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr;
-        height: auto;
-        overflow: visible;
-      }
-      .sidebar {
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-      }
+      main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; overflow: visible; }
+      .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
       .content { height: auto; }
     }
-
-    @media (max-width: 560px) {
-      .kpi-row { grid-template-columns: 1fr 1fr; }
-    }
-
-    @media (max-width: 360px) {
-      .kpi-row { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 560px) { .kpi-row { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 360px) { .kpi-row { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
 
 <div class="app">
-
-  <!-- NAV -->
   <nav>
     <div class="nav-logo">
       <div class="nav-logo-mark">
@@ -602,13 +181,9 @@
   </nav>
 
   <main>
-
-    <!-- SIDEBAR -->
     <aside class="sidebar">
-
       <div>
         <p class="sidebar-section-label">Configuration</p>
-
         <div class="field">
           <label for="inp-lane">Lane / Series</label>
           <select id="inp-lane">
@@ -633,25 +208,19 @@
             <option value="Far East to North America Price Index (2026)">Far East → North America</option>
           </select>
         </div>
-
         <div class="field">
           <label for="inp-horizon">Forecast Horizon (weeks)</label>
           <input id="inp-horizon" type="number" min="1" max="52" value="8" />
         </div>
-
         <div class="field">
           <label for="inp-paths">Monte Carlo Paths</label>
           <input id="inp-paths" type="number" min="100" max="100000" value="5000" />
         </div>
-
         <div class="field">
           <label for="inp-lookback">Lookback Period (days)</label>
           <input id="inp-lookback" type="number" min="60" max="1825" value="365" />
         </div>
-
-        <button class="btn-run" id="btn-run" type="button" onclick="runForecast()">
-          Run Forecast
-        </button>
+        <button class="btn-run" id="btn-run" type="button" onclick="runForecast()">Run Forecast</button>
       </div>
 
       <div class="divider"></div>
@@ -677,15 +246,11 @@
           Leave blank to use <code style="background:var(--surface-2);padding:1px 4px;border-radius:3px;font-size:0.68rem;">window.AXION_API_BASE</code> or localhost.
         </p>
       </div>
-
     </aside>
 
-    <!-- CONTENT -->
     <section class="content">
-
       <div class="alert" id="alert"></div>
 
-      <!-- KPI row -->
       <div class="kpi-row">
         <div class="kpi-card">
           <div class="kpi-label">Last Observed</div>
@@ -720,10 +285,7 @@
         </div>
         <div class="panel-body">
           <div class="risk-grid">
-
-            <!-- Left col: score + meta + explanation -->
             <div class="risk-left">
-
               <div class="score-bar-wrap">
                 <div class="score-bar-label">
                   <span class="score-bar-title">Net Risk Score</span>
@@ -733,7 +295,6 @@
                   <div class="score-bar-fill" id="risk-score-fill" style="width:0%"></div>
                 </div>
               </div>
-
               <div class="risk-meta-row">
                 <div class="risk-meta-item">
                   <span class="risk-meta-label">Articles (14d)</span>
@@ -752,17 +313,12 @@
                   <span class="risk-meta-value" id="risk-delta-mu">—</span>
                 </div>
               </div>
-
               <ul class="risk-explanation" id="risk-explanation"></ul>
-
             </div>
-
-            <!-- Right col: headlines -->
             <div class="risk-right">
               <span class="headlines-label">Top Headlines</span>
               <div id="risk-headlines"></div>
             </div>
-
           </div>
         </div>
       </div>
@@ -771,7 +327,7 @@
       <div class="panel">
         <div class="panel-head">
           <div>
-            <div class="panel-title">Weekly Forecast</div>
+            <div class="panel-title">Price History &amp; Forecast</div>
             <div class="panel-sub" id="chart-sub">Run a forecast to see projections</div>
           </div>
         </div>
@@ -812,26 +368,19 @@
                 </tr>
               </thead>
               <tbody id="table-body">
-                <tr>
-                  <td colspan="6">
-                    <div class="empty" style="padding:40px 20px;"><p>No data yet</p></div>
-                  </td>
-                </tr>
+                <tr><td colspan="6"><div class="empty" style="padding:40px 20px;"><p>No data yet</p></div></td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
-
     </section>
   </main>
 </div>
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
-  /* ── API Bridge ──────────────────────────────────── */
   function getBase() {
     const inp = document.getElementById('inp-base').value.trim();
     return inp || window.AXION_API_BASE || 'http://localhost:8000';
@@ -845,7 +394,6 @@
 
   window.axionAPI = { fetch: fetchAPI };
 
-  /* ── State ───────────────────────────────────────── */
   let chartInstance = null;
 
   function setLane(lane, btn) {
@@ -855,12 +403,12 @@
   }
 
   function fmt(n) {
-    if (n == null || isNaN(n)) return '—';
+    if (n == null || isNaN(n)) return '\u2014';
     return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n);
   }
 
   function fmtPct(n) {
-    if (n == null || isNaN(n)) return '—';
+    if (n == null || isNaN(n)) return '\u2014';
     return (n * 100).toFixed(1) + '%';
   }
 
@@ -878,18 +426,11 @@
       : `<div class="status-dot" style="${text === 'Ready' ? '' : 'background:var(--amber)'}"></div><span>${text}</span>`;
   }
 
-  /* ── Event Risk Renderer ─────────────────────────── */
   function renderEventRisk(er) {
     const panel = document.getElementById('risk-panel');
-
-    if (!er) {
-      panel.style.display = 'none';
-      return;
-    }
-
+    if (!er) { panel.style.display = 'none'; return; }
     panel.style.display = '';
 
-    // Regime badge
     const label = er.regime_label || 'Unknown';
     let badgeClass = 'regime-none';
     if (label === 'Normal') badgeClass = 'regime-normal';
@@ -899,7 +440,6 @@
     document.getElementById('risk-regime-badge').innerHTML =
       `<div class="regime-badge ${badgeClass}"><div class="dot"></div>${label}</div>`;
 
-    // Score bar
     const score = er.net_risk_score || 0;
     const scorePct = Math.round(score * 100);
     document.getElementById('risk-score-pct').textContent = scorePct + '%';
@@ -907,26 +447,22 @@
     fill.style.width = scorePct + '%';
     fill.className = 'score-bar-fill ' + (score < 0.33 ? 'fill-green' : score < 0.66 ? 'fill-amber' : 'fill-red');
 
-    // Meta values
-    document.getElementById('risk-article-count').textContent    = er.article_count ?? '—';
-    document.getElementById('risk-disruption-count').textContent = er.disruption_count ?? '—';
+    document.getElementById('risk-article-count').textContent    = er.article_count ?? '\u2014';
+    document.getElementById('risk-disruption-count').textContent = er.disruption_count ?? '\u2014';
     document.getElementById('risk-sigma').textContent =
-      er.sigma_multiplier != null ? 'x' + er.sigma_multiplier.toFixed(2) : '—';
+      er.sigma_multiplier != null ? 'x' + er.sigma_multiplier.toFixed(2) : '\u2014';
     document.getElementById('risk-delta-mu').textContent =
-      er.delta_mu_daily != null ? (er.delta_mu_daily >= 0 ? '+' : '') + er.delta_mu_daily.toFixed(4) : '—';
+      er.delta_mu_daily != null ? (er.delta_mu_daily >= 0 ? '+' : '') + er.delta_mu_daily.toFixed(4) : '\u2014';
 
-    // Sub label
     document.getElementById('risk-panel-sub').textContent =
-      'GDELT news signal · ' + (er.article_count || 0) + ' articles · last 14 days';
+      'GDELT news signal \u00b7 ' + (er.article_count || 0) + ' articles \u00b7 last 14 days';
 
-    // Explanation bullets
     const expEl = document.getElementById('risk-explanation');
     const explanations = er.explanation || [];
     expEl.innerHTML = explanations.length
       ? explanations.map(e => `<li>${e}</li>`).join('')
       : '<li>No explanation available.</li>';
 
-    // Headlines
     const hlEl = document.getElementById('risk-headlines');
     const headlines = er.top_headlines || [];
     hlEl.innerHTML = headlines.length
@@ -938,8 +474,8 @@
     setAlert('', '');
     const btn = document.getElementById('btn-run');
     btn.disabled = true;
-    btn.textContent = 'Running…';
-    setStatus('Fetching…', true);
+    btn.textContent = 'Running\u2026';
+    setStatus('Fetching\u2026', true);
 
     const payload = {
       lane:          document.getElementById('inp-lane').value.trim(),
@@ -968,6 +504,7 @@
 
   function renderResults(data) {
     const wf = data.weekly_forecast || [];
+    const hp = data.historical_points || [];
 
     document.getElementById('kpi-last').textContent      = fmt(data.last_observed_value);
     document.getElementById('kpi-last-date').textContent = data.last_observed_date || '';
@@ -975,10 +512,9 @@
 
     if (wf.length) {
       const last = wf[wf.length - 1];
-      document.getElementById('kpi-p50').textContent      = fmt(last.p50);
+      document.getElementById('kpi-p50').textContent       = fmt(last.p50);
       document.getElementById('kpi-p50-label').textContent = 'At week ' + data.horizon_weeks;
-      document.getElementById('kpi-p95').textContent      = fmt(last.p95);
-
+      document.getElementById('kpi-p95').textContent       = fmt(last.p95);
       const delta = ((last.p95 - data.last_observed_value) / data.last_observed_value * 100);
       const dEl   = document.getElementById('kpi-p95-delta');
       dEl.textContent = (delta >= 0 ? '+' : '') + delta.toFixed(1) + '% vs last observed';
@@ -986,16 +522,34 @@
     }
 
     document.getElementById('chart-sub').textContent =
-      data.lane + ' · ' + data.horizon_weeks + '-wk horizon · ' +
+      data.lane + ' \u00b7 ' + data.horizon_weeks + '-wk horizon \u00b7 ' +
       data.num_paths.toLocaleString() + ' paths';
 
     renderEventRisk(data.event_risk || null);
 
-    const labels   = wf.map(w => w.week_end);
-    const p05      = wf.map(w => w.p05);
-    const p50      = wf.map(w => w.p50);
-    const p95      = wf.map(w => w.p95);
-    const expected = wf.map(w => w.expected);
+    // Build unified label axis: historical dates + forecast week-end dates
+    const histLabels = hp.map(p => p.date);
+    const foreLabels = wf.map(w => w.week_end);
+    const allLabels  = [...histLabels, ...foreLabels];
+    const histLen    = histLabels.length;
+    const foreLen    = foreLabels.length;
+
+    // Pad arrays to full length with null so datasets align
+    const pad = (arr, before, after) => [
+      ...Array(before).fill(null),
+      ...arr,
+      ...Array(after).fill(null),
+    ];
+
+    const histValues = hp.map(p => p.value);
+    // Bridge: repeat last historical value as first point of forecast datasets
+    const lastHist   = histValues.length ? histValues[histValues.length - 1] : null;
+
+    const p95Data      = pad([lastHist, ...wf.map(w => w.p95)],      histLen - 1, 0);
+    const expectedData = pad([lastHist, ...wf.map(w => w.expected)], histLen - 1, 0);
+    const p50Data      = pad([lastHist, ...wf.map(w => w.p50)],      histLen - 1, 0);
+    const p05Data      = pad([lastHist, ...wf.map(w => w.p05)],      histLen - 1, 0);
+    const histData     = pad(histValues, 0, foreLen);
 
     document.getElementById('chart-empty').style.display = 'none';
     const canvas = document.getElementById('forecast-chart');
@@ -1007,46 +561,60 @@
     chartInstance = new Chart(ctx, {
       type: 'line',
       data: {
-        labels,
+        labels: allLabels,
         datasets: [
           {
             label: 'p95',
-            data: p95,
+            data: p95Data,
             borderColor: 'rgba(79,124,255,0.3)',
             backgroundColor: 'rgba(79,124,255,0.07)',
             borderWidth: 1,
             pointRadius: 0,
             fill: '+2',
             tension: 0.3,
+            spanGaps: true,
           },
           {
             label: 'Expected',
-            data: expected,
+            data: expectedData,
             borderColor: '#4f7cff',
             backgroundColor: 'transparent',
             borderWidth: 2,
-            pointRadius: 3,
-            pointBackgroundColor: '#4f7cff',
+            pointRadius: 0,
             tension: 0.3,
+            spanGaps: true,
           },
           {
             label: 'p50',
-            data: p50,
+            data: p50Data,
             borderColor: '#34c78a',
             backgroundColor: 'transparent',
             borderWidth: 1.5,
             borderDash: [4, 3],
             pointRadius: 0,
             tension: 0.3,
+            spanGaps: true,
           },
           {
             label: 'p05',
-            data: p05,
+            data: p05Data,
             borderColor: 'rgba(79,124,255,0.3)',
             backgroundColor: 'transparent',
             borderWidth: 1,
             pointRadius: 0,
             tension: 0.3,
+            spanGaps: true,
+          },
+          {
+            label: 'Historical',
+            data: histData,
+            borderColor: 'rgba(139,144,158,0.7)',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: 'rgba(139,144,158,0.7)',
+            tension: 0.2,
+            spanGaps: false,
           },
         ]
       },
@@ -1057,12 +625,7 @@
         plugins: {
           legend: {
             position: 'top',
-            labels: {
-              color: '#8b909e',
-              boxWidth: 12,
-              font: { family: 'Inter', size: 11 },
-              padding: 16,
-            }
+            labels: { color: '#8b909e', boxWidth: 12, font: { family: 'Inter', size: 11 }, padding: 16 }
           },
           tooltip: {
             backgroundColor: '#1c2030',
@@ -1071,15 +634,14 @@
             titleColor: '#e8eaf0',
             bodyColor: '#8b909e',
             padding: 10,
-            callbacks: {
-              label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y),
-            }
+            filter: item => item.parsed.y !== null,
+            callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y) }
           }
         },
         scales: {
           x: {
             grid:  { color: 'rgba(255,255,255,0.04)' },
-            ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, maxRotation: 0 },
+            ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, maxRotation: 0, maxTicksLimit: 10 },
           },
           y: {
             grid:  { color: 'rgba(255,255,255,0.04)' },
@@ -1098,7 +660,6 @@
         : trend === 'down'
         ? '<span class="tag tag-red">&#8595; Falling</span>'
         : '<span class="tag tag-amber">&#8594; Flat</span>';
-
       return `<tr>
         <td>${w.week_end}</td>
         <td>${fmt(w.expected)}</td>
