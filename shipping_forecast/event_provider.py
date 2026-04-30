@@ -20,7 +20,7 @@ class EventArticle:
     url: str
     source: str
     published: Optional[datetime]
-    tone: float  # GDELT tone: negative = more negative coverage
+    tone: float
 
 
 @dataclass
@@ -35,7 +35,8 @@ class EventFeed:
 class GDELTEventProvider:
     """
     Fetches recent news articles from the GDELT 2.0 DOC API for a given trade lane.
-    Requires no API key -- GDELT is free and open.
+    Uses documented boolean OR blocks in parentheses and retries with broader
+    fallbacks when the first query returns no articles.
     Docs: https://blog.gdeltproject.org/gdelt-doc-2-0-api-debuts/
     """
 
@@ -43,20 +44,47 @@ class GDELTEventProvider:
         self.lookback_days = lookback_days
         self.max_articles = max_articles
 
-    def _build_query(self, keywords: list[str]) -> str:
+    def _clean_term(self, term: str) -> str:
         """
-        Build a broad OR query using unquoted single-word terms and short phrases.
-        Strict multi-word quoted phrases reliably return zero results from GDELT;
-        unquoted OR terms cast a wide enough net to capture relevant articles.
-        We use all keywords (up to 6) so the query covers the lane's full context.
+        Quote multi-word phrases so GDELT treats them as exact phrases.
+        Single words are left unquoted so they match anywhere in the article.
         """
-        terms = keywords[:6]
-        return " OR ".join(terms)
+        term = (term or "").strip()
+        if not term:
+            return ""
+        if any(ch.isspace() for ch in term):
+            return f'"{term}"'
+        return term
 
-    async def fetch(self, lane: str) -> EventFeed:
-        keywords = get_keywords_for_lane(lane)
-        query = self._build_query(keywords)
+    def _build_query_candidates(self, keywords: list[str]) -> list[str]:
+        """
+        Return a list of queries in decreasing specificity.  The caller tries
+        each in turn and stops at the first one that returns articles.
 
+        - broad:   all lane keywords wrapped in (a OR b OR c OR ...)
+        - medium:  first 5 lane keywords only
+        - generic: a hardcoded broad shipping fallback that almost always hits
+        """
+        cleaned = [self._clean_term(k) for k in keywords if (k or "").strip()]
+        cleaned = cleaned[:8]
+        if not cleaned:
+            return ["shipping"]
+
+        broad = f"({' OR '.join(cleaned)})"
+        medium_terms = cleaned[: min(5, len(cleaned))]
+        medium = f"({' OR '.join(medium_terms)})"
+        generic = "(shipping OR freight OR ports OR logistics OR containers)"
+
+        # deduplicate while preserving order
+        candidates: list[str] = []
+        for q in [broad, medium, generic]:
+            if q not in candidates:
+                candidates.append(q)
+        return candidates
+
+    async def _request_articles(
+        self, query: str
+    ) -> tuple[list[EventArticle], Optional[str]]:
         params = {
             "query": query,
             "mode": "artlist",
@@ -65,15 +93,14 @@ class GDELTEventProvider:
             "format": "json",
             "sortby": "datedesc",
         }
-
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
                 resp = await client.get(GDELT_DOC_API, params=params)
                 resp.raise_for_status()
                 data = resp.json()
         except Exception as exc:
-            logger.warning("GDELT fetch failed for lane '%s': %s", lane, exc)
-            return EventFeed(lane=lane, query=query, error=str(exc))
+            logger.warning("GDELT fetch failed for query '%s': %s", query, exc)
+            return [], str(exc)
 
         articles: list[EventArticle] = []
         for art in data.get("articles", []) or []:
@@ -95,5 +122,29 @@ class GDELTEventProvider:
                     tone=float(art.get("tone") or 0.0),
                 )
             )
+        return articles, None
 
-        return EventFeed(lane=lane, query=query, articles=articles)
+    async def fetch(self, lane: str) -> EventFeed:
+        keywords = get_keywords_for_lane(lane)
+        queries = self._build_query_candidates(keywords)
+
+        last_error: Optional[str] = None
+        for query in queries:
+            articles, error = await self._request_articles(query)
+            if error:
+                last_error = error
+                continue
+            if articles:
+                logger.debug(
+                    "GDELT returned %d articles for lane '%s' using query: %s",
+                    len(articles),
+                    lane,
+                    query,
+                )
+                return EventFeed(lane=lane, query=query, articles=articles)
+            logger.debug("GDELT query returned no articles, trying next fallback: %s", query)
+
+        logger.warning(
+            "All GDELT query candidates exhausted for lane '%s' with no articles.", lane
+        )
+        return EventFeed(lane=lane, query=queries[-1], articles=[], error=last_error)
