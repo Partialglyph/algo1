@@ -394,7 +394,7 @@
       <div class="tab-panel active" id="tab-quant">
         <div class="alert" id="alert"></div>
           <!-- Risk adjustment callout — shown only when regime is non-Normal -->
-<div id="quant-risk-note" style="display:none; background:rgba(245,166,35,0.08); border:1px solid rgba(245,166,35,0.22); border-radius:var(--r-sm); padding:10px 14px; font-size:0.78rem; color:var(--amber); display:flex; align-items:center; gap:10px;">
+<div id="quant-risk-note" style="display:none; background:rgba(245,166,35,0.08); border:1px solid rgba(245,166,35,0.22); border-radius:var(--r-sm); padding:10px 14px; font-size:0.78rem; color:var(--amber); align-items:center; gap:10px; align-items:center; gap:10px;">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
   <span id="quant-risk-note-text">News risk overlay is active — forecast bands are widened. See the <button onclick="switchTab('news')" style="background:none;border:none;color:var(--amber);text-decoration:underline;cursor:pointer;font:inherit;padding:0;">News Analysis tab</button> for details.</span>
 </div>
@@ -732,8 +732,11 @@
       'GDELT \u00b7 ' + (vol.last_7d || 0) + ' articles this week \u00b7 ' + (nr.risk_label || '\u2014') + ' regime';
 
     // Narrative
-    document.getElementById('news-narrative').textContent =
-      nr.risk_summary || 'No narrative generated.';
+    const narrative = nr.risk_summary || 'No narrative generated.';
+    const sentences = narrative.match(/[^.!?]+[.!?]+/g) || [narrative];
+    const paras = [];
+    for (let i = 0; i < sentences.length; i += 3) paras.push(sentences.slice(i, i+3).join(' '));
+    document.getElementById('news-narrative').innerHTML = paras.map(p => `<p style="margin-bottom:0.8em;line-height:1.65;">${p.trim()}</p>`).join('');;
 
     // Drivers
     const driversEl = document.getElementById('news-drivers');
