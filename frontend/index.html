@@ -14,6 +14,7 @@
       --bg:        #0f1117;
       --surface:   #161921;
       --surface-2: #1c2030;
+      --surface-3: #222840;
       --border:    rgba(255,255,255,0.07);
       --border-2:  rgba(255,255,255,0.12);
       --text:      #e8eaf0;
@@ -24,6 +25,7 @@
       --green:     #34c78a;
       --red:       #e05c5c;
       --amber:     #f5a623;
+      --purple:    #a78bfa;
       --font: 'Inter', 'Helvetica Neue', sans-serif;
       --r-sm: 6px;
       --r-md: 10px;
@@ -36,10 +38,12 @@
     body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100dvh; line-height: 1.55; }
     button { cursor: pointer; font: inherit; }
     input, select { font: inherit; color: inherit; }
-    a { color: inherit; text-decoration: none; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
 
     .app { display: grid; grid-template-rows: 56px 1fr; min-height: 100dvh; }
 
+    /* ── NAV ── */
     nav {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -58,8 +62,10 @@
     .nav-status { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-m); }
     .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
 
+    /* ── LAYOUT ── */
     main { display: grid; grid-template-columns: 280px 1fr; height: calc(100dvh - 56px); overflow: hidden; }
 
+    /* ── SIDEBAR ── */
     .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 24px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 28px; }
     .sidebar-section-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-f); margin-bottom: 10px; }
     .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
@@ -76,9 +82,45 @@
     .lane-chip:hover { background: var(--surface-2); color: var(--text); }
     .lane-chip.active { background: rgba(79,124,255,0.12); border-color: rgba(79,124,255,0.35); color: var(--accent); font-weight: 500; }
 
-    .content { overflow-y: auto; padding: clamp(20px, 3vw, 36px); display: flex; flex-direction: column; gap: 24px; }
+    /* ── CONTENT AREA ── */
+    .content { overflow-y: auto; display: flex; flex-direction: column; }
 
-    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+    /* ── TABS ── */
+    .tabs-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      padding: 0 clamp(20px, 3vw, 36px);
+      background: var(--surface);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 14px 18px 12px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-m);
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: color var(--t), border-color var(--t);
+      margin-bottom: -1px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+    .tab-icon { width: 14px; height: 14px; opacity: 0.7; }
+    .tab-panel { display: none; padding: clamp(20px, 3vw, 36px); flex-direction: column; gap: 24px; }
+    .tab-panel.active { display: flex; }
+
+    /* ── KPI ROW ── */
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
     .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 18px 20px; }
     .kpi-label { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-m); margin-bottom: 8px; }
     .kpi-value { font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 300; letter-spacing: -0.02em; color: var(--text); font-variant-numeric: tabular-nums; }
@@ -87,15 +129,18 @@
     .kpi-delta.down { color: var(--red); }
     .kpi-delta.neu  { color: var(--text-m); }
 
+    /* ── PANEL ── */
     .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); }
     .panel-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
     .panel-title { font-size: 0.82rem; font-weight: 600; color: var(--text); letter-spacing: 0.01em; }
     .panel-sub { font-size: 0.72rem; color: var(--text-m); margin-top: 2px; }
     .panel-body { padding: 20px; }
 
+    /* ── CHART ── */
     .chart-area { width: 100%; height: 280px; position: relative; }
     canvas { width: 100% !important; height: 100% !important; }
 
+    /* ── TABLE ── */
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
     thead tr { border-bottom: 1px solid var(--border); }
@@ -107,11 +152,10 @@
     .tag-green { background: rgba(52,199,138,0.12); color: var(--green); }
     .tag-red   { background: rgba(224,92,92,0.12);  color: var(--red); }
     .tag-amber { background: rgba(245,166,35,0.12);  color: var(--amber); }
+    .tag-blue  { background: rgba(79,124,255,0.12);  color: var(--accent); }
+    .tag-purple{ background: rgba(167,139,250,0.12); color: var(--purple); }
 
-    /* Event Risk */
-    .risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media (max-width: 700px) { .risk-grid { grid-template-columns: 1fr; } }
-    .risk-left { display: flex; flex-direction: column; gap: 16px; }
+    /* ── NEWS TAB STYLES ── */
     .regime-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; width: fit-content; }
     .regime-badge .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .regime-normal   { background: rgba(52,199,138,0.12); color: var(--green); }
@@ -122,27 +166,103 @@
     .regime-severe   .dot { background: var(--red); }
     .regime-none     { background: rgba(139,144,158,0.12); color: var(--text-m); }
     .regime-none     .dot { background: var(--text-f); }
-    .risk-meta-row { display: flex; gap: 20px; flex-wrap: wrap; }
-    .risk-meta-item { display: flex; flex-direction: column; gap: 3px; }
-    .risk-meta-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-f); }
-    .risk-meta-value { font-size: 0.88rem; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+
+    /* Risk overview row */
+    .risk-overview { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 820px) { .risk-overview { grid-template-columns: 1fr; } }
+
+    .risk-score-block { display: flex; flex-direction: column; gap: 14px; }
     .score-bar-wrap { display: flex; flex-direction: column; gap: 6px; }
     .score-bar-label { display: flex; justify-content: space-between; align-items: center; }
     .score-bar-title { font-size: 0.7rem; font-weight: 500; color: var(--text-m); }
     .score-bar-pct { font-size: 0.7rem; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
-    .score-bar-track { height: 5px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
-    .score-bar-fill { height: 100%; border-radius: 99px; transition: width 0.5s cubic-bezier(0.16,1,0.3,1); }
+    .score-bar-track { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 99px; transition: width 0.55s cubic-bezier(0.16,1,0.3,1); }
     .fill-green { background: var(--green); }
     .fill-amber { background: var(--amber); }
     .fill-red   { background: var(--red); }
-    .risk-explanation { display: flex; flex-direction: column; gap: 6px; }
-    .risk-explanation li { font-size: 0.78rem; color: var(--text-m); list-style: none; padding-left: 14px; position: relative; line-height: 1.5; }
-    .risk-explanation li::before { content: ''; position: absolute; left: 0; top: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--text-f); }
-    .risk-right { display: flex; flex-direction: column; gap: 10px; }
-    .headlines-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-f); }
-    .headline-item { padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 0.76rem; color: var(--text-m); line-height: 1.45; }
-    .no-headlines { font-size: 0.76rem; color: var(--text-f); font-style: italic; }
 
+    .risk-meta-row { display: flex; gap: 20px; flex-wrap: wrap; }
+    .risk-meta-item { display: flex; flex-direction: column; gap: 3px; }
+    .risk-meta-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-f); }
+    .risk-meta-value { font-size: 0.88rem; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+
+    /* Narrative summary */
+    .risk-narrative {
+      font-size: 0.82rem;
+      color: var(--text-m);
+      line-height: 1.65;
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+    }
+
+    /* Drivers list */
+    .drivers-list { display: flex; flex-direction: column; gap: 7px; }
+    .driver-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.78rem;
+      color: var(--text-m);
+      line-height: 1.5;
+      padding: 8px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+    }
+    .driver-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 5px; }
+
+    /* Article cards */
+    .articles-list { display: flex; flex-direction: column; gap: 14px; }
+    .article-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .article-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .article-title { font-size: 0.84rem; font-weight: 600; color: var(--text); line-height: 1.4; flex: 1; }
+    .article-title a { color: inherit; }
+    .article-title a:hover { color: var(--accent); text-decoration: none; }
+    .article-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.7rem;
+      color: var(--text-f);
+    }
+    .article-meta-sep { color: var(--text-f); }
+    .article-section-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-f);
+      margin-bottom: 3px;
+    }
+    .article-text { font-size: 0.78rem; color: var(--text-m); line-height: 1.55; }
+    .article-themes { display: flex; flex-wrap: wrap; gap: 5px; }
+    .article-tone-bar { display: flex; align-items: center; gap: 8px; }
+    .tone-track { flex: 1; height: 4px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+    .tone-fill { height: 100%; border-radius: 99px; }
+    .tone-label { font-size: 0.68rem; font-variant-numeric: tabular-nums; color: var(--text-m); min-width: 36px; text-align: right; }
+    .original-title-toggle { font-size: 0.68rem; color: var(--text-f); cursor: pointer; border: none; background: none; padding: 0; text-decoration: underline; }
+    .original-title { font-size: 0.72rem; color: var(--text-f); font-style: italic; display: none; }
+    .original-title.show { display: block; }
+
+    /* Volume stats */
+    .vol-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .vol-stat { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 12px 14px; }
+    .vol-stat-num { font-size: 1.3rem; font-weight: 300; font-variant-numeric: tabular-nums; color: var(--text); }
+    .vol-stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-f); margin-top: 3px; }
+
+    /* Shared empty / spinner */
     .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 60px 20px; color: var(--text-m); text-align: center; }
     .empty-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; color: var(--text-f); }
     .empty p { font-size: 0.82rem; max-width: 28ch; line-height: 1.5; }
@@ -157,7 +277,7 @@
       .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
       .content { height: auto; }
     }
-    @media (max-width: 560px) { .kpi-row { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .kpi-row { grid-template-columns: 1fr 1fr; } .vol-stats { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 360px) { .kpi-row { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -187,25 +307,25 @@
         <div class="field">
           <label for="inp-lane">Lane / Series</label>
           <select id="inp-lane">
-            <option value="Australasia &amp; Oceania to Europe Price Index (2026)">AO → Europe</option>
-            <option value="Australasia &amp; Oceania to North America Price Index (2026)">AO → North America</option>
-            <option value="Australasia &amp; Oceania to South &amp; Central America Price Index (2026)">AO → South &amp; Central America</option>
-            <option value="Australasia &amp; Oceania to Far East Price Index (2026)">AO → Far East</option>
-            <option value="Australasia &amp; Oceania to Sub Saharan Africa Price Index (2026)">AO → Sub Saharan Africa</option>
-            <option value="Australasia &amp; Oceania to Australasia &amp; Oceania Price Index (2026)">AO → AO</option>
-            <option value="Australasia &amp; Oceania to Indian Sub Cont &amp; Middle East Price Index (2026)">AO → ISC &amp; Middle East</option>
-            <option value="Europe to Europe Price Index (2026)">Europe → Europe</option>
-            <option value="Europe to Sub Saharan Africa Price Index (2026)">Europe → Sub Saharan Africa</option>
-            <option value="Europe to South &amp; Central America Price Index (2026)">Europe → South &amp; Central America</option>
-            <option value="Europe to Australasia &amp; Oceania Price Index (2026)">Europe → AO</option>
-            <option value="Europe to Far East Price Index (2026)">Europe → Far East</option>
-            <option value="Europe to North America Price Index (2026)">Europe → North America</option>
-            <option value="Europe to Indian Sub Cont &amp; Middle East Price Index (2026)">Europe → ISC &amp; Middle East</option>
-            <option value="Far East to South &amp; Central America Price Index (2026)">Far East → South &amp; Central America</option>
-            <option value="Far East to Europe Price Index (2026)">Far East → Europe</option>
-            <option value="Far East to Indian Sub Cont &amp; Middle East Price Index (2026)">Far East → ISC &amp; Middle East</option>
-            <option value="Far East to Australasia &amp; Oceania Price Index (2026)">Far East → AO</option>
-            <option value="Far East to North America Price Index (2026)">Far East → North America</option>
+            <option value="Australasia &amp; Oceania to Europe Price Index (2026)">AO &#8594; Europe</option>
+            <option value="Australasia &amp; Oceania to North America Price Index (2026)">AO &#8594; North America</option>
+            <option value="Australasia &amp; Oceania to South &amp; Central America Price Index (2026)">AO &#8594; South &amp; Central America</option>
+            <option value="Australasia &amp; Oceania to Far East Price Index (2026)">AO &#8594; Far East</option>
+            <option value="Australasia &amp; Oceania to Sub Saharan Africa Price Index (2026)">AO &#8594; Sub Saharan Africa</option>
+            <option value="Australasia &amp; Oceania to Australasia &amp; Oceania Price Index (2026)">AO &#8594; AO</option>
+            <option value="Australasia &amp; Oceania to Indian Sub Cont &amp; Middle East Price Index (2026)">AO &#8594; ISC &amp; Middle East</option>
+            <option value="Europe to Europe Price Index (2026)">Europe &#8594; Europe</option>
+            <option value="Europe to Sub Saharan Africa Price Index (2026)">Europe &#8594; Sub Saharan Africa</option>
+            <option value="Europe to South &amp; Central America Price Index (2026)">Europe &#8594; South &amp; Central America</option>
+            <option value="Europe to Australasia &amp; Oceania Price Index (2026)">Europe &#8594; AO</option>
+            <option value="Europe to Far East Price Index (2026)">Europe &#8594; Far East</option>
+            <option value="Europe to North America Price Index (2026)">Europe &#8594; North America</option>
+            <option value="Europe to Indian Sub Cont &amp; Middle East Price Index (2026)">Europe &#8594; ISC &amp; Middle East</option>
+            <option value="Far East to South &amp; Central America Price Index (2026)">Far East &#8594; South &amp; Central America</option>
+            <option value="Far East to Europe Price Index (2026)">Far East &#8594; Europe</option>
+            <option value="Far East to Indian Sub Cont &amp; Middle East Price Index (2026)">Far East &#8594; ISC &amp; Middle East</option>
+            <option value="Far East to Australasia &amp; Oceania Price Index (2026)">Far East &#8594; AO</option>
+            <option value="Far East to North America Price Index (2026)">Far East &#8594; North America</option>
           </select>
         </div>
         <div class="field">
@@ -228,9 +348,9 @@
       <div>
         <p class="sidebar-section-label">Quick Lanes</p>
         <div class="lane-chips">
-          <button class="lane-chip active" onclick="setLane('Australasia &amp; Oceania to Europe Price Index (2026)', this)">AO → Europe</button>
-          <button class="lane-chip" onclick="setLane('Far East to Europe Price Index (2026)', this)">Far East → Europe</button>
-          <button class="lane-chip" onclick="setLane('Far East to North America Price Index (2026)', this)">Far East → North America</button>
+          <button class="lane-chip active" onclick="setLane('Australasia &amp; Oceania to Europe Price Index (2026)', this)">AO &#8594; Europe</button>
+          <button class="lane-chip" onclick="setLane('Far East to Europe Price Index (2026)', this)">Far East &#8594; Europe</button>
+          <button class="lane-chip" onclick="setLane('Far East to North America Price Index (2026)', this)">Far East &#8594; North America</button>
         </div>
       </div>
 
@@ -249,131 +369,238 @@
     </aside>
 
     <section class="content">
-      <div class="alert" id="alert"></div>
-
-      <div class="kpi-row">
-        <div class="kpi-card">
-          <div class="kpi-label">Last Observed</div>
-          <div class="kpi-value" id="kpi-last">—</div>
-          <div class="kpi-delta neu" id="kpi-last-date"></div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">8-Wk Median (p50)</div>
-          <div class="kpi-value" id="kpi-p50">—</div>
-          <div class="kpi-delta neu" id="kpi-p50-label">Week-end projection</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Upside (p95)</div>
-          <div class="kpi-value" id="kpi-p95">—</div>
-          <div class="kpi-delta up" id="kpi-p95-delta"></div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Annualised Vol.</div>
-          <div class="kpi-value" id="kpi-vol">—</div>
-          <div class="kpi-delta neu">Realised volatility</div>
-        </div>
+      <!-- TABS BAR -->
+      <div class="tabs-bar">
+        <button class="tab-btn active" id="tab-quant-btn" onclick="switchTab('quant')" aria-selected="true">
+          <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <polyline points="1 11 4 7 7 9 10 4 15 8"/>
+          </svg>
+          Quantitative Forecast
+        </button>
+        <button class="tab-btn" id="tab-news-btn" onclick="switchTab('news')" aria-selected="false">
+          <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <rect x="1" y="2" width="14" height="12" rx="2"/>
+            <line x1="4" y1="6" x2="12" y2="6"/>
+            <line x1="4" y1="9" x2="9" y2="9"/>
+          </svg>
+          News Analysis
+          <span id="risk-tab-badge" style="display:none; background:var(--amber); color:#000; font-size:0.6rem; font-weight:700; padding:1px 6px; border-radius:99px; margin-left:2px;"></span>
+        </button>
       </div>
 
-      <!-- Event Risk panel -->
-      <div class="panel" id="risk-panel" style="display:none;">
-        <div class="panel-head">
-          <div>
-            <div class="panel-title">Event Risk &amp; Regime Analysis</div>
-            <div class="panel-sub" id="risk-panel-sub">GDELT news signal · last 14 days</div>
+      <!-- ═══ QUANTITATIVE TAB ═══ -->
+      <div class="tab-panel active" id="tab-quant">
+        <div class="alert" id="alert"></div>
+
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">Last Observed</div>
+            <div class="kpi-value" id="kpi-last">&#8212;</div>
+            <div class="kpi-delta neu" id="kpi-last-date"></div>
           </div>
-          <div id="risk-regime-badge"></div>
+          <div class="kpi-card">
+            <div class="kpi-label">Horizon Median (p50)</div>
+            <div class="kpi-value" id="kpi-p50">&#8212;</div>
+            <div class="kpi-delta neu" id="kpi-p50-label">Week-end projection</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Upside (p95)</div>
+            <div class="kpi-value" id="kpi-p95">&#8212;</div>
+            <div class="kpi-delta up" id="kpi-p95-delta"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Annualised Vol.</div>
+            <div class="kpi-value" id="kpi-vol">&#8212;</div>
+            <div class="kpi-delta neu">Realised volatility</div>
+          </div>
         </div>
-        <div class="panel-body">
-          <div class="risk-grid">
-            <div class="risk-left">
-              <div class="score-bar-wrap">
-                <div class="score-bar-label">
-                  <span class="score-bar-title">Net Risk Score</span>
-                  <span class="score-bar-pct" id="risk-score-pct">0%</span>
-                </div>
-                <div class="score-bar-track">
-                  <div class="score-bar-fill" id="risk-score-fill" style="width:0%"></div>
-                </div>
-              </div>
-              <div class="risk-meta-row">
-                <div class="risk-meta-item">
-                  <span class="risk-meta-label">Articles (14d)</span>
-                  <span class="risk-meta-value" id="risk-article-count">—</span>
-                </div>
-                <div class="risk-meta-item">
-                  <span class="risk-meta-label">Disruption Events</span>
-                  <span class="risk-meta-value" id="risk-disruption-count">—</span>
-                </div>
-                <div class="risk-meta-item">
-                  <span class="risk-meta-label">Vol Multiplier</span>
-                  <span class="risk-meta-value" id="risk-sigma">—</span>
-                </div>
-                <div class="risk-meta-item">
-                  <span class="risk-meta-label">Drift Adj. (daily)</span>
-                  <span class="risk-meta-value" id="risk-delta-mu">—</span>
-                </div>
-              </div>
-              <ul class="risk-explanation" id="risk-explanation"></ul>
+
+        <!-- Chart panel -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Price History &amp; Forecast</div>
+              <div class="panel-sub" id="chart-sub">Run a forecast to see projections</div>
             </div>
-            <div class="risk-right">
-              <span class="headlines-label">Top Headlines</span>
-              <div id="risk-headlines"></div>
+          </div>
+          <div class="panel-body">
+            <div class="chart-area" id="chart-area">
+              <div class="empty" id="chart-empty">
+                <div class="empty-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                  </svg>
+                </div>
+                <p>Choose a lane and click Run Forecast</p>
+              </div>
+              <canvas id="forecast-chart" style="display:none;"></canvas>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Chart panel -->
-      <div class="panel">
-        <div class="panel-head">
-          <div>
-            <div class="panel-title">Price History &amp; Forecast</div>
-            <div class="panel-sub" id="chart-sub">Run a forecast to see projections</div>
-          </div>
-        </div>
-        <div class="panel-body">
-          <div class="chart-area" id="chart-area">
-            <div class="empty" id="chart-empty">
-              <div class="empty-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                </svg>
-              </div>
-              <p>Choose a lane and click Run Forecast</p>
+        <!-- Table panel -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Weekly Breakdown</div>
+              <div class="panel-sub">p05 / p50 / p95 confidence intervals</div>
             </div>
-            <canvas id="forecast-chart" style="display:none;"></canvas>
+          </div>
+          <div class="panel-body" style="padding:0;">
+            <div class="table-wrap">
+              <table id="forecast-table">
+                <thead>
+                  <tr>
+                    <th>Week end</th>
+                    <th>Expected</th>
+                    <th>p05</th>
+                    <th>p50</th>
+                    <th>p95</th>
+                    <th>Signal</th>
+                  </tr>
+                </thead>
+                <tbody id="table-body">
+                  <tr><td colspan="6"><div class="empty" style="padding:40px 20px;"><p>No data yet</p></div></td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Table panel -->
-      <div class="panel">
-        <div class="panel-head">
-          <div>
-            <div class="panel-title">Weekly Breakdown</div>
-            <div class="panel-sub">p05 / p50 / p95 confidence intervals</div>
+      <!-- ═══ NEWS ANALYSIS TAB ═══ -->
+      <div class="tab-panel" id="tab-news">
+
+        <!-- Regime + score overview -->
+        <div class="panel" id="news-overview-panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Event Risk &amp; Regime</div>
+              <div class="panel-sub" id="news-panel-sub">GDELT news signal &#183; run a forecast to load</div>
+            </div>
+            <div id="news-regime-badge"></div>
+          </div>
+          <div class="panel-body">
+            <div class="risk-overview">
+              <div class="risk-score-block">
+                <div class="score-bar-wrap">
+                  <div class="score-bar-label">
+                    <span class="score-bar-title">Net Risk Score</span>
+                    <span class="score-bar-pct" id="news-score-pct">&#8212;</span>
+                  </div>
+                  <div class="score-bar-track">
+                    <div class="score-bar-fill" id="news-score-fill" style="width:0%"></div>
+                  </div>
+                </div>
+                <div class="risk-meta-row">
+                  <div class="risk-meta-item">
+                    <span class="risk-meta-label">Vol &#215; Multiplier</span>
+                    <span class="risk-meta-value" id="news-sigma">&#8212;</span>
+                  </div>
+                  <div class="risk-meta-item">
+                    <span class="risk-meta-label">Drift Adj. (daily)</span>
+                    <span class="risk-meta-value" id="news-delta-mu">&#8212;</span>
+                  </div>
+                  <div class="risk-meta-item">
+                    <span class="risk-meta-label">Vol. vs Baseline</span>
+                    <span class="risk-meta-value" id="news-vol-ratio">&#8212;</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Volume counts -->
+              <div>
+                <p class="article-section-label" style="margin-bottom:10px;">Article Volume</p>
+                <div class="vol-stats">
+                  <div class="vol-stat">
+                    <div class="vol-stat-num" id="vol-24h">&#8212;</div>
+                    <div class="vol-stat-label">Last 24 h</div>
+                  </div>
+                  <div class="vol-stat">
+                    <div class="vol-stat-num" id="vol-72h">&#8212;</div>
+                    <div class="vol-stat-label">Last 72 h</div>
+                  </div>
+                  <div class="vol-stat">
+                    <div class="vol-stat-num" id="vol-7d">&#8212;</div>
+                    <div class="vol-stat-label">Last 7 days</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="panel-body" style="padding:0;">
-          <div class="table-wrap">
-            <table id="forecast-table">
-              <thead>
-                <tr>
-                  <th>Week end</th>
-                  <th>Expected</th>
-                  <th>p05</th>
-                  <th>p50</th>
-                  <th>p95</th>
-                  <th>Signal</th>
-                </tr>
-              </thead>
-              <tbody id="table-body">
-                <tr><td colspan="6"><div class="empty" style="padding:40px 20px;"><p>No data yet</p></div></td></tr>
-              </tbody>
-            </table>
+
+        <!-- Narrative summary -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Risk Narrative</div>
+          </div>
+          <div class="panel-body">
+            <p class="risk-narrative" id="news-narrative">Run a forecast to generate the risk narrative for this lane.</p>
           </div>
         </div>
-      </div>
+
+        <!-- Key drivers -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Key Drivers</div>
+            <div class="panel-sub">Primary factors behind the net risk score</div>
+          </div>
+          <div class="panel-body">
+            <div class="drivers-list" id="news-drivers">
+              <div class="driver-item"><div class="driver-dot"></div><span style="color:var(--text-f);font-style:italic;">No data yet</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured articles -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Featured Articles</div>
+              <div class="panel-sub" id="articles-sub">Top GDELT matches for this lane</div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="articles-list" id="news-articles">
+              <div class="empty" style="padding:40px 20px;">
+                <div class="empty-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="13" y2="12"/></svg>
+                </div>
+                <p>Featured articles will appear here after running a forecast.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Theme breakdown -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Theme Breakdown</div>
+              <div class="panel-sub">Risk contribution by coverage cluster</div>
+            </div>
+          </div>
+          <div class="panel-body" style="padding:0;">
+            <div class="table-wrap">
+              <table id="theme-table">
+                <thead>
+                  <tr>
+                    <th>Theme</th>
+                    <th>Articles</th>
+                    <th>Avg Tone</th>
+                    <th>Risk Contribution</th>
+                  </tr>
+                </thead>
+                <tbody id="theme-body">
+                  <tr><td colspan="4"><div class="empty" style="padding:30px 20px;"><p>No theme data yet</p></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /tab-news -->
     </section>
   </main>
 </div>
@@ -381,6 +608,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
+  /* ── UTILITIES ── */
   function getBase() {
     const inp = document.getElementById('inp-base').value.trim();
     return inp || window.AXION_API_BASE || 'http://localhost:8000';
@@ -426,50 +654,150 @@
       : `<div class="status-dot" style="${text === 'Ready' ? '' : 'background:var(--amber)'}"></div><span>${text}</span>`;
   }
 
-  function renderEventRisk(er) {
-    const panel = document.getElementById('risk-panel');
-    if (!er) { panel.style.display = 'none'; return; }
-    panel.style.display = '';
-
-    const label = er.regime_label || 'Unknown';
-    let badgeClass = 'regime-none';
-    if (label === 'Normal') badgeClass = 'regime-normal';
-    else if (label.toLowerCase().includes('elevated')) badgeClass = 'regime-elevated';
-    else if (label.toLowerCase().includes('severe')) badgeClass = 'regime-severe';
-
-    document.getElementById('risk-regime-badge').innerHTML =
-      `<div class="regime-badge ${badgeClass}"><div class="dot"></div>${label}</div>`;
-
-    const score = er.net_risk_score || 0;
-    const scorePct = Math.round(score * 100);
-    document.getElementById('risk-score-pct').textContent = scorePct + '%';
-    const fill = document.getElementById('risk-score-fill');
-    fill.style.width = scorePct + '%';
-    fill.className = 'score-bar-fill ' + (score < 0.33 ? 'fill-green' : score < 0.66 ? 'fill-amber' : 'fill-red');
-
-    document.getElementById('risk-article-count').textContent    = er.article_count ?? '\u2014';
-    document.getElementById('risk-disruption-count').textContent = er.disruption_count ?? '\u2014';
-    document.getElementById('risk-sigma').textContent =
-      er.sigma_multiplier != null ? 'x' + er.sigma_multiplier.toFixed(2) : '\u2014';
-    document.getElementById('risk-delta-mu').textContent =
-      er.delta_mu_daily != null ? (er.delta_mu_daily >= 0 ? '+' : '') + er.delta_mu_daily.toFixed(4) : '\u2014';
-
-    document.getElementById('risk-panel-sub').textContent =
-      'GDELT news signal \u00b7 ' + (er.article_count || 0) + ' articles \u00b7 last 14 days';
-
-    const expEl = document.getElementById('risk-explanation');
-    const explanations = er.explanation || [];
-    expEl.innerHTML = explanations.length
-      ? explanations.map(e => `<li>${e}</li>`).join('')
-      : '<li>No explanation available.</li>';
-
-    const hlEl = document.getElementById('risk-headlines');
-    const headlines = er.top_headlines || [];
-    hlEl.innerHTML = headlines.length
-      ? headlines.map(h => `<div class="headline-item">${h}</div>`).join('')
-      : '<p class="no-headlines">No headlines retrieved for this lane.</p>';
+  /* ── TABS ── */
+  function switchTab(name) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+    document.getElementById('tab-' + name).classList.add('active');
+    const btn = document.getElementById('tab-' + name + '-btn');
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
   }
 
+  /* ── REGIME BADGE ── */
+  function regimeBadgeHTML(label) {
+    let cls = 'regime-none';
+    if (label === 'Normal') cls = 'regime-normal';
+    else if (label === 'Elevated') cls = 'regime-elevated';
+    else if (label === 'Severe') cls = 'regime-severe';
+    return `<div class="regime-badge ${cls}"><div class="dot"></div>${label || 'Unknown'}</div>`;
+  }
+
+  /* ── TONE BAR ── */
+  function toneBarHTML(tone) {
+    // GDELT tone: negative = bad, range roughly -10 to +10
+    const pct = Math.max(0, Math.min(100, ((tone + 10) / 20) * 100));
+    const color = tone < -1 ? 'var(--red)' : tone > 1 ? 'var(--green)' : 'var(--amber)';
+    return `<div class="article-tone-bar">
+      <div class="tone-track"><div class="tone-fill" style="width:${pct.toFixed(0)}%;background:${color};"></div></div>
+      <span class="tone-label">${tone.toFixed(2)}</span>
+    </div>`;
+  }
+
+  /* ── RENDER NEWS TAB ── */
+  function renderNewsTab(nr) {
+    if (!nr) return;
+
+    // Regime badge + tab badge
+    document.getElementById('news-regime-badge').innerHTML = regimeBadgeHTML(nr.risk_label);
+    const tabBadge = document.getElementById('risk-tab-badge');
+    if (nr.risk_label && nr.risk_label !== 'Normal') {
+      tabBadge.textContent = nr.risk_label;
+      tabBadge.style.display = '';
+      tabBadge.style.background = nr.risk_label === 'Severe' ? 'var(--red)' : 'var(--amber)';
+      tabBadge.style.color = '#fff';
+    } else {
+      tabBadge.style.display = 'none';
+    }
+
+    // Score bar
+    const score = nr.net_risk_score || 0;
+    document.getElementById('news-score-pct').textContent = score.toFixed(1) + '/100';
+    const fill = document.getElementById('news-score-fill');
+    fill.style.width = Math.min(score, 100) + '%';
+    fill.className = 'score-bar-fill ' + (score < 33 ? 'fill-green' : score < 67 ? 'fill-amber' : 'fill-red');
+
+    // Meta row
+    document.getElementById('news-sigma').textContent =
+      nr.sigma_multiplier != null ? '\u00d7' + nr.sigma_multiplier.toFixed(2) : '\u2014';
+    document.getElementById('news-delta-mu').textContent =
+      nr.delta_mu_daily != null ? (nr.delta_mu_daily >= 0 ? '+' : '') + nr.delta_mu_daily.toFixed(4) : '\u2014';
+    const vol = nr.article_volume || {};
+    document.getElementById('news-vol-ratio').textContent =
+      vol.volume_vs_baseline != null ? vol.volume_vs_baseline.toFixed(1) + '\u00d7' : '\u2014';
+
+    // Article volume counts
+    document.getElementById('vol-24h').textContent = vol.last_24h ?? '\u2014';
+    document.getElementById('vol-72h').textContent = vol.last_72h ?? '\u2014';
+    document.getElementById('vol-7d').textContent  = vol.last_7d  ?? '\u2014';
+
+    // Panel sub
+    document.getElementById('news-panel-sub').textContent =
+      'GDELT \u00b7 ' + (vol.last_7d || 0) + ' articles this week \u00b7 ' + (nr.risk_label || '\u2014') + ' regime';
+
+    // Narrative
+    document.getElementById('news-narrative').textContent =
+      nr.risk_summary || 'No narrative generated.';
+
+    // Drivers
+    const driversEl = document.getElementById('news-drivers');
+    const drivers = nr.top_drivers || [];
+    driversEl.innerHTML = drivers.length
+      ? drivers.map(d => `<div class="driver-item"><div class="driver-dot"></div><span>${d}</span></div>`).join('')
+      : '<div class="driver-item"><div class="driver-dot"></div><span style="color:var(--text-f);font-style:italic;">No drivers identified.</span></div>';
+
+    // Featured articles
+    const arts = nr.featured_articles || [];
+    const artsEl = document.getElementById('news-articles');
+    document.getElementById('articles-sub').textContent =
+      arts.length ? 'Top ' + arts.length + ' GDELT matches for this lane' : 'No articles retrieved';
+    if (!arts.length) {
+      artsEl.innerHTML = '<div class="empty" style="padding:40px 20px;"><p>No articles available for this lane.</p></div>';
+    } else {
+      artsEl.innerHTML = arts.map((art, i) => {
+        const isTranslated = art.language && art.language !== 'en';
+        const themes = (art.themes || []).map(t => `<span class="tag tag-blue">${t}</span>`).join('');
+        const relevancePct = Math.round((art.shipping_relevance || 0) * 100);
+        const pubDate = art.published_at
+          ? new Date(art.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+          : '';
+        const toggleId = 'orig-' + i;
+        return `<div class="article-card">
+          <div class="article-header">
+            <div class="article-title">
+              ${art.url ? `<a href="${art.url}" target="_blank" rel="noopener noreferrer">${art.title_english || art.title_original}</a>` : (art.title_english || art.title_original)}
+            </div>
+            <span class="tag ${relevancePct >= 80 ? 'tag-red' : relevancePct >= 60 ? 'tag-amber' : 'tag-blue'}" title="Shipping relevance score">${relevancePct}% rel.</span>
+          </div>
+          <div class="article-meta">
+            ${art.source ? `<span>${art.source}</span><span class="article-meta-sep">&#183;</span>` : ''}
+            ${pubDate ? `<span>${pubDate}</span><span class="article-meta-sep">&#183;</span>` : ''}
+            <span>Risk contribution: ${(art.risk_contribution || 0).toFixed(1)}</span>
+            ${isTranslated ? `<span class="article-meta-sep">&#183;</span><button class="original-title-toggle" onclick="toggleOrig('${toggleId}')">Show original title</button>` : ''}
+          </div>
+          ${isTranslated ? `<div class="original-title" id="${toggleId}">${art.title_original}</div>` : ''}
+          ${themes ? `<div class="article-themes">${themes}</div>` : ''}
+          ${toneBarHTML(art.tone || 0)}
+          ${art.summary_english ? `<div><p class="article-section-label">Summary</p><p class="article-text">${art.summary_english}</p></div>` : ''}
+          ${art.why_it_matters ? `<div><p class="article-section-label">Why it matters</p><p class="article-text">${art.why_it_matters}</p></div>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    // Theme breakdown table
+    const themes = nr.theme_breakdown || [];
+    const themeBody = document.getElementById('theme-body');
+    if (!themes.length) {
+      themeBody.innerHTML = '<tr><td colspan="4"><div class="empty" style="padding:30px 20px;"><p>No theme data for this lane.</p></div></td></tr>';
+    } else {
+      themeBody.innerHTML = themes.map(t => {
+        const toneColor = (t.avg_tone || 0) < -1 ? 'var(--red)' : (t.avg_tone || 0) > 1 ? 'var(--green)' : 'var(--text-m)';
+        return `<tr>
+          <td>${t.theme}</td>
+          <td>${t.article_count}</td>
+          <td style="color:${toneColor};">${(t.avg_tone || 0).toFixed(2)}</td>
+          <td>${(t.risk_contribution || 0).toFixed(1)}</td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  function toggleOrig(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('show');
+  }
+
+  /* ── FORECAST RUNNER ── */
   async function runForecast() {
     setAlert('', '');
     const btn = document.getElementById('btn-run');
@@ -502,49 +830,54 @@
     }
   }
 
+  /* ── RENDER RESULTS ── */
   function renderResults(data) {
-    const wf = data.weekly_forecast || [];
-    const hp = data.historical_points || [];
+    // The backend now returns { forecast: {...}, news_risk: {...} }
+    // Support both the new nested shape and the old flat shape for compatibility.
+    const fc = data.forecast || data;
+    const nr = data.news_risk || null;
 
-    document.getElementById('kpi-last').textContent      = fmt(data.last_observed_value);
-    document.getElementById('kpi-last-date').textContent = data.last_observed_date || '';
-    document.getElementById('kpi-vol').textContent       = fmtPct(data.annualized_volatility);
+    const wf = fc.weekly_forecast || [];
+    const hp = fc.historical_points || [];
+
+    // KPIs
+    document.getElementById('kpi-last').textContent      = fmt(fc.last_observed_value);
+    document.getElementById('kpi-last-date').textContent = fc.last_observed_date || '';
+    document.getElementById('kpi-vol').textContent       = fmtPct(fc.annualized_volatility);
 
     if (wf.length) {
       const last = wf[wf.length - 1];
       document.getElementById('kpi-p50').textContent       = fmt(last.p50);
-      document.getElementById('kpi-p50-label').textContent = 'At week ' + data.horizon_weeks;
+      document.getElementById('kpi-p50-label').textContent = 'At week ' + (fc.horizon_weeks || wf.length);
       document.getElementById('kpi-p95').textContent       = fmt(last.p95);
-      const delta = ((last.p95 - data.last_observed_value) / data.last_observed_value * 100);
+      const delta = ((last.p95 - fc.last_observed_value) / fc.last_observed_value * 100);
       const dEl   = document.getElementById('kpi-p95-delta');
       dEl.textContent = (delta >= 0 ? '+' : '') + delta.toFixed(1) + '% vs last observed';
       dEl.className   = 'kpi-delta ' + (delta >= 0 ? 'up' : 'down');
     }
 
     document.getElementById('chart-sub').textContent =
-      data.lane + ' \u00b7 ' + data.horizon_weeks + '-wk horizon \u00b7 ' +
-      data.num_paths.toLocaleString() + ' paths';
+      (fc.lane || '') + ' \u00b7 ' + (fc.horizon_weeks || '') + '-wk horizon \u00b7 ' +
+      (fc.num_paths || '').toLocaleString() + ' paths';
 
-    renderEventRisk(data.event_risk || null);
+    // News tab
+    renderNewsTab(nr);
 
-    // Build unified label axis: historical dates + forecast week-end dates
+    // Chart
     const histLabels = hp.map(p => p.date);
     const foreLabels = wf.map(w => w.week_end);
     const allLabels  = [...histLabels, ...foreLabels];
     const histLen    = histLabels.length;
     const foreLen    = foreLabels.length;
 
-    // Pad arrays to full length with null so datasets align
     const pad = (arr, before, after) => [
       ...Array(before).fill(null),
       ...arr,
       ...Array(after).fill(null),
     ];
 
-    const histValues = hp.map(p => p.value);
-    // Bridge: repeat last historical value as first point of forecast datasets
-    const lastHist   = histValues.length ? histValues[histValues.length - 1] : null;
-
+    const histValues   = hp.map(p => p.value);
+    const lastHist     = histValues.length ? histValues[histValues.length - 1] : null;
     const p95Data      = pad([lastHist, ...wf.map(w => w.p95)],      histLen - 1, 0);
     const expectedData = pad([lastHist, ...wf.map(w => w.expected)], histLen - 1, 0);
     const p50Data      = pad([lastHist, ...wf.map(w => w.p50)],      histLen - 1, 0);
@@ -563,59 +896,11 @@
       data: {
         labels: allLabels,
         datasets: [
-          {
-            label: 'p95',
-            data: p95Data,
-            borderColor: 'rgba(79,124,255,0.3)',
-            backgroundColor: 'rgba(79,124,255,0.07)',
-            borderWidth: 1,
-            pointRadius: 0,
-            fill: '+2',
-            tension: 0.3,
-            spanGaps: true,
-          },
-          {
-            label: 'Expected',
-            data: expectedData,
-            borderColor: '#4f7cff',
-            backgroundColor: 'transparent',
-            borderWidth: 2,
-            pointRadius: 0,
-            tension: 0.3,
-            spanGaps: true,
-          },
-          {
-            label: 'p50',
-            data: p50Data,
-            borderColor: '#34c78a',
-            backgroundColor: 'transparent',
-            borderWidth: 1.5,
-            borderDash: [4, 3],
-            pointRadius: 0,
-            tension: 0.3,
-            spanGaps: true,
-          },
-          {
-            label: 'p05',
-            data: p05Data,
-            borderColor: 'rgba(79,124,255,0.3)',
-            backgroundColor: 'transparent',
-            borderWidth: 1,
-            pointRadius: 0,
-            tension: 0.3,
-            spanGaps: true,
-          },
-          {
-            label: 'Historical',
-            data: histData,
-            borderColor: 'rgba(139,144,158,0.7)',
-            backgroundColor: 'transparent',
-            borderWidth: 2,
-            pointRadius: 3,
-            pointBackgroundColor: 'rgba(139,144,158,0.7)',
-            tension: 0.2,
-            spanGaps: false,
-          },
+          { label: 'p95', data: p95Data, borderColor: 'rgba(79,124,255,0.3)', backgroundColor: 'rgba(79,124,255,0.07)', borderWidth: 1, pointRadius: 0, fill: '+2', tension: 0.3, spanGaps: true },
+          { label: 'Expected', data: expectedData, borderColor: '#4f7cff', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, tension: 0.3, spanGaps: true },
+          { label: 'p50', data: p50Data, borderColor: '#34c78a', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4, 3], pointRadius: 0, tension: 0.3, spanGaps: true },
+          { label: 'p05', data: p05Data, borderColor: 'rgba(79,124,255,0.3)', backgroundColor: 'transparent', borderWidth: 1, pointRadius: 0, tension: 0.3, spanGaps: true },
+          { label: 'Historical', data: histData, borderColor: 'rgba(139,144,158,0.7)', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 3, pointBackgroundColor: 'rgba(139,144,158,0.7)', tension: 0.2, spanGaps: false },
         ]
       },
       options: {
@@ -623,37 +908,25 @@
         maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
         plugins: {
-          legend: {
-            position: 'top',
-            labels: { color: '#8b909e', boxWidth: 12, font: { family: 'Inter', size: 11 }, padding: 16 }
-          },
+          legend: { position: 'top', labels: { color: '#8b909e', boxWidth: 12, font: { family: 'Inter', size: 11 }, padding: 16 } },
           tooltip: {
-            backgroundColor: '#1c2030',
-            borderColor: 'rgba(255,255,255,0.07)',
-            borderWidth: 1,
-            titleColor: '#e8eaf0',
-            bodyColor: '#8b909e',
-            padding: 10,
+            backgroundColor: '#1c2030', borderColor: 'rgba(255,255,255,0.07)', borderWidth: 1,
+            titleColor: '#e8eaf0', bodyColor: '#8b909e', padding: 10,
             filter: item => item.parsed.y !== null,
             callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y) }
           }
         },
         scales: {
-          x: {
-            grid:  { color: 'rgba(255,255,255,0.04)' },
-            ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, maxRotation: 0, maxTicksLimit: 10 },
-          },
-          y: {
-            grid:  { color: 'rgba(255,255,255,0.04)' },
-            ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, callback: v => fmt(v) },
-          }
+          x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, maxRotation: 0, maxTicksLimit: 10 } },
+          y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, callback: v => fmt(v) } }
         }
       }
     });
 
+    // Weekly table
     const tbody = document.getElementById('table-body');
     tbody.innerHTML = wf.map((w, i) => {
-      const prev  = i === 0 ? data.last_observed_value : wf[i - 1].expected;
+      const prev  = i === 0 ? fc.last_observed_value : wf[i - 1].expected;
       const trend = w.expected > prev * 1.005 ? 'up' : w.expected < prev * 0.995 ? 'down' : 'flat';
       const tag   = trend === 'up'
         ? '<span class="tag tag-green">&#8593; Rising</span>'

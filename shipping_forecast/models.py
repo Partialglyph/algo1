@@ -89,6 +89,7 @@ class FeaturedArticle(BaseModel):
     tone: float = 0.0
     themes: List[str] = Field(default_factory=list)
     shipping_relevance: float = Field(0.0, ge=0.0, le=1.0)
+    risk_contribution: float = Field(0.0, description="Share of net risk score attributed to this article (0-100 scale)")
     summary_english: str = ""
     why_it_matters: str = ""
 
@@ -98,7 +99,7 @@ class ThemeBreakdown(BaseModel):
     theme: str
     article_count: int
     avg_tone: float
-    risk_contribution: float  # 0–100 scale, portion of net_risk_score driven by this theme
+    risk_contribution: float  # 0-100 scale, portion of net_risk_score driven by this theme
 
 
 class ArticleVolume(BaseModel):
@@ -106,8 +107,8 @@ class ArticleVolume(BaseModel):
     last_24h: int = 0
     last_72h: int = 0
     last_7d: int = 0
-    baseline_7d: int = 0        # historical average weekly volume for this lane
-    volume_vs_baseline: float = 0.0  # ratio: last_7d / baseline_7d
+    baseline_7d: int = 0
+    volume_vs_baseline: float = 0.0
 
 
 class NewsRiskBlock(BaseModel):
@@ -116,9 +117,9 @@ class NewsRiskBlock(BaseModel):
     Kept intentionally separate from the Monte Carlo forecast block so that
     the two layers can be consumed, displayed, and updated independently.
     """
-    net_risk_score: float = Field(..., ge=0.0, le=100.0, description="Composite risk score 0–100")
+    net_risk_score: float = Field(..., ge=0.0, le=100.0, description="Composite risk score 0-100")
     risk_label: str = Field(..., description="Normal | Elevated | Severe")
-    risk_summary: str = Field(..., description="One-sentence narrative explaining the score")
+    risk_summary: str = Field(..., description="Metric-grounded narrative explaining the score")
     top_drivers: List[str] = Field(default_factory=list, description="Bullet reasons behind the score")
     article_volume: ArticleVolume
     featured_articles: List[FeaturedArticle] = Field(default_factory=list)

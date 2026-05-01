@@ -10,6 +10,14 @@ from .models import (
     NewsRiskBlock,
     ThemeBreakdown,
 )
+from .summarizer import (
+    ensure_english_title,
+    generate_article_summary,
+    generate_why_it_matters,
+    generate_risk_summary,
+    generate_top_drivers,
+)
+from .event_features import _has_keyword, DISRUPTION_KEYWORDS, HIGH_SEVERITY_KEYWORDS
 
 
 @dataclass
@@ -29,62 +37,29 @@ def compute_overlay(features: EventFeatureSet) -> RiskOverlay:
     Volatility is widened more aggressively than drift is shifted.
     """
     score = features.net_risk_score
-    explanations: list[str] = []
 
     if score < 0.20:
         regime = "Normal"
         delta_mu = 0.0
         sigma_mult = 1.0
-        explanations.append("No significant disruption signals detected in recent coverage.")
-
     elif score < 0.45:
         regime = "Elevated"
         delta_mu = -0.0003
         sigma_mult = 1.12
-        if features.disruption_count > 0:
-            explanations.append(
-                f"{features.disruption_count} disruption-related articles detected in the past 14 days."
-            )
-        if features.mean_tone < -1.0:
-            explanations.append("News tone for this route region is trending negative.")
-        if features.volume_score > 0.4:
-            explanations.append(
-                f"Article volume in the last 72 hours is elevated vs baseline "
-                f"({features.count_72h} articles)."
-            )
-        explanations.append("Forecast uncertainty band widened by ~12%.")
-
     else:
         regime = "Severe"
         delta_mu = -0.0010
         sigma_mult = 1.30
-        if features.high_severity_count > 0:
-            explanations.append(
-                f"{features.high_severity_count} high-severity events detected "
-                f"(conflict / sanctions / attack) in the past 14 days."
-            )
-        if features.disruption_count > 0:
-            explanations.append(
-                f"{features.disruption_count} disruption-related articles detected."
-            )
-        if features.mean_tone < -2.0:
-            explanations.append("News tone strongly negative for this route region.")
-        if features.concentration_score > 0.5:
-            explanations.append(
-                "Coverage is converging on a single disruption theme — "
-                "narrative concentration is high."
-            )
-        explanations.append("Forecast uncertainty band widened by ~30%.")
 
-    if features.top_headlines:
-        explanations.append(f'Top signal: "{features.top_headlines[0]}"')
+    # Generate deterministic explanation bullets from live metrics
+    drivers = generate_top_drivers(features, regime)
 
     return RiskOverlay(
         regime_label=regime,
         net_risk_score=round(score, 3),
         delta_mu_daily=delta_mu,
         sigma_multiplier=sigma_mult,
-        explanation=explanations,
+        explanation=drivers,
     )
 
 
@@ -96,68 +71,69 @@ def build_news_risk_block(
     """
     Assemble the full NewsRiskBlock from features + overlay.
     This is the object returned in ForecastResponse.news_risk.
+    All text fields are now populated by the summarizer module.
     """
     score_100 = round(overlay.net_risk_score * 100, 1)
 
-    # --- Risk summary narrative ---
-    if overlay.regime_label == "Normal":
-        summary = (
-            "Current news coverage shows no meaningful disruption signals for this lane. "
-            "The forecast reflects baseline historical volatility."
-        )
-    elif overlay.regime_label == "Elevated":
-        summary = (
-            f"Risk is elevated due to {features.disruption_count} disruption-related articles "
-            f"and {'negative' if features.mean_tone < -1.0 else 'mixed'} news tone. "
-            "The forecast uncertainty band has been widened modestly."
-        )
-    else:
-        summary = (
-            f"Risk is severe — {features.high_severity_count} high-severity events detected "
-            f"alongside strongly negative news tone (mean tone {features.mean_tone:.1f}). "
-            "The forecast uncertainty band has been significantly widened."
-        )
+    # Narrative risk summary generated from live metrics
+    risk_summary = generate_risk_summary(features, overlay.regime_label, score_100)
 
-    # --- Article volume block ---
+    # Article volume block
     article_volume = ArticleVolume(
         last_24h=features.count_24h,
         last_72h=features.count_72h,
         last_7d=features.count_7d,
-        baseline_7d=5,  # soft baseline; can be made lane-specific later
+        baseline_7d=5,
         volume_vs_baseline=round(features.count_7d / 5, 2),
     )
 
-    # --- Featured articles (top 5 with relevance proxy) ---
+    # Featured articles — fully populated including translation + summaries
+    total_articles = max(features.article_count, 1)
     featured: list[FeaturedArticle] = []
     for art in (feed.articles or [])[:5]:
-        from .event_features import _has_keyword, DISRUPTION_KEYWORDS, HIGH_SEVERITY_KEYWORDS
+        # Determine relevance
         relevance = 0.5
         if _has_keyword(art.title, HIGH_SEVERITY_KEYWORDS):
             relevance = 0.95
         elif _has_keyword(art.title, DISRUPTION_KEYWORDS):
             relevance = 0.80
 
+        # Theme matching
         art_themes = [
             theme for theme, kws in THEME_CLUSTERS.items()
             if _has_keyword(art.title, kws)
         ]
 
+        # Risk contribution: (relevance * recency_weight) as share of score
+        risk_contribution = round((relevance / total_articles) * score_100, 1)
+
+        # English title + language tag
+        title_en, lang = ensure_english_title(art.title)
+
+        # Generated summary and why-it-matters text
+        summary = generate_article_summary(
+            title_en, art.source, art.tone, art_themes
+        )
+        why = generate_why_it_matters(
+            title_en, art_themes, relevance, art.tone
+        )
+
         featured.append(FeaturedArticle(
             title_original=art.title,
-            title_english=art.title,  # translation layer added in Phase 3
-            language="en",
+            title_english=title_en,
+            language=lang,
             source=art.source,
             url=art.url,
             published_at=art.published,
             tone=art.tone,
             themes=art_themes,
             shipping_relevance=relevance,
-            summary_english="",      # summarization added in Phase 3
-            why_it_matters="",       # narrative generation added in Phase 3
+            risk_contribution=risk_contribution,
+            summary_english=summary,
+            why_it_matters=why,
         ))
 
-    # --- Theme breakdown ---
-    total_articles = max(features.article_count, 1)
+    # Theme breakdown
     theme_breakdown: list[ThemeBreakdown] = [
         ThemeBreakdown(
             theme=theme,
@@ -175,7 +151,7 @@ def build_news_risk_block(
     return NewsRiskBlock(
         net_risk_score=score_100,
         risk_label=overlay.regime_label,
-        risk_summary=summary,
+        risk_summary=risk_summary,
         top_drivers=overlay.explanation,
         article_volume=article_volume,
         featured_articles=featured,
