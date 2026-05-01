@@ -7,8 +7,8 @@ from .data_provider import RateDataProvider
 from .event_features import build_features
 from .event_provider import GDELTEventProvider
 from .mc_model import CalibrationResult, MonteCarloShippingForecaster
-from .models import EventRiskResponse, ForecastRequest, ForecastResponse
-from .risk_overlay import compute_overlay
+from .models import ForecastBlock, ForecastRequest, ForecastResponse
+from .risk_overlay import compute_overlay, build_news_risk_block
 from . import settings
 
 
@@ -37,7 +37,7 @@ class ForecastService:
                 f"Got {len(history)} points, need {settings.MIN_DATA_POINTS}."
             )
 
-        # --- Baseline calibration ---
+        # --- Baseline Monte Carlo calibration ---
         last_point = history[-1]
         forecaster = MonteCarloShippingForecaster(num_paths=req.num_paths)
         calib = forecaster.calibrate(history)
@@ -46,21 +46,10 @@ class ForecastService:
         features = build_features(event_feed)
         overlay = compute_overlay(features)
 
-        # Apply overlay to calibration parameters.
+        # Apply overlay adjustments to calibration parameters.
         adjusted_calib = CalibrationResult(
             mu_daily=calib.mu_daily + overlay.delta_mu_daily,
             sigma_daily=calib.sigma_daily * overlay.sigma_multiplier,
-        )
-
-        event_risk_response = EventRiskResponse(
-            regime_label=overlay.regime_label,
-            net_risk_score=overlay.net_risk_score,
-            sigma_multiplier=overlay.sigma_multiplier,
-            delta_mu_daily=overlay.delta_mu_daily,
-            explanation=overlay.explanation,
-            article_count=features.article_count,
-            disruption_count=features.disruption_count,
-            top_headlines=features.top_headlines,
         )
 
         # --- Simulation with adjusted parameters ---
@@ -74,16 +63,27 @@ class ForecastService:
         weekly = forecaster.summarize_weekly(daily)
         sigma_annual = forecaster.estimate_annualized_volatility(paths)
 
-        return ForecastResponse(
+        # --- Assemble response blocks ---
+        forecast_block = ForecastBlock(
             lane=req.lane,
             generated_at=datetime.utcnow(),
             horizon_weeks=req.horizon_weeks,
             num_paths=req.num_paths,
             last_observed_date=last_point.date,
             last_observed_value=last_point.value,
+            annualized_volatility=sigma_annual,
             historical_points=history,
             daily_forecast=daily,
             weekly_forecast=weekly,
-            annualized_volatility=sigma_annual,
-            event_risk=event_risk_response,
+        )
+
+        news_risk_block = build_news_risk_block(
+            features=features,
+            overlay=overlay,
+            feed=event_feed,
+        )
+
+        return ForecastResponse(
+            forecast=forecast_block,
+            news_risk=news_risk_block,
         )
