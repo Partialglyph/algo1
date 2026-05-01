@@ -868,7 +868,19 @@
 
     // News tab
     renderNewsTab(nr);
-
+      // Show/hide the quant-tab risk note
+      const note = document.getElementById('quant-risk-note');
+      if (nr && nr.risk_label && nr.risk_label !== 'Normal') {
+        note.style.display = 'flex';
+        const sigmaStr = nr.sigma_multiplier ? '\u00d7' + nr.sigma_multiplier.toFixed(2) + ' vol' : '';
+        const muStr = nr.delta_mu_daily ? 'mu ' + (nr.delta_mu_daily >= 0 ? '+' : '') + nr.delta_mu_daily.toFixed(4) : '';
+        document.getElementById('quant-risk-note-text').innerHTML =
+          `<strong>${nr.risk_label} regime active</strong> \u2014 Monte Carlo bands adjusted `
+          + `(${[sigmaStr, muStr].filter(Boolean).join(', ')}). `
+          + `See the <button onclick="switchTab('news')" style="background:none;border:none;color:var(--amber);text-decoration:underline;cursor:pointer;font:inherit;padding:0;">News Analysis tab</button> for the full narrative.`;
+      } else if (note) {
+        note.style.display = 'none';
+      }
     // Chart
     const histLabels = hp.map(p => p.date);
     const foreLabels = wf.map(w => w.week_end);

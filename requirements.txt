@@ -1,8 +1,8 @@
-fastapi==0.115.0
-uvicorn[standard]==0.30.0
-httpx==0.27.0
-numpy==1.26.4
-pydantic==1.10.15
-pytest==8.2.0
-pytest-asyncio==0.23.6
-googletrans
+fastapi
+uvicorn[standard]
+pandas
+numpy
+openpyxl
+httpx
+pydantic
+googletrans==4.0.0rc1
