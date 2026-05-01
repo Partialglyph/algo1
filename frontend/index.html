@@ -119,6 +119,8 @@
     .tab-panel { display: none; padding: clamp(20px, 3vw, 36px); flex-direction: column; gap: 24px; }
     .tab-panel.active { display: flex; }
 
+
+
     /* ── KPI ROW ── */
     .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
     .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 18px 20px; }
@@ -391,7 +393,11 @@
       <!-- ═══ QUANTITATIVE TAB ═══ -->
       <div class="tab-panel active" id="tab-quant">
         <div class="alert" id="alert"></div>
-
+          <!-- Risk adjustment callout — shown only when regime is non-Normal -->
+<div id="quant-risk-note" style="display:none; background:rgba(245,166,35,0.08); border:1px solid rgba(245,166,35,0.22); border-radius:var(--r-sm); padding:10px 14px; font-size:0.78rem; color:var(--amber); display:flex; align-items:center; gap:10px;">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  <span id="quant-risk-note-text">News risk overlay is active — forecast bands are widened. See the <button onclick="switchTab('news')" style="background:none;border:none;color:var(--amber);text-decoration:underline;cursor:pointer;font:inherit;padding:0;">News Analysis tab</button> for details.</span>
+</div>
         <div class="kpi-row">
           <div class="kpi-card">
             <div class="kpi-label">Last Observed</div>
