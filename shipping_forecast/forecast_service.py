@@ -1,89 +1,129 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import date, datetime, timedelta
+import logging
+from datetime import datetime, timezone
 
 from .data_provider import RateDataProvider
 from .event_features import build_features
 from .event_provider import GDELTEventProvider
-from .mc_model import CalibrationResult, MonteCarloShippingForecaster
-from .models import ForecastBlock, ForecastRequest, ForecastResponse
-from .risk_overlay import compute_overlay, build_news_risk_block
-from . import settings
+from .lane_event_map import get_keywords_for_lane
+from .mc_model import MonteCarloShippingForecaster
+from .models import (
+    ForecastBlock,
+    ForecastRequest,
+    ForecastResponse,
+    FeaturedArticle,
+    NewsRiskBlock,
+    ArticleVolume,
+)
+from .summarizer import (
+    generate_article_summary,
+    generate_risk_summary,
+    generate_top_drivers,
+    generate_why_it_matters,
+)
+from .translation_service import ensure_english_title
+from .risk_overlay import compute_overlay
+
+log = logging.getLogger(__name__)
 
 
 class ForecastService:
     def __init__(self, provider: RateDataProvider) -> None:
         self._provider = provider
-        self._event_provider = GDELTEventProvider(lookback_days=14, max_articles=50)
+        self._gdelt = GDELTEventProvider()
 
     async def generate_forecast(self, req: ForecastRequest) -> ForecastResponse:
-        today = date.today()
-        start_date = today - timedelta(days=req.lookback_days)
-
-        # Fetch historical rates and GDELT events concurrently.
-        history_task = self._provider.get_historical_rates(
-            lane=req.lane,
-            start_date=start_date,
-            end_date=today,
+        historical, event_feed = await asyncio.gather(
+            self._provider.fetch(req.lane, lookback_days=req.lookback_days),
+            self._gdelt.fetch(
+                keywords=get_keywords_for_lane(req.lane),
+                timespan_hours=72,
+                max_articles=12,
+            ),
         )
-        event_task = self._event_provider.fetch(lane=req.lane)
 
-        history, event_feed = await asyncio.gather(history_task, event_task)
+        model = MonteCarloShippingForecaster(
+            historical_points=historical,
+            horizon_weeks=req.horizon_weeks,
+            num_paths=req.num_paths,
+        )
 
-        if len(history) < settings.MIN_DATA_POINTS:
-            raise ValueError(
-                f"Insufficient history for lane '{req.lane}'. "
-                f"Got {len(history)} points, need {settings.MIN_DATA_POINTS}."
-            )
-
-        # --- Baseline Monte Carlo calibration ---
-        last_point = history[-1]
-        forecaster = MonteCarloShippingForecaster(num_paths=req.num_paths)
-        calib = forecaster.calibrate(history)
-
-        # --- Event risk overlay ---
         features = build_features(event_feed)
         overlay = compute_overlay(features)
 
-        # Apply overlay adjustments to calibration parameters.
-        adjusted_calib = CalibrationResult(
-            mu_daily=calib.mu_daily + overlay.delta_mu_daily,
-            sigma_daily=calib.sigma_daily * overlay.sigma_multiplier,
+        forecast_block = model.run(
+            delta_mu_daily=overlay.delta_mu_daily,
+            sigma_multiplier=overlay.sigma_multiplier,
         )
 
-        # --- Simulation with adjusted parameters ---
-        dates, paths = forecaster.simulate_paths(
-            last_price=last_point.value,
-            start_date=last_point.date,
-            horizon_weeks=req.horizon_weeks,
-            calib=adjusted_calib,
-        )
-        daily = forecaster.summarize_daily(dates, paths)
-        weekly = forecaster.summarize_weekly(daily)
-        sigma_annual = forecaster.estimate_annualized_volatility(paths)
+        featured: list[FeaturedArticle] = []
+        for art in (event_feed.articles or []):
+            title_en, lang = await ensure_english_title(art.title)
+            featured.append(FeaturedArticle(
+                title_original=art.title,
+                title_english=title_en,
+                language=lang,
+                source=art.source,
+                url=art.url,
+                published_at=art.published,
+                tone=art.tone,
+                themes=art.themes,
+                shipping_relevance=art.relevance,
+                risk_contribution=art.risk_contribution,
+                summary_english=generate_article_summary(title_en, art.source, art.tone, art.themes),
+                why_it_matters=generate_why_it_matters(title_en, art.themes, art.relevance, art.tone),
+                is_congestion_relevant=any("port" in t.lower() or "congestion" in t.lower() for t in art.themes),
+                is_oil_relevant=any("oil" in t.lower() or "fuel" in t.lower() or "energy" in t.lower() for t in art.themes),
+                is_duty_relevant=any("tariff" in t.lower() or "duty" in t.lower() or "sanction" in t.lower() for t in art.themes),
+            ))
 
-        # --- Assemble response blocks ---
-        forecast_block = ForecastBlock(
-            lane=req.lane,
-            generated_at=datetime.utcnow(),
-            horizon_weeks=req.horizon_weeks,
-            num_paths=req.num_paths,
-            last_observed_date=last_point.date,
-            last_observed_value=last_point.value,
-            annualized_volatility=sigma_annual,
-            historical_points=history,
-            daily_forecast=daily,
-            weekly_forecast=weekly,
+        vol = features.article_volume if hasattr(features, "article_volume") else ArticleVolume(
+            last_24h=features.count_24h if hasattr(features, "count_24h") else 0,
+            last_72h=features.count_72h,
+            last_7d=features.count_7d,
+            baseline_7d=5,
+            volume_vs_baseline=round(features.count_72h / 5, 2),
         )
 
-        news_risk_block = build_news_risk_block(
-            features=features,
-            overlay=overlay,
-            feed=event_feed,
+        theme_breakdown = [
+            __import__("shipping_forecast.models", fromlist=["ThemeBreakdown"]).ThemeBreakdown(
+                theme=k,
+                article_count=n,
+                avg_tone=round(avg, 2),
+                risk_contribution=0.0,
+            )
+            for k, (n, avg) in features.theme_counts.items()
+        ]
+
+        score_100 = features.net_risk_score * 100.0
+        regime = overlay.regime_label
+
+        news_risk = NewsRiskBlock(
+            net_risk_score=round(score_100, 2),
+            risk_label=regime,
+            risk_summary=generate_risk_summary(features, regime, score_100),
+            top_drivers=generate_top_drivers(features, regime),
+            article_volume=vol,
+            featured_articles=featured,
+            theme_breakdown=theme_breakdown,
+            sigma_multiplier=overlay.sigma_multiplier,
+            delta_mu_daily=overlay.delta_mu_daily,
         )
 
         return ForecastResponse(
-            forecast=forecast_block,
-            news_risk=news_risk_block,
+            forecast=ForecastBlock(
+                lane=req.lane,
+                generated_at=datetime.now(timezone.utc),
+                horizon_weeks=req.horizon_weeks,
+                num_paths=req.num_paths,
+                last_observed_date=forecast_block.last_observed_date,
+                last_observed_value=forecast_block.last_observed_value,
+                annualized_volatility=forecast_block.annualized_volatility,
+                historical_points=forecast_block.historical_points,
+                daily_forecast=forecast_block.daily_forecast,
+                weekly_forecast=forecast_block.weekly_forecast,
+            ),
+            news_risk=news_risk,
         )
