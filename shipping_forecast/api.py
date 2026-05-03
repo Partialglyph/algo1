@@ -85,6 +85,7 @@ async def list_lanes() -> LaneListResponse:
     except (ValueError, NotImplementedError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
+        log.exception("list_lanes error")
         raise HTTPException(status_code=500, detail="Internal server error") from exc
 
 
@@ -95,6 +96,7 @@ async def forecast(req: ForecastRequest) -> ForecastResponse:
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
+        log.exception("forecast error")  # now prints full traceback to uvicorn terminal
         raise HTTPException(status_code=500, detail="Internal server error") from exc
 
 
@@ -125,10 +127,29 @@ async def dashboard(req: ForecastRequest) -> DashboardResponse:
         score_100 = round(features.net_risk_score * 100.0, 2)
         regime = overlay.regime_label
 
-        # --- Translate articles ---
+        # --- Translate articles and build FeaturedArticle list ---
+        from .event_features import _has_keyword, DISRUPTION_KEYWORDS, HIGH_SEVERITY_KEYWORDS, THEME_CLUSTERS
+        total_articles = max(features.article_count, 1)
         featured: list[FeaturedArticle] = []
         for art in (event_feed.articles or []):
             title_en, lang = await ensure_english_title(art.title)
+
+            # Compute relevance from title keywords
+            if _has_keyword(art.title, HIGH_SEVERITY_KEYWORDS):
+                relevance = 0.95
+            elif _has_keyword(art.title, DISRUPTION_KEYWORDS):
+                relevance = 0.80
+            else:
+                relevance = 0.5
+
+            # Theme matching
+            art_themes = [
+                theme for theme, kws in THEME_CLUSTERS.items()
+                if _has_keyword(art.title, kws)
+            ]
+
+            risk_contribution = round((relevance / total_articles) * score_100, 1)
+
             featured.append(FeaturedArticle(
                 title_original=art.title,
                 title_english=title_en,
@@ -137,14 +158,14 @@ async def dashboard(req: ForecastRequest) -> DashboardResponse:
                 url=art.url,
                 published_at=art.published,
                 tone=art.tone,
-                themes=art.themes,
-                shipping_relevance=art.relevance,
-                risk_contribution=art.risk_contribution,
-                summary_english=generate_article_summary(title_en, art.source, art.tone, art.themes),
-                why_it_matters=generate_why_it_matters(title_en, art.themes, art.relevance, art.tone),
-                is_congestion_relevant=any("port" in t.lower() or "congestion" in t.lower() for t in art.themes),
-                is_oil_relevant=any("oil" in t.lower() or "fuel" in t.lower() or "energy" in t.lower() for t in art.themes),
-                is_duty_relevant=any("tariff" in t.lower() or "duty" in t.lower() or "sanction" in t.lower() for t in art.themes),
+                themes=art_themes,
+                shipping_relevance=relevance,
+                risk_contribution=risk_contribution,
+                summary_english=generate_article_summary(title_en, art.source, art.tone, art_themes),
+                why_it_matters=generate_why_it_matters(title_en, art_themes, relevance, art.tone),
+                is_congestion_relevant=any("port" in t.lower() or "congestion" in t.lower() for t in art_themes),
+                is_oil_relevant=any("oil" in t.lower() or "fuel" in t.lower() or "energy" in t.lower() for t in art_themes),
+                is_duty_relevant=any("tariff" in t.lower() or "duty" in t.lower() or "sanction" in t.lower() for t in art_themes),
             ))
 
         vol = ArticleVolume(

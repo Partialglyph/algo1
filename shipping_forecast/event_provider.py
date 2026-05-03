@@ -21,6 +21,10 @@ class EventArticle:
     source: str
     published: Optional[datetime]
     tone: float
+    # Extended fields — populated with safe defaults when not available
+    themes: list[str] = field(default_factory=list)
+    relevance: float = 0.5
+    risk_contribution: float = 0.0
 
 
 @dataclass
@@ -45,10 +49,6 @@ class GDELTEventProvider:
         self.max_articles = max_articles
 
     def _clean_term(self, term: str) -> str:
-        """
-        Quote multi-word phrases so GDELT treats them as exact phrases.
-        Single words are left unquoted so they match anywhere in the article.
-        """
         term = (term or "").strip()
         if not term:
             return ""
@@ -57,14 +57,6 @@ class GDELTEventProvider:
         return term
 
     def _build_query_candidates(self, keywords: list[str]) -> list[str]:
-        """
-        Return a list of queries in decreasing specificity.  The caller tries
-        each in turn and stops at the first one that returns articles.
-
-        - broad:   all lane keywords wrapped in (a OR b OR c OR ...)
-        - medium:  first 5 lane keywords only
-        - generic: a hardcoded broad shipping fallback that almost always hits
-        """
         cleaned = [self._clean_term(k) for k in keywords if (k or "").strip()]
         cleaned = cleaned[:8]
         if not cleaned:
@@ -75,7 +67,6 @@ class GDELTEventProvider:
         medium = f"({' OR '.join(medium_terms)})"
         generic = "(shipping OR freight OR ports OR logistics OR containers)"
 
-        # deduplicate while preserving order
         candidates: list[str] = []
         for q in [broad, medium, generic]:
             if q not in candidates:
@@ -83,13 +74,13 @@ class GDELTEventProvider:
         return candidates
 
     async def _request_articles(
-        self, query: str
+        self, query: str, max_records: int, timespan_days: int
     ) -> tuple[list[EventArticle], Optional[str]]:
         params = {
             "query": query,
             "mode": "artlist",
-            "maxrecords": str(self.max_articles),
-            "timespan": f"{self.lookback_days}d",
+            "maxrecords": str(max_records),
+            "timespan": f"{timespan_days}d",
             "format": "json",
             "sortby": "datedesc",
         }
@@ -124,22 +115,43 @@ class GDELTEventProvider:
             )
         return articles, None
 
-    async def fetch(self, lane: str) -> EventFeed:
-        keywords = get_keywords_for_lane(lane)
-        queries = self._build_query_candidates(keywords)
+    async def fetch(
+        self,
+        lane: str = "",
+        *,
+        keywords: Optional[list[str]] = None,
+        timespan_hours: int = 0,
+        max_articles: int = 0,
+    ) -> EventFeed:
+        """
+        Fetch articles for a lane or an explicit keyword list.
+
+        Parameters
+        ----------
+        lane            : trade lane name (used for keyword lookup when keywords=None)
+        keywords        : explicit keyword list (overrides lane-based lookup)
+        timespan_hours  : window in hours; 0 = use self.lookback_days
+        max_articles    : max records to request; 0 = use self.max_articles
+        """
+        kws = keywords if keywords is not None else get_keywords_for_lane(lane)
+        max_rec = max_articles if max_articles > 0 else self.max_articles
+        timespan_days = (
+            max(1, round(timespan_hours / 24)) if timespan_hours > 0
+            else self.lookback_days
+        )
+
+        queries = self._build_query_candidates(kws)
 
         last_error: Optional[str] = None
         for query in queries:
-            articles, error = await self._request_articles(query)
+            articles, error = await self._request_articles(query, max_rec, timespan_days)
             if error:
                 last_error = error
                 continue
             if articles:
                 logger.debug(
                     "GDELT returned %d articles for lane '%s' using query: %s",
-                    len(articles),
-                    lane,
-                    query,
+                    len(articles), lane, query,
                 )
                 return EventFeed(lane=lane, query=query, articles=articles)
             logger.debug("GDELT query returned no articles, trying next fallback: %s", query)
