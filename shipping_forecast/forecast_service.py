@@ -54,21 +54,39 @@ class ForecastService:
             ),
         )
 
-        model = MonteCarloShippingForecaster(
-            historical_points=historical,
-            horizon_weeks=req.horizon_weeks,
-            num_paths=req.num_paths,
-        )
+        # --- Monte Carlo: calibrate then simulate ---
+        mc = MonteCarloShippingForecaster(num_paths=req.num_paths)
+        calib = mc.calibrate(historical)
 
         features = build_features(event_feed)
         overlay = compute_overlay(features)
 
-        forecast_block = model.run(
-            delta_mu_daily=overlay.delta_mu_daily,
-            sigma_multiplier=overlay.sigma_multiplier,
+        last_point = historical[-1]
+        dates, paths = mc.simulate_paths(
+            last_price=last_point.value,
+            start_date=last_point.date,
+            horizon_weeks=req.horizon_weeks,
+            calib=calib,
+        )
+        # Apply overlay adjustments to calibration and re-simulate
+        from dataclasses import replace as dc_replace
+        adjusted_calib = dc_replace(
+            calib,
+            mu_daily=calib.mu_daily + overlay.delta_mu_daily,
+            sigma_daily=calib.sigma_daily * overlay.sigma_multiplier,
+        )
+        dates, paths = mc.simulate_paths(
+            last_price=last_point.value,
+            start_date=last_point.date,
+            horizon_weeks=req.horizon_weeks,
+            calib=adjusted_calib,
         )
 
-        # Compute article-level fields from title keywords (EventArticle has no themes/relevance)
+        daily_points = mc.summarize_daily(dates, paths)
+        weekly_points = mc.summarize_weekly(daily_points)
+        ann_vol = mc.estimate_annualized_volatility(paths)
+
+        # --- Article enrichment ---
         total_articles = max(features.article_count, 1)
         score_100 = features.net_risk_score * 100.0
         featured: list[FeaturedArticle] = []
@@ -144,12 +162,12 @@ class ForecastService:
                 generated_at=datetime.now(timezone.utc),
                 horizon_weeks=req.horizon_weeks,
                 num_paths=req.num_paths,
-                last_observed_date=forecast_block.last_observed_date,
-                last_observed_value=forecast_block.last_observed_value,
-                annualized_volatility=forecast_block.annualized_volatility,
-                historical_points=forecast_block.historical_points,
-                daily_forecast=forecast_block.daily_forecast,
-                weekly_forecast=forecast_block.weekly_forecast,
+                last_observed_date=last_point.date,
+                last_observed_value=last_point.value,
+                annualized_volatility=ann_vol,
+                historical_points=historical,
+                daily_forecast=daily_points,
+                weekly_forecast=weekly_points,
             ),
             news_risk=news_risk,
         )
