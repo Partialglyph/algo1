@@ -1,6 +1,12 @@
 import os
 from datetime import timedelta
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv not installed; rely on shell env
+
 DEFAULT_LOOKBACK_DAYS = 365
 DEFAULT_NUM_PATHS = 5000
 DEFAULT_HORIZON_WEEKS = 8
@@ -20,7 +26,7 @@ CTS_VALUE_COLUMN = "value"
 
 EXCEL_DATA_PATH = "data.xlsx"
 
-# Translation
+# Translation — loaded from .env if present
 DEEPL_API_KEY: str | None = os.getenv("DEEPL_API_KEY", None)
 
 # Oil price source (EIA API — free, no key needed for basic endpoint)
