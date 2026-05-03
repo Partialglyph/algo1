@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 import httpx
@@ -36,11 +36,23 @@ class EventFeed:
     error: Optional[str] = None
 
 
+@dataclass
+class _CacheEntry:
+    feed: EventFeed
+    expires_at: datetime
+
+
+# Simple in-memory cache shared across provider instances
+# Keyed by (kind, identifier, timespan_days, max_records)
+_GDELT_CACHE: dict[tuple, _CacheEntry] = {}
+
+
 class GDELTEventProvider:
-    """
-    Fetches recent news articles from the GDELT 2.0 DOC API for a given trade lane.
+    """Fetches recent news articles from the GDELT 2.0 DOC API for a given trade lane.
+
     Uses documented boolean OR blocks in parentheses and retries with broader
     fallbacks when the first query returns no articles.
+
     Docs: https://blog.gdeltproject.org/gdelt-doc-2-0-api-debuts/
     """
 
@@ -123,22 +135,35 @@ class GDELTEventProvider:
         timespan_hours: int = 0,
         max_articles: int = 0,
     ) -> EventFeed:
-        """
-        Fetch articles for a lane or an explicit keyword list.
+        """Fetch articles for a lane or an explicit keyword list.
 
         Parameters
         ----------
-        lane            : trade lane name (used for keyword lookup when keywords=None)
-        keywords        : explicit keyword list (overrides lane-based lookup)
-        timespan_hours  : window in hours; 0 = use self.lookback_days
-        max_articles    : max records to request; 0 = use self.max_articles
+        lane
+            Trade lane name (used for keyword lookup when ``keywords`` is None).
+        keywords
+            Explicit keyword list (overrides lane-based lookup).
+        timespan_hours
+            Window in hours; 0 = use ``self.lookback_days``.
+        max_articles
+            Max records to request; 0 = use ``self.max_articles``.
         """
         kws = keywords if keywords is not None else get_keywords_for_lane(lane)
-        max_rec = max_articles if max_articles > 0 else self.max_articles
         timespan_days = (
             max(1, round(timespan_hours / 24)) if timespan_hours > 0
             else self.lookback_days
         )
+        max_rec = max_articles if max_articles > 0 else self.max_articles
+
+        # Cache key: differentiate lane-based vs explicit keyword searches
+        identifier = ("kw", tuple(sorted(kws))) if keywords is not None else ("lane", lane)
+        cache_key = (identifier, timespan_days, max_rec)
+
+        now = datetime.utcnow()
+        entry = _GDELT_CACHE.get(cache_key)
+        if entry and entry.expires_at > now:
+            logger.debug("Serving GDELT articles from cache for key %s", cache_key)
+            return entry.feed
 
         queries = self._build_query_candidates(kws)
 
@@ -153,10 +178,20 @@ class GDELTEventProvider:
                     "GDELT returned %d articles for lane '%s' using query: %s",
                     len(articles), lane, query,
                 )
-                return EventFeed(lane=lane, query=query, articles=articles)
+                feed = EventFeed(lane=lane, query=query, articles=articles)
+                _GDELT_CACHE[cache_key] = _CacheEntry(
+                    feed=feed,
+                    expires_at=now + timedelta(minutes=15),
+                )
+                return feed
             logger.debug("GDELT query returned no articles, trying next fallback: %s", query)
 
         logger.warning(
             "All GDELT query candidates exhausted for lane '%s' with no articles.", lane
         )
-        return EventFeed(lane=lane, query=queries[-1], articles=[], error=last_error)
+        feed = EventFeed(lane=lane, query=queries[-1] if queries else "", articles=[], error=last_error)
+        _GDELT_CACHE[cache_key] = _CacheEntry(
+            feed=feed,
+            expires_at=now + timedelta(minutes=5),  # shorter TTL for empty/error results
+        )
+        return feed
