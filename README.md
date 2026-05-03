@@ -1,20 +1,18 @@
-# algo1
+FreightScope
 
-Predictive shipping price and demand forecasting service.
+Predictive shipping price and  forecasting prototype
 
-This repository contains a FastAPI backend for multi‑module forecasting:
+Set up local server:
 
-- Module 1: Shipping price index Monte Carlo forecaster (8‑week horizon)
-- Module 2: Multi‑factor export cost projection (to be layered on top)
-- Module 3: Consumer volume forecasting (to be layered on top)
+cd C:\Users\owenk\algo1
+.\.venv\Scripts\activate.bat
+uvicorn shipping_forecast.api:app --host 0.0.0.0 --port 8000
 
-## Getting started
+cd C:\Users\owenk\algo1\frontend
+python -m http.server 5500
 
-```bash
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
-pip install -r requirements.txt
-uvicorn shipping_forecast.api:app --reload
-```
 
-Then open http://localhost:8000/docs to explore the API.
+Use browser:
+
+http://localhost:5500/index.html
+
