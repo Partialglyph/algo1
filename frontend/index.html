@@ -26,6 +26,7 @@
       --red:       #e05c5c;
       --amber:     #f5a623;
       --purple:    #a78bfa;
+      --orange:    #fb923c;
       --font: 'Inter', 'Helvetica Neue', sans-serif;
       --r-sm: 6px;
       --r-md: 10px;
@@ -43,7 +44,7 @@
 
     .app { display: grid; grid-template-rows: 56px 1fr; min-height: 100dvh; }
 
-    /* ── NAV ── */
+    /* NAV */
     nav {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -62,10 +63,10 @@
     .nav-status { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-m); }
     .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
 
-    /* ── LAYOUT ── */
+    /* LAYOUT */
     main { display: grid; grid-template-columns: 280px 1fr; height: calc(100dvh - 56px); overflow: hidden; }
 
-    /* ── SIDEBAR ── */
+    /* SIDEBAR */
     .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 24px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 28px; }
     .sidebar-section-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-f); margin-bottom: 10px; }
     .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
@@ -82,10 +83,10 @@
     .lane-chip:hover { background: var(--surface-2); color: var(--text); }
     .lane-chip.active { background: rgba(79,124,255,0.12); border-color: rgba(79,124,255,0.35); color: var(--accent); font-weight: 500; }
 
-    /* ── CONTENT AREA ── */
+    /* CONTENT AREA */
     .content { overflow-y: auto; display: flex; flex-direction: column; }
 
-    /* ── TABS ── */
+    /* TABS */
     .tabs-bar {
       display: flex;
       gap: 0;
@@ -95,6 +96,7 @@
       position: sticky;
       top: 0;
       z-index: 5;
+      overflow-x: auto;
     }
     .tab-btn {
       background: none;
@@ -112,6 +114,7 @@
       align-items: center;
       gap: 7px;
       white-space: nowrap;
+      flex-shrink: 0;
     }
     .tab-btn:hover { color: var(--text); }
     .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
@@ -119,9 +122,7 @@
     .tab-panel { display: none; padding: clamp(20px, 3vw, 36px); flex-direction: column; gap: 24px; }
     .tab-panel.active { display: flex; }
 
-
-
-    /* ── KPI ROW ── */
+    /* KPI ROW */
     .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
     .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 18px 20px; }
     .kpi-label { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-m); margin-bottom: 8px; }
@@ -131,18 +132,18 @@
     .kpi-delta.down { color: var(--red); }
     .kpi-delta.neu  { color: var(--text-m); }
 
-    /* ── PANEL ── */
+    /* PANEL */
     .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); }
     .panel-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
     .panel-title { font-size: 0.82rem; font-weight: 600; color: var(--text); letter-spacing: 0.01em; }
     .panel-sub { font-size: 0.72rem; color: var(--text-m); margin-top: 2px; }
     .panel-body { padding: 20px; }
 
-    /* ── CHART ── */
+    /* CHART */
     .chart-area { width: 100%; height: 280px; position: relative; }
     canvas { width: 100% !important; height: 100% !important; }
 
-    /* ── TABLE ── */
+    /* TABLE */
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
     thead tr { border-bottom: 1px solid var(--border); }
@@ -156,8 +157,9 @@
     .tag-amber { background: rgba(245,166,35,0.12);  color: var(--amber); }
     .tag-blue  { background: rgba(79,124,255,0.12);  color: var(--accent); }
     .tag-purple{ background: rgba(167,139,250,0.12); color: var(--purple); }
+    .tag-orange{ background: rgba(251,146,60,0.12);  color: var(--orange); }
 
-    /* ── NEWS TAB STYLES ── */
+    /* REGIME BADGE */
     .regime-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; width: fit-content; }
     .regime-badge .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .regime-normal   { background: rgba(52,199,138,0.12); color: var(--green); }
@@ -169,10 +171,12 @@
     .regime-none     { background: rgba(139,144,158,0.12); color: var(--text-m); }
     .regime-none     .dot { background: var(--text-f); }
 
-    /* Risk overview row */
+    /* SENTIMENT BADGE */
+    .sentiment-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600; }
+
+    /* RISK overview */
     .risk-overview { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     @media (max-width: 820px) { .risk-overview { grid-template-columns: 1fr; } }
-
     .risk-score-block { display: flex; flex-direction: column; gap: 14px; }
     .score-bar-wrap { display: flex; flex-direction: column; gap: 6px; }
     .score-bar-label { display: flex; justify-content: space-between; align-items: center; }
@@ -189,65 +193,26 @@
     .risk-meta-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-f); }
     .risk-meta-value { font-size: 0.88rem; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
 
-    /* Narrative summary */
-    .risk-narrative {
-      font-size: 0.82rem;
-      color: var(--text-m);
-      line-height: 1.65;
-      padding: 14px 16px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--r-md);
-    }
+    /* NARRATIVE */
+    .risk-narrative { font-size: 0.82rem; color: var(--text-m); line-height: 1.65; padding: 14px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-md); }
 
-    /* Drivers list */
+    /* DRIVERS */
     .drivers-list { display: flex; flex-direction: column; gap: 7px; }
-    .driver-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 0.78rem;
-      color: var(--text-m);
-      line-height: 1.5;
-      padding: 8px 12px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-    }
+    .driver-item { display: flex; align-items: flex-start; gap: 10px; font-size: 0.78rem; color: var(--text-m); line-height: 1.5; padding: 8px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-sm); }
     .driver-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 5px; }
+    .driver-dot.orange { background: var(--orange); }
+    .driver-dot.green  { background: var(--green); }
 
-    /* Article cards */
+    /* ARTICLE CARDS */
     .articles-list { display: flex; flex-direction: column; gap: 14px; }
-    .article-card {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--r-md);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    .article-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-md); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .article-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
     .article-title { font-size: 0.84rem; font-weight: 600; color: var(--text); line-height: 1.4; flex: 1; }
     .article-title a { color: inherit; }
     .article-title a:hover { color: var(--accent); text-decoration: none; }
-    .article-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      font-size: 0.7rem;
-      color: var(--text-f);
-    }
+    .article-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 0.7rem; color: var(--text-f); }
     .article-meta-sep { color: var(--text-f); }
-    .article-section-label {
-      font-size: 0.65rem;
-      font-weight: 600;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: var(--text-f);
-      margin-bottom: 3px;
-    }
+    .article-section-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-f); margin-bottom: 3px; }
     .article-text { font-size: 0.78rem; color: var(--text-m); line-height: 1.55; }
     .article-themes { display: flex; flex-wrap: wrap; gap: 5px; }
     .article-tone-bar { display: flex; align-items: center; gap: 8px; }
@@ -258,13 +223,42 @@
     .original-title { font-size: 0.72rem; color: var(--text-f); font-style: italic; display: none; }
     .original-title.show { display: block; }
 
-    /* Volume stats */
+    /* VOL STATS */
     .vol-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
     .vol-stat { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 12px 14px; }
     .vol-stat-num { font-size: 1.3rem; font-weight: 300; font-variant-numeric: tabular-nums; color: var(--text); }
     .vol-stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-f); margin-top: 3px; }
 
-    /* Shared empty / spinner */
+    /* OIL CARD */
+    .oil-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-md); padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+    .oil-price-row { display: flex; align-items: baseline; gap: 10px; }
+    .oil-price-val { font-size: 1.6rem; font-weight: 300; font-variant-numeric: tabular-nums; color: var(--text); }
+    .oil-price-unit { font-size: 0.75rem; color: var(--text-m); }
+    .oil-trend-row { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--text-m); }
+
+    /* CONGESTION */
+    .congestion-list { display: flex; flex-direction: column; gap: 10px; }
+    .congestion-item { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .congestion-name { font-size: 0.82rem; font-weight: 500; color: var(--text); }
+    .congestion-note { font-size: 0.72rem; color: var(--text-m); margin-top: 2px; }
+    .congestion-bar-wrap { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; min-width: 100px; }
+    .congestion-bar-track { width: 100px; height: 5px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+    .congestion-bar-fill { height: 100%; border-radius: 99px; }
+
+    /* OVERVIEW conclusions */
+    .conclusions-list { display: flex; flex-direction: column; gap: 8px; }
+    .conclusion-item { display: flex; align-items: flex-start; gap: 10px; font-size: 0.82rem; color: var(--text-m); padding: 10px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-sm); line-height: 1.5; }
+    .conclusion-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 6px; }
+
+    /* COST SECTION */
+    .cost-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 700px) { .cost-grid { grid-template-columns: 1fr; } }
+    .cost-stat { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 14px 16px; }
+    .cost-stat-num { font-size: 1.4rem; font-weight: 300; font-variant-numeric: tabular-nums; color: var(--text); }
+    .cost-stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-f); margin-top: 3px; }
+    .cost-note { font-size: 0.68rem; color: var(--text-f); margin-top: 6px; font-style: italic; }
+
+    /* SHARED */
     .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 60px 20px; color: var(--text-m); text-align: center; }
     .empty-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; color: var(--text-f); }
     .empty p { font-size: 0.82rem; max-width: 28ch; line-height: 1.5; }
@@ -273,6 +267,8 @@
     .alert { border-radius: var(--r-sm); padding: 10px 14px; font-size: 0.8rem; display: none; }
     .alert.error { background: rgba(224,92,92,0.1); border: 1px solid rgba(224,92,92,0.25); color: #f08080; display: block; }
     .alert.info  { background: rgba(79,124,255,0.08); border: 1px solid rgba(79,124,255,0.2); color: #9ab2ff; display: block; }
+    .section-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-f); margin-bottom: 10px; }
+    .info-stub { font-size: 0.72rem; color: var(--text-f); font-style: italic; padding: 8px 0; }
 
     @media (max-width: 900px) {
       main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; overflow: visible; }
@@ -373,31 +369,109 @@
     <section class="content">
       <!-- TABS BAR -->
       <div class="tabs-bar">
-        <button class="tab-btn active" id="tab-quant-btn" onclick="switchTab('quant')" aria-selected="true">
+        <button class="tab-btn active" id="tab-overview-btn" onclick="switchTab('overview')" aria-selected="true">
+          <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/>
+            <rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/>
+          </svg>
+          Overview
+        </button>
+        <button class="tab-btn" id="tab-quant-btn" onclick="switchTab('quant')" aria-selected="false">
           <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <polyline points="1 11 4 7 7 9 10 4 15 8"/>
           </svg>
-          Quantitative Forecast
+          Quantitative
         </button>
         <button class="tab-btn" id="tab-news-btn" onclick="switchTab('news')" aria-selected="false">
           <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <rect x="1" y="2" width="14" height="12" rx="2"/>
-            <line x1="4" y1="6" x2="12" y2="6"/>
-            <line x1="4" y1="9" x2="9" y2="9"/>
+            <line x1="4" y1="6" x2="12" y2="6"/><line x1="4" y1="9" x2="9" y2="9"/>
           </svg>
-          News Analysis
+          News &amp; Risk
           <span id="risk-tab-badge" style="display:none; background:var(--amber); color:#000; font-size:0.6rem; font-weight:700; padding:1px 6px; border-radius:99px; margin-left:2px;"></span>
+        </button>
+        <button class="tab-btn" id="tab-costs-btn" onclick="switchTab('costs')" aria-selected="false">
+          <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <circle cx="8" cy="8" r="6"/><line x1="8" y1="5" x2="8" y2="8"/><line x1="8" y1="8" x2="11" y2="10"/>
+          </svg>
+          Costs &amp; Duties
         </button>
       </div>
 
-      <!-- ═══ QUANTITATIVE TAB ═══ -->
-      <div class="tab-panel active" id="tab-quant">
+      <!-- ═══ OVERVIEW TAB ═══ -->
+      <div class="tab-panel active" id="tab-overview">
         <div class="alert" id="alert"></div>
-          <!-- Risk adjustment callout — shown only when regime is non-Normal -->
-<div id="quant-risk-note" style="display:none; background:rgba(245,166,35,0.08); border:1px solid rgba(245,166,35,0.22); border-radius:var(--r-sm); padding:10px 14px; font-size:0.78rem; color:var(--amber); align-items:center; gap:10px; align-items:center; gap:10px;">
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-  <span id="quant-risk-note-text">News risk overlay is active — forecast bands are widened. See the <button onclick="switchTab('news')" style="background:none;border:none;color:var(--amber);text-decoration:underline;cursor:pointer;font:inherit;padding:0;">News Analysis tab</button> for details.</span>
-</div>
+
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">Current Index</div>
+            <div class="kpi-value" id="ov-current">&#8212;</div>
+            <div class="kpi-delta neu" id="ov-lane-label"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">8-Week Forecast</div>
+            <div class="kpi-value" id="ov-forecast">&#8212;</div>
+            <div class="kpi-delta neu" id="ov-chg-label"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Risk Regime</div>
+            <div class="kpi-value" style="font-size:1rem; padding-top:4px;" id="ov-regime-badge"></div>
+            <div class="kpi-delta neu" id="ov-score-label"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Sentiment</div>
+            <div class="kpi-value" style="font-size:1rem; padding-top:4px;" id="ov-sentiment"></div>
+            <div class="kpi-delta neu" id="ov-confidence"></div>
+          </div>
+        </div>
+
+        <!-- Prediction summary -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Forecast Summary</div>
+              <div class="panel-sub" id="ov-prediction-sub">Run a forecast to generate the summary.</div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <p class="risk-narrative" id="ov-prediction-text">Choose a lane and click Run Forecast.</p>
+          </div>
+        </div>
+
+        <!-- Key conclusions -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Key Conclusions</div>
+            <div class="panel-sub">Pre-computed signals for this lane</div>
+          </div>
+          <div class="panel-body">
+            <div class="conclusions-list" id="ov-conclusions">
+              <div class="conclusion-item"><div class="conclusion-dot"></div><span style="color:var(--text-f);font-style:italic;">No data yet — run a forecast.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Oil signal mini-card -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Brent Crude</div>
+            <div class="panel-sub">EIA spot price</div>
+          </div>
+          <div class="panel-body">
+            <div class="oil-card" id="ov-oil-card">
+              <div class="empty" style="padding:20px;"><p style="font-size:0.78rem;color:var(--text-f);">Run a forecast to load oil data.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ QUANTITATIVE TAB ═══ -->
+      <div class="tab-panel" id="tab-quant">
+        <div id="quant-risk-note" style="display:none; background:rgba(245,166,35,0.08); border:1px solid rgba(245,166,35,0.22); border-radius:var(--r-sm); padding:10px 14px; font-size:0.78rem; color:var(--amber); display:none; align-items:center; gap:10px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span id="quant-risk-note-text">News risk overlay is active — forecast bands are widened. See the <button onclick="switchTab('news')" style="background:none;border:none;color:var(--amber);text-decoration:underline;cursor:pointer;font:inherit;padding:0;">News &amp; Risk tab</button> for details.</span>
+        </div>
+
         <div class="kpi-row">
           <div class="kpi-card">
             <div class="kpi-label">Last Observed</div>
@@ -421,7 +495,6 @@
           </div>
         </div>
 
-        <!-- Chart panel -->
         <div class="panel">
           <div class="panel-head">
             <div>
@@ -444,7 +517,6 @@
           </div>
         </div>
 
-        <!-- Table panel -->
         <div class="panel">
           <div class="panel-head">
             <div>
@@ -474,10 +546,9 @@
         </div>
       </div>
 
-      <!-- ═══ NEWS ANALYSIS TAB ═══ -->
+      <!-- ═══ NEWS & RISK TAB ═══ -->
       <div class="tab-panel" id="tab-news">
 
-        <!-- Regime + score overview -->
         <div class="panel" id="news-overview-panel">
           <div class="panel-head">
             <div>
@@ -513,8 +584,6 @@
                   </div>
                 </div>
               </div>
-
-              <!-- Volume counts -->
               <div>
                 <p class="article-section-label" style="margin-bottom:10px;">Article Volume</p>
                 <div class="vol-stats">
@@ -536,17 +605,43 @@
           </div>
         </div>
 
-        <!-- Narrative summary -->
+        <!-- Oil signal -->
         <div class="panel">
           <div class="panel-head">
-            <div class="panel-title">Risk Narrative</div>
+            <div>
+              <div class="panel-title">Oil Price Signal</div>
+              <div class="panel-sub">Brent crude &#183; EIA spot</div>
+            </div>
           </div>
+          <div class="panel-body" id="news-oil-body">
+            <div class="empty" style="padding:30px 20px;"><p>Run a forecast to load oil data.</p></div>
+          </div>
+        </div>
+
+        <!-- Congestion -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Port &amp; Chokepoint Congestion</div>
+              <div class="panel-sub" id="congestion-sub">Key nodes for this lane</div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="congestion-list" id="news-congestion">
+              <div class="empty" style="padding:30px 20px;"><p>Run a forecast to load congestion data.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Narrative -->
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">Risk Narrative</div></div>
           <div class="panel-body">
             <p class="risk-narrative" id="news-narrative">Run a forecast to generate the risk narrative for this lane.</p>
           </div>
         </div>
 
-        <!-- Key drivers -->
+        <!-- Drivers -->
         <div class="panel">
           <div class="panel-head">
             <div class="panel-title">Key Drivers</div>
@@ -559,7 +654,7 @@
           </div>
         </div>
 
-        <!-- Featured articles -->
+        <!-- Articles -->
         <div class="panel">
           <div class="panel-head">
             <div>
@@ -592,10 +687,7 @@
               <table id="theme-table">
                 <thead>
                   <tr>
-                    <th>Theme</th>
-                    <th>Articles</th>
-                    <th>Avg Tone</th>
-                    <th>Risk Contribution</th>
+                    <th>Theme</th><th>Articles</th><th>Avg Tone</th><th>Risk Contribution</th>
                   </tr>
                 </thead>
                 <tbody id="theme-body">
@@ -607,6 +699,88 @@
         </div>
 
       </div><!-- /tab-news -->
+
+      <!-- ═══ COSTS & DUTIES TAB ═══ -->
+      <div class="tab-panel" id="tab-costs">
+
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">Duty Rate</div>
+            <div class="kpi-value" id="cost-duty-rate">&#8212;</div>
+            <div class="kpi-delta neu" id="cost-duty-route"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Clearance Cost</div>
+            <div class="kpi-value" id="cost-clearance">&#8212;</div>
+            <div class="kpi-delta neu" id="cost-clearance-adj"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Total Exposure</div>
+            <div class="kpi-value" id="cost-total">&#8212;</div>
+            <div class="kpi-delta neu">USD / unit</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Duty Risk</div>
+            <div class="kpi-value" style="font-size:1rem; padding-top:4px;" id="cost-safety-badge">&#8212;</div>
+            <div class="kpi-delta neu" id="cost-trend-label"></div>
+          </div>
+        </div>
+
+        <!-- Cost summary -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Cost Pressure Summary</div>
+            <div class="panel-sub" id="cost-data-source">Rule-based &#183; replace with WTO TRAINS feed when available</div>
+          </div>
+          <div class="panel-body">
+            <p class="risk-narrative" id="cost-summary-text">Run a forecast to load cost &amp; duty data for this lane.</p>
+          </div>
+        </div>
+
+        <!-- Cost drivers -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Cost Drivers</div>
+            <div class="panel-sub">Tariffs, fuel, and clearance factors</div>
+          </div>
+          <div class="panel-body">
+            <div class="drivers-list" id="cost-drivers">
+              <div class="driver-item"><div class="driver-dot orange"></div><span style="color:var(--text-f);font-style:italic;">No data yet — run a forecast.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detail grid -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Rate Detail</div>
+          </div>
+          <div class="panel-body">
+            <div class="cost-grid">
+              <div class="cost-stat">
+                <div class="cost-stat-num" id="cost-import-country">&#8212;</div>
+                <div class="cost-stat-label">Import Country</div>
+              </div>
+              <div class="cost-stat">
+                <div class="cost-stat-num" id="cost-export-country">&#8212;</div>
+                <div class="cost-stat-label">Export Country</div>
+              </div>
+              <div class="cost-stat">
+                <div class="cost-stat-num" id="cost-base-clearance">&#8212;</div>
+                <div class="cost-stat-label">Base Clearance (USD)</div>
+                <div class="cost-note" id="cost-vol-adj"></div>
+              </div>
+              <div class="cost-stat">
+                <div class="cost-stat-num" id="cost-rate-type">&#8212;</div>
+                <div class="cost-stat-label">Rate Type</div>
+                <div class="cost-note" id="cost-source-note"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /tab-costs -->
+
     </section>
   </main>
 </div>
@@ -670,7 +844,7 @@
     btn.setAttribute('aria-selected', 'true');
   }
 
-  /* ── REGIME BADGE ── */
+  /* ── HELPERS ── */
   function regimeBadgeHTML(label) {
     let cls = 'regime-none';
     if (label === 'Normal') cls = 'regime-normal';
@@ -679,9 +853,27 @@
     return `<div class="regime-badge ${cls}"><div class="dot"></div>${label || 'Unknown'}</div>`;
   }
 
-  /* ── TONE BAR ── */
+  function sentimentBadgeHTML(s) {
+    const map = {
+      'Very Bullish':    ['var(--green)',  'rgba(52,199,138,0.12)'],
+      'Bullish':         ['var(--green)',  'rgba(52,199,138,0.08)'],
+      'Slightly Bullish':['var(--green)',  'rgba(52,199,138,0.06)'],
+      'Neutral':         ['var(--text-m)', 'rgba(139,144,158,0.1)'],
+      'Slightly Bearish':['var(--amber)',  'rgba(245,166,35,0.08)'],
+      'Bearish':         ['var(--red)',    'rgba(224,92,92,0.1)'],
+      'Very Bearish':    ['var(--red)',    'rgba(224,92,92,0.14)'],
+    };
+    const [color, bg] = map[s] || ['var(--text-m)', 'rgba(139,144,158,0.1)'];
+    return `<span class="sentiment-badge" style="color:${color};background:${bg};">${s || '\u2014'}</span>`;
+  }
+
+  function oilTrendIcon(trend) {
+    if (trend === 'rising')  return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--red)"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>';
+    if (trend === 'falling') return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--green)"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>';
+    return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-m)"><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+  }
+
   function toneBarHTML(tone) {
-    // GDELT tone: negative = bad, range roughly -10 to +10
     const pct = Math.max(0, Math.min(100, ((tone + 10) / 20) * 100));
     const color = tone < -1 ? 'var(--red)' : tone > 1 ? 'var(--green)' : 'var(--amber)';
     return `<div class="article-tone-bar">
@@ -690,11 +882,85 @@
     </div>`;
   }
 
+  function toggleOrig(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('show');
+  }
+
+  function safetyCls(s) {
+    if (s === 'high')   return 'tag-red';
+    if (s === 'medium') return 'tag-amber';
+    return 'tag-green';
+  }
+
+  /* ── RENDER OVERVIEW ── */
+  function renderOverview(ov, oil) {
+    if (!ov) return;
+    document.getElementById('ov-current').textContent   = fmt(ov.current_value);
+    document.getElementById('ov-lane-label').textContent = ov.lane || '';
+
+    const fc8 = ov.current_value != null && ov.latest_change_absolute != null
+      ? ov.current_value + ov.latest_change_absolute : null;
+    document.getElementById('ov-forecast').textContent = fmt(fc8);
+
+    const chg = ov.latest_change_pct;
+    const chgEl = document.getElementById('ov-chg-label');
+    if (chg != null) {
+      chgEl.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(1) + '% vs today';
+      chgEl.className = 'kpi-delta ' + (chg > 0 ? 'up' : chg < 0 ? 'down' : 'neu');
+    }
+
+    document.getElementById('ov-regime-badge').innerHTML = regimeBadgeHTML(ov.risk_regime);
+    document.getElementById('ov-score-label').textContent = 'Risk regime';
+
+    document.getElementById('ov-sentiment').innerHTML = sentimentBadgeHTML(ov.overall_sentiment);
+    document.getElementById('ov-confidence').textContent =
+      ov.confidence_score != null ? 'Confidence: ' + Math.round(ov.confidence_score * 100) + '%' : '';
+
+    document.getElementById('ov-prediction-sub').textContent =
+      'Based on Monte Carlo + GDELT signals for ' + (ov.lane || 'this lane');
+    document.getElementById('ov-prediction-text').textContent = ov.overall_prediction || '';
+
+    const conclEl = document.getElementById('ov-conclusions');
+    const conclusions = ov.key_conclusions || [];
+    conclEl.innerHTML = conclusions.length
+      ? conclusions.map(c => `<div class="conclusion-item"><div class="conclusion-dot"></div><span>${c}</span></div>`).join('')
+      : '<div class="conclusion-item"><div class="conclusion-dot"></div><span style="color:var(--text-f);font-style:italic;">No conclusions generated.</span></div>';
+
+    // Mini oil card on overview
+    renderOilCard('ov-oil-card', oil);
+  }
+
+  /* ── RENDER OIL ── */
+  function renderOilCard(containerId, oil) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (!oil) {
+      el.innerHTML = '<p class="info-stub">Oil data unavailable.</p>';
+      return;
+    }
+    const trendColor = oil.trend === 'rising' ? 'var(--red)' : oil.trend === 'falling' ? 'var(--green)' : 'var(--text-m)';
+    const chg = oil.change_24h_pct != null
+      ? `<span style="font-size:0.78rem;color:${trendColor};">${oil.change_24h_pct >= 0 ? '+' : ''}${oil.change_24h_pct.toFixed(2)}% 24h</span>`
+      : '';
+    el.innerHTML = `
+      <div class="oil-price-row">
+        <span class="oil-price-val">$${oil.price != null ? oil.price.toFixed(2) : '\u2014'}</span>
+        <span class="oil-price-unit">/ bbl &#183; ${oil.benchmark || 'Brent'}</span>
+        ${chg}
+      </div>
+      <div class="oil-trend-row">
+        ${oilTrendIcon(oil.trend)}
+        <span style="text-transform:capitalize;">${oil.trend || 'stable'}</span>
+        <span style="color:var(--text-f);">&#183; Source: ${oil.source || 'EIA'}</span>
+      </div>
+    `;
+  }
+
   /* ── RENDER NEWS TAB ── */
-  function renderNewsTab(nr) {
+  function renderNewsTab(nr, oilSignals, congestionSignals) {
     if (!nr) return;
 
-    // Regime badge + tab badge
     document.getElementById('news-regime-badge').innerHTML = regimeBadgeHTML(nr.risk_label);
     const tabBadge = document.getElementById('risk-tab-badge');
     if (nr.risk_label && nr.risk_label !== 'Normal') {
@@ -706,37 +972,86 @@
       tabBadge.style.display = 'none';
     }
 
-    // Score bar
     const score = nr.net_risk_score || 0;
     document.getElementById('news-score-pct').textContent = score.toFixed(1) + '/100';
     const fill = document.getElementById('news-score-fill');
     fill.style.width = Math.min(score, 100) + '%';
     fill.className = 'score-bar-fill ' + (score < 33 ? 'fill-green' : score < 67 ? 'fill-amber' : 'fill-red');
 
-    // Meta row
     document.getElementById('news-sigma').textContent =
       nr.sigma_multiplier != null ? '\u00d7' + nr.sigma_multiplier.toFixed(2) : '\u2014';
     document.getElementById('news-delta-mu').textContent =
       nr.delta_mu_daily != null ? (nr.delta_mu_daily >= 0 ? '+' : '') + nr.delta_mu_daily.toFixed(4) : '\u2014';
+
     const vol = nr.article_volume || {};
     document.getElementById('news-vol-ratio').textContent =
       vol.volume_vs_baseline != null ? vol.volume_vs_baseline.toFixed(1) + '\u00d7' : '\u2014';
-
-    // Article volume counts
     document.getElementById('vol-24h').textContent = vol.last_24h ?? '\u2014';
     document.getElementById('vol-72h').textContent = vol.last_72h ?? '\u2014';
     document.getElementById('vol-7d').textContent  = vol.last_7d  ?? '\u2014';
-
-    // Panel sub
     document.getElementById('news-panel-sub').textContent =
       'GDELT \u00b7 ' + (vol.last_7d || 0) + ' articles this week \u00b7 ' + (nr.risk_label || '\u2014') + ' regime';
+
+    // Oil
+    const oilBody = document.getElementById('news-oil-body');
+    const oil = (oilSignals && oilSignals.length) ? oilSignals[0] : null;
+    if (!oil) {
+      oilBody.innerHTML = '<p class="info-stub">Oil data unavailable.</p>';
+    } else {
+      const trendColor = oil.trend === 'rising' ? 'var(--red)' : oil.trend === 'falling' ? 'var(--green)' : 'var(--text-m)';
+      const chg = oil.change_24h_pct != null
+        ? `<span style="font-size:0.78rem;color:${trendColor};">${oil.change_24h_pct >= 0 ? '+' : ''}${oil.change_24h_pct.toFixed(2)}% 24h</span>`
+        : '';
+      oilBody.innerHTML = `
+        <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+          <div class="oil-card" style="flex:1;min-width:180px;">
+            <div class="oil-price-row">
+              <span class="oil-price-val">$${oil.price != null ? oil.price.toFixed(2) : '\u2014'}</span>
+              <span class="oil-price-unit">/ bbl &#183; ${oil.benchmark || 'Brent'}</span>
+              ${chg}
+            </div>
+            <div class="oil-trend-row">${oilTrendIcon(oil.trend)}<span style="text-transform:capitalize;">${oil.trend || 'stable'}</span><span style="color:var(--text-f);">&#183; Source: ${oil.source || 'EIA'}</span></div>
+          </div>
+          <div style="flex:1;min-width:180px;">
+            <p class="article-section-label" style="margin-bottom:8px;">Impact on freight</p>
+            <p class="article-text">Brent crude directly affects bunker fuel surcharges. ${oil.trend === 'rising' ? 'Rising oil adds upward pressure on freight rates via higher BAF (Bunker Adjustment Factor).' : oil.trend === 'falling' ? 'Falling oil reduces bunker surcharges and may offer relief on total freight costs.' : 'Oil is stable, keeping bunker surcharges broadly predictable.'}</p>
+          </div>
+        </div>`;
+    }
+
+    // Congestion
+    const congEl = document.getElementById('news-congestion');
+    const cong = congestionSignals || [];
+    document.getElementById('congestion-sub').textContent =
+      cong.length ? cong.length + ' node(s) monitored for this lane' : 'Key nodes for this lane';
+    if (!cong.length) {
+      congEl.innerHTML = '<p class="info-stub">No congestion data available for this lane.</p>';
+    } else {
+      congEl.innerHTML = cong.map(c => {
+        const pct = Math.round(c.congestion_index * 100);
+        const barColor = pct >= 70 ? 'var(--red)' : pct >= 40 ? 'var(--amber)' : 'var(--green)';
+        const trendTag = c.trend === 'worsening' ? 'tag-red' : c.trend === 'improving' ? 'tag-green' : 'tag-amber';
+        return `<div class="congestion-item">
+          <div>
+            <div class="congestion-name">${c.node_name}</div>
+            <div class="congestion-note">${c.note || c.node_type}</div>
+          </div>
+          <div class="congestion-bar-wrap">
+            <span class="tag ${trendTag}" style="margin-bottom:4px;">${c.trend}</span>
+            <div class="congestion-bar-track"><div class="congestion-bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
+            <span style="font-size:0.68rem;color:var(--text-m);font-variant-numeric:tabular-nums;">${pct}% index</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
 
     // Narrative
     const narrative = nr.risk_summary || 'No narrative generated.';
     const sentences = narrative.match(/[^.!?]+[.!?]+/g) || [narrative];
     const paras = [];
     for (let i = 0; i < sentences.length; i += 3) paras.push(sentences.slice(i, i+3).join(' '));
-    document.getElementById('news-narrative').innerHTML = paras.map(p => `<p style="margin-bottom:0.8em;line-height:1.65;">${p.trim()}</p>`).join('');;
+    document.getElementById('news-narrative').innerHTML =
+      paras.map(p => `<p style="margin-bottom:0.8em;line-height:1.65;">${p.trim()}</p>`).join('');
 
     // Drivers
     const driversEl = document.getElementById('news-drivers');
@@ -745,7 +1060,7 @@
       ? drivers.map(d => `<div class="driver-item"><div class="driver-dot"></div><span>${d}</span></div>`).join('')
       : '<div class="driver-item"><div class="driver-dot"></div><span style="color:var(--text-f);font-style:italic;">No drivers identified.</span></div>';
 
-    // Featured articles
+    // Articles
     const arts = nr.featured_articles || [];
     const artsEl = document.getElementById('news-articles');
     document.getElementById('articles-sub').textContent =
@@ -761,6 +1076,11 @@
           ? new Date(art.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
           : '';
         const toggleId = 'orig-' + i;
+        const flags = [
+          art.is_congestion_relevant ? '<span class="tag tag-amber">Congestion</span>' : '',
+          art.is_oil_relevant        ? '<span class="tag tag-orange">Oil</span>'        : '',
+          art.is_duty_relevant       ? '<span class="tag tag-purple">Duty</span>'       : '',
+        ].filter(Boolean).join('');
         return `<div class="article-card">
           <div class="article-header">
             <div class="article-title">
@@ -770,199 +1090,282 @@
           </div>
           <div class="article-meta">
             ${art.source ? `<span>${art.source}</span><span class="article-meta-sep">&#183;</span>` : ''}
-            ${pubDate ? `<span>${pubDate}</span><span class="article-meta-sep">&#183;</span>` : ''}
+            ${pubDate   ? `<span>${pubDate}</span><span class="article-meta-sep">&#183;</span>` : ''}
             <span>Risk contribution: ${(art.risk_contribution || 0).toFixed(1)}</span>
             ${isTranslated ? `<span class="article-meta-sep">&#183;</span><button class="original-title-toggle" onclick="toggleOrig('${toggleId}')">Show original title</button>` : ''}
           </div>
           ${isTranslated ? `<div class="original-title" id="${toggleId}">${art.title_original}</div>` : ''}
-          ${themes ? `<div class="article-themes">${themes}</div>` : ''}
+          ${themes || flags ? `<div class="article-themes">${themes}${flags}</div>` : ''}
           ${toneBarHTML(art.tone || 0)}
-          ${art.summary_english ? `<div><p class="article-section-label">Summary</p><p class="article-text">${art.summary_english}</p></div>` : ''}
-          ${art.why_it_matters ? `<div><p class="article-section-label">Why it matters</p><p class="article-text">${art.why_it_matters}</p></div>` : ''}
+          ${art.summary_english   ? `<div><p class="article-section-label">Summary</p><p class="article-text">${art.summary_english}</p></div>` : ''}
+          ${art.why_it_matters    ? `<div><p class="article-section-label">Why it matters</p><p class="article-text">${art.why_it_matters}</p></div>` : ''}
         </div>`;
       }).join('');
     }
 
-    // Theme breakdown table
+    // Theme breakdown
     const themes = nr.theme_breakdown || [];
     const themeBody = document.getElementById('theme-body');
     if (!themes.length) {
-      themeBody.innerHTML = '<tr><td colspan="4"><div class="empty" style="padding:30px 20px;"><p>No theme data for this lane.</p></div></td></tr>';
+      themeBody.innerHTML = '<tr><td colspan="4"><div class="empty" style="padding:30px 20px;"><p>No theme data</p></div></td></tr>';
     } else {
       themeBody.innerHTML = themes.map(t => {
-        const toneColor = (t.avg_tone || 0) < -1 ? 'var(--red)' : (t.avg_tone || 0) > 1 ? 'var(--green)' : 'var(--text-m)';
+        const contrib = t.risk_contribution || 0;
         return `<tr>
           <td>${t.theme}</td>
           <td>${t.article_count}</td>
-          <td style="color:${toneColor};">${(t.avg_tone || 0).toFixed(2)}</td>
-          <td>${(t.risk_contribution || 0).toFixed(1)}</td>
+          <td>${t.avg_tone != null ? t.avg_tone.toFixed(2) : '\u2014'}</td>
+          <td><span class="tag ${contrib >= 5 ? 'tag-red' : contrib >= 2 ? 'tag-amber' : 'tag-blue'}">${contrib.toFixed(1)}</span></td>
         </tr>`;
       }).join('');
     }
   }
 
-  function toggleOrig(id) {
-    const el = document.getElementById(id);
-    if (el) el.classList.toggle('show');
-  }
+  /* ── RENDER QUANT ── */
+  function renderQuant(quant) {
+    if (!quant) return;
+    const fc = quant.forecast;
+    if (!fc) return;
 
-  /* ── FORECAST RUNNER ── */
-  async function runForecast() {
-    setAlert('', '');
-    const btn = document.getElementById('btn-run');
-    btn.disabled = true;
-    btn.textContent = 'Running\u2026';
-    setStatus('Fetching\u2026', true);
-
-    const payload = {
-      lane:          document.getElementById('inp-lane').value.trim(),
-      horizon_weeks: parseInt(document.getElementById('inp-horizon').value) || 8,
-      num_paths:     parseInt(document.getElementById('inp-paths').value)   || 5000,
-      lookback_days: parseInt(document.getElementById('inp-lookback').value) || 365,
-    };
-
-    try {
-      const res = await fetchAPI('/forecast', { method: 'POST', body: JSON.stringify(payload) });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: res.statusText }));
-        throw new Error(err.detail || 'Request failed');
-      }
-      const data = await res.json();
-      renderResults(data);
-      setStatus('Updated');
-    } catch (e) {
-      setAlert('Could not reach the API: ' + e.message + '. Make sure the backend is running and the base URL is set correctly.', 'error');
-      setStatus('Error');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Run Forecast';
-    }
-  }
-
-  /* ── RENDER RESULTS ── */
-  function renderResults(data) {
-    // The backend now returns { forecast: {...}, news_risk: {...} }
-    // Support both the new nested shape and the old flat shape for compatibility.
-    const fc = data.forecast || data;
-    const nr = data.news_risk || null;
+    document.getElementById('kpi-last').textContent = fmt(fc.last_observed_value);
+    document.getElementById('kpi-last-date').textContent = fc.last_observed_date || '';
+    document.getElementById('kpi-vol').textContent =
+      fc.annualized_volatility != null ? (fc.annualized_volatility * 100).toFixed(1) + '%' : '\u2014';
 
     const wf = fc.weekly_forecast || [];
-    const hp = fc.historical_points || [];
-
-    // KPIs
-    document.getElementById('kpi-last').textContent      = fmt(fc.last_observed_value);
-    document.getElementById('kpi-last-date').textContent = fc.last_observed_date || '';
-    document.getElementById('kpi-vol').textContent       = fmtPct(fc.annualized_volatility);
-
     if (wf.length) {
       const last = wf[wf.length - 1];
-      document.getElementById('kpi-p50').textContent       = fmt(last.p50);
-      document.getElementById('kpi-p50-label').textContent = 'At week ' + (fc.horizon_weeks || wf.length);
-      document.getElementById('kpi-p95').textContent       = fmt(last.p95);
-      const delta = ((last.p95 - fc.last_observed_value) / fc.last_observed_value * 100);
-      const dEl   = document.getElementById('kpi-p95-delta');
-      dEl.textContent = (delta >= 0 ? '+' : '') + delta.toFixed(1) + '% vs last observed';
-      dEl.className   = 'kpi-delta ' + (delta >= 0 ? 'up' : 'down');
+      document.getElementById('kpi-p50').textContent = fmt(last.p50);
+      document.getElementById('kpi-p50-label').textContent = 'Week ' + wf.length + ' projection';
+      document.getElementById('kpi-p95').textContent = fmt(last.p95);
+      const delta = fc.last_observed_value ? ((last.p95 - fc.last_observed_value) / fc.last_observed_value * 100) : null;
+      document.getElementById('kpi-p95-delta').textContent = delta != null ? '+' + delta.toFixed(1) + '% vs today' : '';
     }
 
-    document.getElementById('chart-sub').textContent =
-      (fc.lane || '') + ' \u00b7 ' + (fc.horizon_weeks || '') + '-wk horizon \u00b7 ' +
-      (fc.num_paths || '').toLocaleString() + ' paths';
+    const regime = quant.regime_label || '';
+    const riskNote = document.getElementById('quant-risk-note');
+    if (regime && regime !== 'Normal') {
+      riskNote.style.display = 'flex';
+    } else {
+      riskNote.style.display = 'none';
+    }
 
-    // News tab
-    renderNewsTab(nr);
-      // Show/hide the quant-tab risk note
-      const note = document.getElementById('quant-risk-note');
-      if (nr && nr.risk_label && nr.risk_label !== 'Normal') {
-        note.style.display = 'flex';
-        const sigmaStr = nr.sigma_multiplier ? '\u00d7' + nr.sigma_multiplier.toFixed(2) + ' vol' : '';
-        const muStr = nr.delta_mu_daily ? 'mu ' + (nr.delta_mu_daily >= 0 ? '+' : '') + nr.delta_mu_daily.toFixed(4) : '';
-        document.getElementById('quant-risk-note-text').innerHTML =
-          `<strong>${nr.risk_label} regime active</strong> \u2014 Monte Carlo bands adjusted `
-          + `(${[sigmaStr, muStr].filter(Boolean).join(', ')}). `
-          + `See the <button onclick="switchTab('news')" style="background:none;border:none;color:var(--amber);text-decoration:underline;cursor:pointer;font:inherit;padding:0;">News Analysis tab</button> for the full narrative.`;
-      } else if (note) {
-        note.style.display = 'none';
-      }
-    // Chart
-    const histLabels = hp.map(p => p.date);
-    const foreLabels = wf.map(w => w.week_end);
-    const allLabels  = [...histLabels, ...foreLabels];
-    const histLen    = histLabels.length;
-    const foreLen    = foreLabels.length;
+    renderForecastChart(fc);
+    renderForecastTable(fc, regime);
+  }
 
-    const pad = (arr, before, after) => [
-      ...Array(before).fill(null),
-      ...arr,
-      ...Array(after).fill(null),
-    ];
+  /* ── RENDER COSTS ── */
+  function renderCosts(costs) {
+    if (!costs) return;
 
-    const histValues   = hp.map(p => p.value);
-    const lastHist     = histValues.length ? histValues[histValues.length - 1] : null;
-    const p95Data      = pad([lastHist, ...wf.map(w => w.p95)],      histLen - 1, 0);
-    const expectedData = pad([lastHist, ...wf.map(w => w.expected)], histLen - 1, 0);
-    const p50Data      = pad([lastHist, ...wf.map(w => w.p50)],      histLen - 1, 0);
-    const p05Data      = pad([lastHist, ...wf.map(w => w.p05)],      histLen - 1, 0);
-    const histData     = pad(histValues, 0, foreLen);
+    const dr = costs.duty_rate;
+    const cc = costs.clearance_cost;
 
-    document.getElementById('chart-empty').style.display = 'none';
+    document.getElementById('cost-duty-rate').textContent =
+      dr ? dr.rate_pct.toFixed(1) + '%' : '\u2014';
+    document.getElementById('cost-duty-route').textContent =
+      dr ? (dr.export_country + ' \u2192 ' + dr.import_country) : '';
+
+    document.getElementById('cost-clearance').textContent =
+      cc ? '$' + cc.base_cost.toFixed(0) : '\u2014';
+    document.getElementById('cost-clearance-adj').textContent =
+      cc && cc.volatility_adjustment > 0 ? '+$' + cc.volatility_adjustment.toFixed(0) + ' fuel adj.' : 'USD / unit';
+
+    document.getElementById('cost-total').textContent =
+      costs.total_cost_exposure != null ? '$' + costs.total_cost_exposure.toFixed(0) : '\u2014';
+
+    const safetyEl = document.getElementById('cost-safety-badge');
+    safetyEl.innerHTML = costs.duty_safety
+      ? `<span class="tag ${safetyCls(costs.duty_safety)}" style="font-size:0.9rem;padding:4px 12px;">${costs.duty_safety.charAt(0).toUpperCase() + costs.duty_safety.slice(1)}</span>`
+      : '\u2014';
+    document.getElementById('cost-trend-label').textContent = costs.duty_trend || '';
+
+    document.getElementById('cost-summary-text').textContent = costs.cost_pressure_summary || '';
+
+    const driversList = document.getElementById('cost-drivers');
+    const drivers = costs.cost_drivers || [];
+    driversList.innerHTML = drivers.length
+      ? drivers.map(d => `<div class="driver-item"><div class="driver-dot orange"></div><span>${d}</span></div>`).join('')
+      : '<div class="driver-item"><div class="driver-dot orange"></div><span style="color:var(--text-f);font-style:italic;">No cost drivers identified.</span></div>';
+
+    document.getElementById('cost-import-country').textContent  = dr ? dr.import_country : '\u2014';
+    document.getElementById('cost-export-country').textContent  = dr ? dr.export_country : '\u2014';
+    document.getElementById('cost-base-clearance').textContent  = cc ? '$' + cc.base_cost.toFixed(0) : '\u2014';
+    document.getElementById('cost-vol-adj').textContent =
+      cc && cc.volatility_adjustment > 0 ? '+$' + cc.volatility_adjustment.toFixed(0) + ' fuel surcharge' : '';
+    document.getElementById('cost-rate-type').textContent = dr ? dr.rate_type : '\u2014';
+    document.getElementById('cost-source-note').textContent    = dr ? 'Source: ' + dr.source : '';
+  }
+
+  /* ── CHART ── */
+  function renderForecastChart(fc) {
     const canvas = document.getElementById('forecast-chart');
-    canvas.style.display = 'block';
+    const empty  = document.getElementById('chart-empty');
+    const historical = fc.historical_points || [];
+    const weekly     = fc.weekly_forecast   || [];
+    if (!historical.length && !weekly.length) {
+      canvas.style.display = 'none'; empty.style.display = 'flex'; return;
+    }
+    canvas.style.display = 'block'; empty.style.display = 'none';
+    document.getElementById('chart-sub').textContent =
+      fc.lane + ' \u00b7 ' + historical.length + ' historical points + ' + weekly.length + '-week forecast';
 
-    if (chartInstance) chartInstance.destroy();
-    const ctx = canvas.getContext('2d');
+    const histLabels = historical.map(p => p.date);
+    const histValues = historical.map(p => p.value);
+    const fcLabels   = weekly.map(p => p.week_end);
+    const p50        = weekly.map(p => p.p50);
+    const p05        = weekly.map(p => p.p05);
+    const p95        = weekly.map(p => p.p95);
+    const allLabels  = [...histLabels, ...fcLabels];
+    const nullPad    = new Array(histLabels.length).fill(null);
 
-    chartInstance = new Chart(ctx, {
+    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+    chartInstance = new Chart(canvas, {
       type: 'line',
       data: {
         labels: allLabels,
         datasets: [
-          { label: 'p95', data: p95Data, borderColor: 'rgba(79,124,255,0.3)', backgroundColor: 'rgba(79,124,255,0.07)', borderWidth: 1, pointRadius: 0, fill: '+2', tension: 0.3, spanGaps: true },
-          { label: 'Expected', data: expectedData, borderColor: '#4f7cff', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, tension: 0.3, spanGaps: true },
-          { label: 'p50', data: p50Data, borderColor: '#34c78a', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4, 3], pointRadius: 0, tension: 0.3, spanGaps: true },
-          { label: 'p05', data: p05Data, borderColor: 'rgba(79,124,255,0.3)', backgroundColor: 'transparent', borderWidth: 1, pointRadius: 0, tension: 0.3, spanGaps: true },
-          { label: 'Historical', data: histData, borderColor: 'rgba(139,144,158,0.7)', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 3, pointBackgroundColor: 'rgba(139,144,158,0.7)', tension: 0.2, spanGaps: false },
-        ]
+          {
+            label: 'Historical',
+            data: [...histValues, ...new Array(fcLabels.length).fill(null)],
+            borderColor: '#4f7cff',
+            borderWidth: 1.5,
+            pointRadius: 0,
+            tension: 0.3,
+            fill: false,
+          },
+          {
+            label: 'p95',
+            data: [...nullPad, ...p95],
+            borderColor: 'rgba(245,166,35,0.5)',
+            borderWidth: 1,
+            borderDash: [4,4],
+            pointRadius: 0,
+            fill: '+1',
+            backgroundColor: 'rgba(245,166,35,0.07)',
+            tension: 0.3,
+          },
+          {
+            label: 'p50 (median)',
+            data: [...nullPad, ...p50],
+            borderColor: '#34c78a',
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: '#34c78a',
+            fill: false,
+            tension: 0.3,
+          },
+          {
+            label: 'p05',
+            data: [...nullPad, ...p05],
+            borderColor: 'rgba(245,166,35,0.5)',
+            borderWidth: 1,
+            borderDash: [4,4],
+            pointRadius: 0,
+            fill: false,
+            tension: 0.3,
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
         plugins: {
-          legend: { position: 'top', labels: { color: '#8b909e', boxWidth: 12, font: { family: 'Inter', size: 11 }, padding: 16 } },
+          legend: {
+            labels: { color: '#8b909e', font: { size: 11 }, boxWidth: 12 },
+          },
           tooltip: {
-            backgroundColor: '#1c2030', borderColor: 'rgba(255,255,255,0.07)', borderWidth: 1,
-            titleColor: '#e8eaf0', bodyColor: '#8b909e', padding: 10,
-            filter: item => item.parsed.y !== null,
-            callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y) }
-          }
+            backgroundColor: '#1c2030',
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1,
+            titleColor: '#e8eaf0',
+            bodyColor: '#8b909e',
+          },
         },
         scales: {
-          x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, maxRotation: 0, maxTicksLimit: 10 } },
-          y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, callback: v => fmt(v) } }
-        }
-      }
+          x: {
+            ticks: { color: '#484e5c', font: { size: 10 }, maxRotation: 30 },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+          },
+          y: {
+            ticks: { color: '#484e5c', font: { size: 10 } },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+          },
+        },
+      },
     });
+  }
 
-    // Weekly table
+  /* ── FORECAST TABLE ── */
+  function renderForecastTable(fc, regime) {
     const tbody = document.getElementById('table-body');
-    tbody.innerHTML = wf.map((w, i) => {
-      const prev  = i === 0 ? fc.last_observed_value : wf[i - 1].expected;
-      const trend = w.expected > prev * 1.005 ? 'up' : w.expected < prev * 0.995 ? 'down' : 'flat';
-      const tag   = trend === 'up'
-        ? '<span class="tag tag-green">&#8593; Rising</span>'
-        : trend === 'down'
-        ? '<span class="tag tag-red">&#8595; Falling</span>'
-        : '<span class="tag tag-amber">&#8594; Flat</span>';
+    const rows  = fc.weekly_forecast || [];
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty" style="padding:40px 20px;"><p>No data</p></div></td></tr>';
+      return;
+    }
+    const last = fc.last_observed_value;
+    tbody.innerHTML = rows.map(r => {
+      const exp = r.expected != null ? r.expected : r.p50;
+      const delta = last ? ((exp - last) / last * 100) : null;
+      const deltaStr = delta != null
+        ? `<span style="color:${delta >= 0 ? 'var(--green)' : 'var(--red)'}">${delta >= 0 ? '+' : ''}${delta.toFixed(1)}%</span>`
+        : '\u2014';
+      const signalTag = Math.abs(delta) > 10 ? 'tag-red' : Math.abs(delta) > 5 ? 'tag-amber' : 'tag-green';
+      const signalTxt = Math.abs(delta) > 10 ? 'High move' : Math.abs(delta) > 5 ? 'Moderate' : 'Low move';
       return `<tr>
-        <td>${w.week_end}</td>
-        <td>${fmt(w.expected)}</td>
-        <td>${fmt(w.p05)}</td>
-        <td>${fmt(w.p50)}</td>
-        <td>${fmt(w.p95)}</td>
-        <td>${tag}</td>
+        <td>${r.week_end}</td>
+        <td>${deltaStr}</td>
+        <td>${fmt(r.p05)}</td>
+        <td>${fmt(r.p50)}</td>
+        <td>${fmt(r.p95)}</td>
+        <td><span class="tag ${signalTag}">${signalTxt}</span></td>
       </tr>`;
     }).join('');
+  }
+
+  /* ── MAIN RUN ── */
+  async function runForecast() {
+    const btn = document.getElementById('btn-run');
+    btn.disabled = true;
+    setAlert('', '');
+    setStatus('Fetching\u2026', true);
+
+    const body = {
+      lane:          document.getElementById('inp-lane').value,
+      horizon_weeks: parseInt(document.getElementById('inp-horizon').value, 10) || 8,
+      num_paths:     parseInt(document.getElementById('inp-paths').value, 10)   || 5000,
+      lookback_days: parseInt(document.getElementById('inp-lookback').value, 10) || 365,
+    };
+
+    try {
+      const res = await fetchAPI('/dashboard', { method: 'POST', body: JSON.stringify(body) });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || 'HTTP ' + res.status);
+      }
+      const data = await res.json();
+
+      // Route into render functions
+      renderOverview(data.overview, (data.news && data.news.oil_signals && data.news.oil_signals[0]) || null);
+      renderQuant(data.quant);
+      renderNewsTab(
+        data.news && data.news.risk,
+        data.news && data.news.oil_signals,
+        data.news && data.news.congestion_signals,
+      );
+      renderCosts(data.costs);
+
+      setStatus('Updated', false);
+      switchTab('overview');
+    } catch (e) {
+      setAlert('Error: ' + e.message, 'error');
+      setStatus('Error', false);
+    } finally {
+      btn.disabled = false;
+    }
   }
 </script>
 
