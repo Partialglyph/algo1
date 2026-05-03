@@ -11,7 +11,6 @@ from .models import (
     ThemeBreakdown,
 )
 from .summarizer import (
-    ensure_english_title,
     generate_article_summary,
     generate_why_it_matters,
     generate_risk_summary,
@@ -51,7 +50,6 @@ def compute_overlay(features: EventFeatureSet) -> RiskOverlay:
         delta_mu = -0.0010
         sigma_mult = 1.30
 
-    # Generate deterministic explanation bullets from live metrics
     drivers = generate_top_drivers(features, regime)
 
     return RiskOverlay(
@@ -70,15 +68,14 @@ def build_news_risk_block(
 ) -> NewsRiskBlock:
     """
     Assemble the full NewsRiskBlock from features + overlay.
-    This is the object returned in ForecastResponse.news_risk.
-    All text fields are now populated by the summarizer module.
+    Used by the legacy /forecast endpoint.
+    Translation is NOT performed here — title_english == title_original.
+    The /dashboard route handles async DeepL translation itself.
     """
     score_100 = round(overlay.net_risk_score * 100, 1)
 
-    # Narrative risk summary generated from live metrics
     risk_summary = generate_risk_summary(features, overlay.regime_label, score_100)
 
-    # Article volume block
     article_volume = ArticleVolume(
         last_24h=features.count_24h,
         last_72h=features.count_72h,
@@ -87,41 +84,33 @@ def build_news_risk_block(
         volume_vs_baseline=round(features.count_7d / 5, 2),
     )
 
-    # Featured articles — fully populated including translation + summaries
     total_articles = max(features.article_count, 1)
     featured: list[FeaturedArticle] = []
     for art in (feed.articles or [])[:5]:
-        # Determine relevance
         relevance = 0.5
         if _has_keyword(art.title, HIGH_SEVERITY_KEYWORDS):
             relevance = 0.95
         elif _has_keyword(art.title, DISRUPTION_KEYWORDS):
             relevance = 0.80
 
-        # Theme matching
         art_themes = [
             theme for theme, kws in THEME_CLUSTERS.items()
             if _has_keyword(art.title, kws)
         ]
 
-        # Risk contribution: (relevance * recency_weight) as share of score
         risk_contribution = round((relevance / total_articles) * score_100, 1)
 
-        # English title + language tag
-        title_en, lang = ensure_english_title(art.title)
-
-        # Generated summary and why-it-matters text
         summary = generate_article_summary(
-            title_en, art.source, art.tone, art_themes
+            art.title, art.source, art.tone, art_themes
         )
         why = generate_why_it_matters(
-            title_en, art_themes, relevance, art.tone
+            art.title, art_themes, relevance, art.tone
         )
 
         featured.append(FeaturedArticle(
             title_original=art.title,
-            title_english=title_en,
-            language=lang,
+            title_english=art.title,   # untranslated — /dashboard does DeepL
+            language="en",
             source=art.source,
             url=art.url,
             published_at=art.published,
@@ -133,7 +122,6 @@ def build_news_risk_block(
             why_it_matters=why,
         ))
 
-    # Theme breakdown
     theme_breakdown: list[ThemeBreakdown] = [
         ThemeBreakdown(
             theme=theme,
