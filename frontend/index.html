@@ -106,7 +106,7 @@
     .panel-body { padding: 20px; }
 
     .chart-area { width: 100%; height: 280px; position: relative; }
-    canvas { width: 100% !important; height: 100% !important; }
+    canvas { width: 100% !important; height: 100% !important; display: block; }
 
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
@@ -530,8 +530,8 @@
     const p05Dataset = fcLabels.map((l, i) => ({ x: l, y: fc.weekly_forecast[i].p05 }));
     const p95Dataset = fcLabels.map((l, i) => ({ x: l, y: fc.weekly_forecast[i].p95 }));
 
+    // Hide placeholder and destroy old instance before creating new canvas context
     document.getElementById('chart-empty').style.display = 'none';
-    document.getElementById('forecast-chart').style.display = '';
     if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
 
     const ctx = document.getElementById('forecast-chart').getContext('2d');
@@ -555,6 +555,10 @@
         }
       }
     });
+
+    // Show canvas only after Chart instance is fully initialised to avoid
+    // Chart.js resize events resetting the inline display style mid-render.
+    document.getElementById('forecast-chart').style.display = 'block';
 
     const tbody = document.getElementById('table-body');
     tbody.innerHTML = fc.weekly_forecast.map(w => {
