@@ -294,9 +294,8 @@ class ExcelDataProvider(RateDataProvider):
             if h in self.MONTH_MAP:
                 month_col[h] = col_i
 
-        points: List[RatePoint] = []
-        # Read all data rows until we hit a non-year row (Change note, blank, or new lane header).
-        # The old hard cap of match_idx+20 was cutting off multi-year history.
+        # Collect ALL points first with no date filter
+        all_points: List[RatePoint] = []
         for row_i in range(match_idx + 2, len(df)):
             row = df.iloc[row_i]
             year_raw = str(row.iloc[0]).strip()
@@ -305,7 +304,6 @@ class ExcelDataProvider(RateDataProvider):
                 break
             if year_raw.startswith("Change") or year_raw.startswith("*"):
                 break
-            # If the cell is non-numeric it's the next lane header — stop.
             try:
                 year = int(float(year_raw))
             except (ValueError, TypeError):
@@ -323,18 +321,22 @@ class ExcelDataProvider(RateDataProvider):
                 month_num = self.MONTH_MAP[month_name]
                 last_day = calendar.monthrange(year, month_num)[1]
                 d = date(year, month_num, last_day)
+                all_points.append(RatePoint(date=d, value=max(value, settings.MIN_PRICE)))
 
-                if start_date <= d <= end_date:
-                    points.append(RatePoint(date=d, value=max(value, settings.MIN_PRICE)))
+        all_points.sort(key=lambda rp: rp.date)
 
-        points.sort(key=lambda rp: rp.date)
+        # Try the requested date window first
+        points = [p for p in all_points if start_date <= p.date <= end_date]
+
+        # Fall back to full history if window produces less than 36 months
+        if len(points) < 36:
+            points = all_points
 
         if len(points) < settings.MIN_DATA_POINTS:
             raise ValueError(
-                f"Only {len(points)} data points found for lane '{lane}' "
-                f"in the date range {start_date} to {end_date}. "
+                f"Only {len(points)} data points found for lane '{lane}'. "
                 f"Need at least {settings.MIN_DATA_POINTS}. "
-                f"Try increasing lookback_days to 730 or more."
+                f"Add more historical data to data.xlsx."
             )
 
         return points
