@@ -295,13 +295,17 @@ class ExcelDataProvider(RateDataProvider):
                 month_col[h] = col_i
 
         points: List[RatePoint] = []
-        for row_i in range(match_idx + 2, min(match_idx + 20, len(df))):
+        # Read all data rows until we hit a non-year row (Change note, blank, or new lane header).
+        # The old hard cap of match_idx+20 was cutting off multi-year history.
+        for row_i in range(match_idx + 2, len(df)):
             row = df.iloc[row_i]
             year_raw = str(row.iloc[0]).strip()
 
-            if year_raw.startswith("Change") or year_raw.startswith("*") or year_raw in ("nan", ""):
+            if year_raw in ("nan", ""):
                 break
-
+            if year_raw.startswith("Change") or year_raw.startswith("*"):
+                break
+            # If the cell is non-numeric it's the next lane header — stop.
             try:
                 year = int(float(year_raw))
             except (ValueError, TypeError):
