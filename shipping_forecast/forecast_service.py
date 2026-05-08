@@ -22,6 +22,7 @@ from .models import (
     ForecastRequest,
     ForecastResponse,
     NewsRiskBlock,
+    RatePoint,
     ThemeBreakdown,
 )
 from .summarizer import (
@@ -34,6 +35,9 @@ from .translation_service import ensure_english_title
 from .risk_overlay import compute_overlay
 
 log = logging.getLogger(__name__)
+
+FRED_FALLBACK_LANE = "Global Freight PPI (FRED)"
+MIN_GBM_POINTS = 36
 
 
 class ForecastService:
@@ -54,6 +58,31 @@ class ForecastService:
             ),
         )
 
+        # If this lane has too few points for a reliable GBM, fall back to the
+        # FRED global freight PPI scaled to match the lane's last known value.
+        if len(historical) < MIN_GBM_POINTS:
+            try:
+                fred_points = await self._provider.get_historical_rates(
+                    FRED_FALLBACK_LANE, date(2016, 1, 1), end_date
+                )
+                if fred_points and historical:
+                    scale = historical[-1].value / fred_points[-1].value
+                    scaled = [
+                        RatePoint(date=p.date, value=round(p.value * scale, 2))
+                        for p in fred_points
+                    ]
+                    # Append actual lane points at the end so the anchor is correct
+                    combined = {p.date: p for p in scaled}
+                    for p in historical:
+                        combined[p.date] = p
+                    historical = sorted(combined.values(), key=lambda p: p.date)
+                    log.info(
+                        "Lane '%s' had too few points; blended with FRED fallback (%d points total).",
+                        req.lane, len(historical),
+                    )
+            except Exception as exc:
+                log.warning("FRED fallback failed for lane '%s': %s", req.lane, exc)
+
         # --- Monte Carlo: calibrate then simulate ---
         mc = MonteCarloShippingForecaster(num_paths=req.num_paths)
         calib = mc.calibrate(historical)
@@ -62,6 +91,13 @@ class ForecastService:
         overlay = compute_overlay(features)
 
         last_point = historical[-1]
+
+        # If the last data point is in the past, move the forecast anchor to today
+        # so the projection extends into the future rather than re-forecasting history.
+        today = date.today()
+        if last_point.date < today:
+            last_point = RatePoint(date=today, value=last_point.value)
+
         dates, paths = mc.simulate_paths(
             last_price=last_point.value,
             start_date=last_point.date,
