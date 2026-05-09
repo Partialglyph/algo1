@@ -530,9 +530,12 @@
     const p05Dataset = fcLabels.map((l, i) => ({ x: l, y: fc.weekly_forecast[i].p05 }));
     const p95Dataset = fcLabels.map((l, i) => ({ x: l, y: fc.weekly_forecast[i].p95 }));
 
-    // Hide placeholder and destroy old instance before creating new canvas context
+    // Hide placeholder and destroy old chart instance
     document.getElementById('chart-empty').style.display = 'none';
     if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+    // Show canvas BEFORE creating the Chart instance so Chart.js reads non-zero dimensions
+    document.getElementById('forecast-chart').style.display = 'block';
 
     const ctx = document.getElementById('forecast-chart').getContext('2d');
     chartInstance = new Chart(ctx, {
@@ -555,10 +558,6 @@
         }
       }
     });
-
-    // Show canvas only after Chart instance is fully initialised to avoid
-    // Chart.js resize events resetting the inline display style mid-render.
-    document.getElementById('forecast-chart').style.display = 'block';
 
     const tbody = document.getElementById('table-body');
     tbody.innerHTML = fc.weekly_forecast.map(w => {
