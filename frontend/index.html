@@ -468,7 +468,7 @@
     // Double-rAF: first frame lets the browser apply display:flex to the panel,
     // second frame fires after layout is actually calculated, so resize() gets real dimensions.
     if (name === 'quant' && chartInstance) {
-      requestAnimationFrame(() => requestAnimationFrame(() => chartInstance.resize()));
+      requestAnimationFrame(() => requestAnimationFrame(() => chartInstance && chartInstance.resize()));
     }
   }
 
@@ -544,30 +544,103 @@
     if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
 
     const ctx = document.getElementById('forecast-chart').getContext('2d');
+
+    // Dataset order matters for fill references:
+    //   index 0: Historical  (no fill)
+    //   index 1: p95 upside  (fill: '+2' fills the cone all the way down to p05 at index 3)
+    //   index 2: p50 median  (no fill — sits inside the cone visually)
+    //   index 3: p05 downside (fill: false — bottom boundary line only)
     chartInstance = new Chart(ctx, {
       type: 'line',
       data: {
         datasets: [
-          { label: 'Historical',    data: histDataset, borderColor: '#8b909e', borderWidth: 1.5, pointRadius: 0, tension: 0.3, parsing: false },
-          { label: 'p95 (upside)',  data: p95Dataset,  borderColor: 'rgba(79,124,255,0.3)', borderWidth: 1, borderDash: [4,3], pointRadius: 0, fill: '+1', backgroundColor: 'rgba(79,124,255,0.07)', tension: 0.3, parsing: false },
-          { label: 'p50 (median)', data: p50Dataset,  borderColor: '#4f7cff', borderWidth: 2, pointRadius: 3, tension: 0.3, parsing: false },
-          { label: 'p05 (downside)', data: p05Dataset, borderColor: 'rgba(79,124,255,0.3)', borderWidth: 1, borderDash: [4,3], pointRadius: 0, fill: false, tension: 0.3, parsing: false },
+          {
+            label: 'Historical',
+            data: histDataset,
+            borderColor: '#8b909e',
+            borderWidth: 1.5,
+            pointRadius: 0,
+            tension: 0.3,
+            parsing: false,
+            fill: false
+          },
+          {
+            label: 'p95 (upside)',
+            data: p95Dataset,
+            borderColor: 'rgba(79,124,255,0.35)',
+            borderWidth: 1,
+            borderDash: [4, 3],
+            pointRadius: 0,
+            tension: 0.3,
+            parsing: false,
+            // Fill from this dataset (p95) down to the dataset 2 positions ahead (p05, index 3)
+            // This shades the full confidence cone in one pass.
+            fill: { target: '+2', above: 'rgba(79,124,255,0.08)' }
+          },
+          {
+            label: 'p50 (median)',
+            data: p50Dataset,
+            borderColor: '#4f7cff',
+            borderWidth: 2,
+            pointRadius: 3,
+            tension: 0.3,
+            parsing: false,
+            fill: false
+          },
+          {
+            label: 'p05 (downside)',
+            data: p05Dataset,
+            borderColor: 'rgba(79,124,255,0.35)',
+            borderWidth: 1,
+            borderDash: [4, 3],
+            pointRadius: 0,
+            tension: 0.3,
+            parsing: false,
+            fill: false
+          }
         ]
       },
       options: {
-        responsive: true, maintainAspectRatio: false,
+        responsive: true,
+        maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1c2030', titleColor: '#e8eaf0', bodyColor: '#8b909e', borderColor: 'rgba(255,255,255,0.07)', borderWidth: 1 } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1c2030',
+            titleColor: '#e8eaf0',
+            bodyColor: '#8b909e',
+            borderColor: 'rgba(255,255,255,0.07)',
+            borderWidth: 1
+          }
+        },
         scales: {
-          x: { type: 'time', time: { unit: 'week', tooltipFormat: 'MMM d, yyyy' }, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#484e5c', font: { size: 11 } } },
-          y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#484e5c', font: { size: 11 } } }
+          x: {
+            type: 'time',
+            time: { unit: 'week', tooltipFormat: 'MMM d, yyyy' },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#484e5c', font: { size: 11 } }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#484e5c', font: { size: 11 } }
+          }
         }
       }
     });
 
-    // If the quant tab is already active when the forecast runs, resize immediately after one paint
+    // Resize strategy: if quant tab is already visible, do it right away.
+    // If it's hidden (e.g. run triggered from Overview tab), a setTimeout provides
+    // a safety-net resize once the user switches to the tab. The switchTab handler
+    // covers that case too, but the timeout acts as a belt-and-suspenders fallback.
     if (document.getElementById('tab-quant').classList.contains('active')) {
       requestAnimationFrame(() => chartInstance && chartInstance.resize());
+    } else {
+      // Defer a resize for when the user first navigates to the quant tab
+      const onceResize = () => {
+        if (chartInstance) chartInstance.resize();
+      };
+      document.getElementById('tab-quant-btn').addEventListener('click', onceResize, { once: true });
     }
 
     const tbody = document.getElementById('table-body');
