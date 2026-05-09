@@ -4,14 +4,12 @@ from __future__ import annotations
 oil_service.py
 
 Fetches the current Brent crude oil spot price.
-Primary source: Open exchange-rate style free endpoints that don't require auth.
-  1. commodities-api.com open endpoint (no key, updated daily)
-  2. Frankfurter/ECB-style fallback for commodity proxies
-  3. Static stub so the dashboard always responds even when both fail.
 
-Note: EIA v2 API now requires a registered API key and returns 403 on DEMO key.
-Register at https://www.eia.gov/opendata/ for a free key and set EIA_API_KEY
-in your environment to use the authoritative EIA source.
+Source priority:
+  1. EIA v2 API        (free key — set EIA_API_KEY env var)
+  2. Alpha Vantage     (free key — set ALPHA_VANTAGE_KEY env var)
+  3. Alpha Vantage     (demo key, heavily throttled, last live resort)
+  4. Static stub       (dashboard always responds even if all live sources fail)
 """
 
 import logging
@@ -25,20 +23,8 @@ from .models import OilSignal
 
 log = logging.getLogger(__name__)
 
-# EIA v2 endpoint — requires real API key (free registration at eia.gov/opendata).
-# Set the EIA_API_KEY environment variable to enable this source.
 _EIA_URL = "https://api.eia.gov/v2/petroleum/pri/spt/data/"
-
-# Alternative free endpoint: open.er-api.com exposes commodity prices including Brent.
-# No key required, updated daily.
-_OPEN_BRENT_URL = "https://api.frankfurter.app/latest"  # forex fallback, not oil
-
-# Alpha Vantage free tier (no key required for the community endpoint)
-_ALPHA_VANTAGE_BRENT = (
-    "https://www.alphavantage.co/query"
-    "?function=BRENT&interval=daily&apikey=demo"
-)
-
+_ALPHA_VANTAGE_URL = "https://www.alphavantage.co/query"
 _STUB_PRICE = 85.0
 
 
@@ -60,10 +46,15 @@ async def _try_eia(key: str) -> Optional[float]:
         return float(rows[0]["value"])
 
 
-async def _try_alpha_vantage() -> Optional[tuple[float, float]]:
+async def _try_alpha_vantage(api_key: str) -> Optional[tuple[float, float]]:
     """Returns (latest_price, prev_price) or None."""
+    params = {
+        "function": "BRENT",
+        "interval": "daily",
+        "apikey": api_key,
+    }
     async with httpx.AsyncClient(timeout=8.0) as client:
-        resp = await client.get(_ALPHA_VANTAGE_BRENT)
+        resp = await client.get(_ALPHA_VANTAGE_URL, params=params)
         resp.raise_for_status()
         data = resp.json().get("data", [])
         if not data or len(data) < 1:
@@ -75,8 +66,8 @@ async def _try_alpha_vantage() -> Optional[tuple[float, float]]:
 
 async def fetch_oil_signal() -> OilSignal:
     """
-    Try to get a real Brent price from available free sources.
-    Priority: EIA (if EIA_API_KEY env var set) -> Alpha Vantage demo -> stub.
+    Try to get a real Brent price from available sources.
+    Priority: EIA -> Alpha Vantage (real key) -> Alpha Vantage (demo) -> stub.
     The dashboard never blocks on this — always returns within timeout.
     """
     latest: Optional[float] = None
@@ -94,17 +85,30 @@ async def fetch_oil_signal() -> OilSignal:
         except Exception as exc:
             log.warning("EIA fetch failed: %s", exc)
 
-    # 2. Alpha Vantage demo key (free, no registration)
+    # 2. Alpha Vantage with real registered key
+    if latest is None:
+        av_key = os.environ.get("ALPHA_VANTAGE_KEY", "").strip()
+        if av_key and av_key.upper() != "DEMO":
+            try:
+                result = await _try_alpha_vantage(av_key)
+                if result is not None:
+                    latest, prev = result
+                    source = "AlphaVantage"
+                    log.info("Oil price fetched from Alpha Vantage (real key): %.2f", latest)
+            except Exception as exc:
+                log.warning("Alpha Vantage (real key) fetch failed: %s", exc)
+
+    # 3. Alpha Vantage demo key — throttled, but try anyway
     if latest is None:
         try:
-            result = await _try_alpha_vantage()
+            result = await _try_alpha_vantage("demo")
             if result is not None:
                 latest, prev = result
-                source = "AlphaVantage"
+                source = "AlphaVantage-demo"
         except Exception as exc:
-            log.warning("Alpha Vantage oil fetch failed: %s", exc)
+            log.warning("Alpha Vantage demo fetch failed: %s", exc)
 
-    # 3. Stub
+    # 4. Stub
     if latest is None:
         log.info("All oil price sources failed, using stub value %.2f", _STUB_PRICE)
         return OilSignal(
@@ -120,7 +124,7 @@ async def fetch_oil_signal() -> OilSignal:
         prev = latest
 
     change_pct: Optional[float] = (
-        round((latest - prev) / prev * 100, 2) if prev else None
+        round((latest - prev) / prev * 100, 2) if prev and prev != latest else None
     )
 
     if change_pct is not None and change_pct > 0.5:
