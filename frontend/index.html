@@ -106,8 +106,7 @@
     .panel-body { padding: 20px; }
 
     .chart-area { width: 100%; height: 280px; position: relative; }
-    /* Do NOT apply width/height overrides to canvas — Chart.js manages those attributes itself */
-    #forecast-chart { display: block; }
+    canvas { width: 100% !important; height: 100% !important; }
 
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
@@ -201,16 +200,6 @@
     .conclusions-list { display: flex; flex-direction: column; gap: 6px; }
     .conclusion-item { display: flex; align-items: flex-start; gap: 10px; font-size: 0.8rem; color: var(--text-m); padding: 8px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-sm); line-height: 1.5; }
     .conclusion-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 6px; }
-
-    .costs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    @media (max-width: 700px) { .costs-grid { grid-template-columns: 1fr; } }
-    .cost-kpi { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-md); padding: 16px 18px; }
-    .cost-kpi-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-f); margin-bottom: 6px; }
-    .cost-kpi-value { font-size: 1.5rem; font-weight: 300; font-variant-numeric: tabular-nums; color: var(--text); }
-    .cost-kpi-sub { font-size: 0.72rem; color: var(--text-m); margin-top: 3px; }
-    .safety-low    { color: var(--green); }
-    .safety-medium { color: var(--amber); }
-    .safety-high   { color: var(--red); }
 
     .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 60px 20px; color: var(--text-m); text-align: center; }
     .empty-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; color: var(--text-f); }
@@ -332,10 +321,6 @@
           News &amp; Risk
           <span id="risk-tab-badge" style="display:none; background:var(--amber); color:#000; font-size:0.6rem; font-weight:700; padding:1px 6px; border-radius:99px; margin-left:2px;"></span>
         </button>
-        <button class="tab-btn" id="tab-costs-btn" onclick="switchTab('costs')" aria-selected="false">
-          <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 5v1.5M8 9.5V11M6.5 7a1.5 1.5 0 1 1 3 0c0 1-1.5 1.5-1.5 2"/></svg>
-          Costs
-        </button>
       </div>
 
       <!-- OVERVIEW -->
@@ -369,8 +354,7 @@
           <div class="panel-body">
             <div class="chart-area" id="chart-area">
               <div class="empty" id="chart-empty" style="position:absolute;inset:0;z-index:1;background:var(--surface);border-radius:var(--r-md);"><div class="empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><p>Choose a lane and click Run Forecast</p></div>
-              <!-- width/height attributes give Chart.js a real fallback size when the panel is hidden -->
-              <canvas id="forecast-chart" width="800" height="280"></canvas>
+              <canvas id="forecast-chart" style="display:none;"></canvas>
             </div>
           </div>
         </div>
@@ -412,26 +396,12 @@
         <div class="panel"><div class="panel-head"><div><div class="panel-title">Featured Articles</div><div class="panel-sub" id="articles-sub">Top GDELT matches for this lane</div></div></div><div class="panel-body"><div class="articles-list" id="news-articles"><div class="empty" style="padding:40px 20px;"><div class="empty-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="13" y2="12"/></svg></div><p>Featured articles will appear here after running a forecast.</p></div></div></div></div>
         <div class="panel"><div class="panel-head"><div class="panel-title">Theme Breakdown</div><div class="panel-sub">Risk contribution by coverage cluster</div></div><div class="panel-body" style="padding:0;"><div class="table-wrap"><table><thead><tr><th>Theme</th><th>Articles</th><th>Avg Tone</th><th>Risk Contribution</th></tr></thead><tbody id="theme-body"><tr><td colspan="4"><div class="empty" style="padding:30px 20px;"><p>No theme data yet</p></div></td></tr></tbody></table></div></div></div>
       </div>
-
-      <!-- COSTS -->
-      <div class="tab-panel" id="tab-costs">
-        <div class="kpi-row">
-          <div class="kpi-card"><div class="kpi-label">Total Cost Exposure</div><div class="kpi-value" id="cost-total">&mdash;</div><div class="kpi-delta neu">Estimated USD</div></div>
-          <div class="kpi-card"><div class="kpi-label">Duty Rate</div><div class="kpi-value" id="cost-duty-rate">&mdash;</div><div class="kpi-delta neu" id="cost-duty-type"></div></div>
-          <div class="kpi-card"><div class="kpi-label">Clearance Cost</div><div class="kpi-value" id="cost-clearance">&mdash;</div><div class="kpi-delta neu" id="cost-clearance-ccy"></div></div>
-          <div class="kpi-card"><div class="kpi-label">Duty Safety Level</div><div class="kpi-value" style="font-size:1.1rem;" id="cost-safety">&mdash;</div></div>
-        </div>
-        <div class="panel"><div class="panel-head"><div class="panel-title">Cost Pressure Summary</div></div><div class="panel-body"><p class="risk-narrative" id="cost-summary">Run a forecast to load cost analysis.</p></div></div>
-        <div class="panel"><div class="panel-head"><div class="panel-title">Cost Drivers</div><div class="panel-sub">Factors contributing to current cost exposure</div></div><div class="panel-body"><div class="drivers-list" id="cost-drivers"><div class="driver-item"><div class="driver-dot"></div><span style="color:var(--text-f);font-style:italic;">No data yet</span></div></div></div></div>
-        <div class="panel"><div class="panel-head"><div class="panel-title">Duty Details</div><div class="panel-sub">Import / export rate for this lane</div></div><div class="panel-body" style="padding:0;"><div class="table-wrap"><table><thead><tr><th>Import Country</th><th>Export Country</th><th>Rate</th><th>Rate Type</th><th>Source</th><th>Last Updated</th></tr></thead><tbody id="duty-body"><tr><td colspan="6"><div class="empty" style="padding:30px 20px;"><p>No duty data yet</p></div></td></tr></tbody></table></div></div></div>
-      </div>
     </section>
   </main>
 </div>
 
-<!-- Chart.js + date adapter (date-fns bundle includes the adapter) -->
+<!-- Chart.js only — no date adapter needed, we use a plain category scale -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
 <script>
   function getBase() {
@@ -451,7 +421,6 @@
     if (btn) btn.classList.add('active');
   }
   function fmt(n) { return (n == null || isNaN(n)) ? '\u2014' : new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n); }
-  function fmtUSD(n) { return (n == null || isNaN(n)) ? '\u2014' : '$' + new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n); }
   function setAlert(id, msg, type) { const el = document.getElementById(id); if (!el) return; if (!msg) { el.className = 'alert'; el.textContent = ''; return; } el.className = 'alert ' + type; el.textContent = msg; }
   function setStatus(text, loading) {
     const el = document.getElementById('nav-status');
@@ -464,9 +433,6 @@
     document.getElementById('tab-' + name).classList.add('active');
     const btn = document.getElementById('tab-' + name + '-btn');
     if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected','true'); }
-
-    // Double-rAF: first frame lets the browser apply display:flex to the panel,
-    // second frame fires after layout is actually calculated, so resize() gets real dimensions.
     if (name === 'quant' && chartInstance) {
       requestAnimationFrame(() => requestAnimationFrame(() => chartInstance && chartInstance.resize()));
     }
@@ -511,143 +477,173 @@
   }
 
   function renderQuant(data) {
-    const fc = data.quant.forecast;
-    const regime = data.quant.regime_label;
-    const score = (data.news && data.news.risk) ? data.news.risk.net_risk_score : 0;
+    try {
+      const fc = data.quant.forecast;
+      const regime = data.quant.regime_label;
+      const score = (data.news && data.news.risk) ? data.news.risk.net_risk_score : 0;
 
-    document.getElementById('kpi-last').textContent = fmt(fc.last_observed_value);
-    document.getElementById('kpi-last-date').textContent = fc.last_observed_date || '';
-    const lastWeek = fc.weekly_forecast[fc.weekly_forecast.length - 1];
-    if (lastWeek) {
-      document.getElementById('kpi-p50').textContent = fmt(lastWeek.p50);
-      document.getElementById('kpi-p95').textContent = fmt(lastWeek.p95);
-      const delta = ((lastWeek.p95 - fc.last_observed_value) / fc.last_observed_value * 100);
-      document.getElementById('kpi-p95-delta').textContent = (delta >= 0 ? '+' : '') + delta.toFixed(1) + '% vs current';
-    }
-    document.getElementById('kpi-vol').textContent = (fc.annualized_volatility * 100).toFixed(1) + '%';
+      document.getElementById('kpi-last').textContent = fmt(fc.last_observed_value);
+      document.getElementById('kpi-last-date').textContent = fc.last_observed_date || '';
+      const lastWeek = fc.weekly_forecast[fc.weekly_forecast.length - 1];
+      if (lastWeek) {
+        document.getElementById('kpi-p50').textContent = fmt(lastWeek.p50);
+        document.getElementById('kpi-p95').textContent = fmt(lastWeek.p95);
+        const delta = ((lastWeek.p95 - fc.last_observed_value) / fc.last_observed_value * 100);
+        document.getElementById('kpi-p95-delta').textContent = (delta >= 0 ? '+' : '') + delta.toFixed(1) + '% vs current';
+      }
+      document.getElementById('kpi-vol').textContent = (fc.annualized_volatility * 100).toFixed(1) + '%';
 
-    const note = document.getElementById('quant-risk-note');
-    if (score >= 25) {
-      note.style.display = 'flex';
-      document.getElementById('quant-risk-note-text').innerHTML = `News risk overlay active (${regime}) &mdash; forecast bands widened. See <button onclick="switchTab('news')" style="background:none;border:none;color:var(--amber);text-decoration:underline;cursor:pointer;font:inherit;padding:0;">News &amp; Risk</button> for details.`;
-    } else { note.style.display = 'none'; }
+      const note = document.getElementById('quant-risk-note');
+      if (score >= 25) {
+        note.style.display = 'flex';
+        document.getElementById('quant-risk-note-text').innerHTML = `News risk overlay active (${regime}) &mdash; forecast bands widened. See <button onclick="switchTab('news')" style="background:none;border:none;color:var(--amber);text-decoration:underline;cursor:pointer;font:inherit;padding:0;">News &amp; Risk</button> for details.`;
+      } else { note.style.display = 'none'; }
 
-    document.getElementById('chart-sub').innerHTML = fc.lane + ' &middot; ' + fc.horizon_weeks + '-week horizon &middot; ' + fc.num_paths.toLocaleString() + ' paths';
+      document.getElementById('chart-sub').innerHTML = fc.lane + ' &middot; ' + fc.horizon_weeks + '-week horizon &middot; ' + fc.num_paths.toLocaleString() + ' paths';
 
-    const histDataset = (fc.historical_points || []).map(p => ({ x: p.date, y: p.value }));
-    const fcLabels = fc.weekly_forecast.map(p => p.week_end);
-    const p50Dataset = fcLabels.map((l, i) => ({ x: l, y: fc.weekly_forecast[i].p50 }));
-    const p05Dataset = fcLabels.map((l, i) => ({ x: l, y: fc.weekly_forecast[i].p05 }));
-    const p95Dataset = fcLabels.map((l, i) => ({ x: l, y: fc.weekly_forecast[i].p95 }));
+      // ---- Category-scale chart (no date adapter required) ----
+      // Build a single shared labels array: historical dates + forecast week-end dates.
+      // Each dataset is null-padded to align positionally with that labels array.
+      const hp  = fc.historical_points || [];
+      const wf  = fc.weekly_forecast   || [];
+      const histLabels = hp.map(p => p.date);
+      const foreLabels = wf.map(w => w.week_end);
+      const allLabels  = [...histLabels, ...foreLabels];
+      const hLen = histLabels.length;
+      const fLen = foreLabels.length;
 
-    document.getElementById('chart-empty').style.display = 'none';
-    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+      const pad = (arr, before, after) => [
+        ...Array(before).fill(null),
+        ...arr,
+        ...Array(after).fill(null),
+      ];
 
-    const ctx = document.getElementById('forecast-chart').getContext('2d');
+      const histValues   = hp.map(p => p.value);
+      const lastHist     = histValues.length ? histValues[histValues.length - 1] : null;
 
-    // Dataset order matters for fill references:
-    //   index 0: Historical  (no fill)
-    //   index 1: p95 upside  (fill: '+2' fills the cone all the way down to p05 at index 3)
-    //   index 2: p50 median  (no fill — sits inside the cone visually)
-    //   index 3: p05 downside (fill: false — bottom boundary line only)
-    chartInstance = new Chart(ctx, {
-      type: 'line',
-      data: {
-        datasets: [
-          {
-            label: 'Historical',
-            data: histDataset,
-            borderColor: '#8b909e',
-            borderWidth: 1.5,
-            pointRadius: 0,
-            tension: 0.3,
-            parsing: false,
-            fill: false
-          },
-          {
-            label: 'p95 (upside)',
-            data: p95Dataset,
-            borderColor: 'rgba(79,124,255,0.35)',
-            borderWidth: 1,
-            borderDash: [4, 3],
-            pointRadius: 0,
-            tension: 0.3,
-            parsing: false,
-            // Fill from this dataset (p95) down to the dataset 2 positions ahead (p05, index 3)
-            // This shades the full confidence cone in one pass.
-            fill: { target: '+2', above: 'rgba(79,124,255,0.08)' }
-          },
-          {
-            label: 'p50 (median)',
-            data: p50Dataset,
-            borderColor: '#4f7cff',
-            borderWidth: 2,
-            pointRadius: 3,
-            tension: 0.3,
-            parsing: false,
-            fill: false
-          },
-          {
-            label: 'p05 (downside)',
-            data: p05Dataset,
-            borderColor: 'rgba(79,124,255,0.35)',
-            borderWidth: 1,
-            borderDash: [4, 3],
-            pointRadius: 0,
-            tension: 0.3,
-            parsing: false,
-            fill: false
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#1c2030',
-            titleColor: '#e8eaf0',
-            bodyColor: '#8b909e',
-            borderColor: 'rgba(255,255,255,0.07)',
-            borderWidth: 1
-          }
+      // Bridge: repeat last historical value as first forecast point so lines connect.
+      const p95Data      = pad([lastHist, ...wf.map(w => w.p95)],      hLen - 1, 0);
+      const expectedData = pad([lastHist, ...wf.map(w => w.expected)], hLen - 1, 0);
+      const p50Data      = pad([lastHist, ...wf.map(w => w.p50)],      hLen - 1, 0);
+      const p05Data      = pad([lastHist, ...wf.map(w => w.p05)],      hLen - 1, 0);
+      const histData     = pad(histValues, 0, fLen);
+
+      document.getElementById('chart-empty').style.display = 'none';
+      const canvas = document.getElementById('forecast-chart');
+      canvas.style.display = 'block';
+
+      if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+      const ctx = canvas.getContext('2d');
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: allLabels,
+          datasets: [
+            {
+              label: 'p95',
+              data: p95Data,
+              borderColor: 'rgba(79,124,255,0.3)',
+              backgroundColor: 'rgba(79,124,255,0.07)',
+              borderWidth: 1,
+              pointRadius: 0,
+              fill: '+2',    // fills cone from p95 down to p05 (2 datasets ahead)
+              tension: 0.3,
+              spanGaps: true,
+            },
+            {
+              label: 'Expected',
+              data: expectedData,
+              borderColor: '#4f7cff',
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              pointRadius: 0,
+              tension: 0.3,
+              spanGaps: true,
+            },
+            {
+              label: 'p50',
+              data: p50Data,
+              borderColor: '#34c78a',
+              backgroundColor: 'transparent',
+              borderWidth: 1.5,
+              borderDash: [4, 3],
+              pointRadius: 0,
+              tension: 0.3,
+              spanGaps: true,
+            },
+            {
+              label: 'p05',
+              data: p05Data,
+              borderColor: 'rgba(79,124,255,0.3)',
+              backgroundColor: 'transparent',
+              borderWidth: 1,
+              pointRadius: 0,
+              tension: 0.3,
+              spanGaps: true,
+            },
+            {
+              label: 'Historical',
+              data: histData,
+              borderColor: 'rgba(139,144,158,0.7)',
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              pointRadius: 3,
+              pointBackgroundColor: 'rgba(139,144,158,0.7)',
+              tension: 0.2,
+              spanGaps: false,
+            },
+          ]
         },
-        scales: {
-          x: {
-            type: 'time',
-            time: { unit: 'week', tooltipFormat: 'MMM d, yyyy' },
-            grid: { color: 'rgba(255,255,255,0.04)' },
-            ticks: { color: '#484e5c', font: { size: 11 } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { color: '#8b909e', boxWidth: 12, font: { family: 'Inter', size: 11 }, padding: 16 }
+            },
+            tooltip: {
+              backgroundColor: '#1c2030',
+              borderColor: 'rgba(255,255,255,0.07)',
+              borderWidth: 1,
+              titleColor: '#e8eaf0',
+              bodyColor: '#8b909e',
+              padding: 10,
+              filter: item => item.parsed.y !== null,
+              callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y) }
+            }
           },
-          y: {
-            grid: { color: 'rgba(255,255,255,0.04)' },
-            ticks: { color: '#484e5c', font: { size: 11 } }
+          scales: {
+            x: {
+              grid:  { color: 'rgba(255,255,255,0.04)' },
+              ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, maxRotation: 0, maxTicksLimit: 10 },
+            },
+            y: {
+              grid:  { color: 'rgba(255,255,255,0.04)' },
+              ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, callback: v => fmt(v) },
+            }
           }
         }
+      });
+
+      if (document.getElementById('tab-quant').classList.contains('active')) {
+        requestAnimationFrame(() => chartInstance && chartInstance.resize());
+      } else {
+        document.getElementById('tab-quant-btn').addEventListener('click',
+          () => { if (chartInstance) chartInstance.resize(); }, { once: true });
       }
-    });
 
-    // Resize strategy: if quant tab is already visible, do it right away.
-    // If it's hidden (e.g. run triggered from Overview tab), a setTimeout provides
-    // a safety-net resize once the user switches to the tab. The switchTab handler
-    // covers that case too, but the timeout acts as a belt-and-suspenders fallback.
-    if (document.getElementById('tab-quant').classList.contains('active')) {
-      requestAnimationFrame(() => chartInstance && chartInstance.resize());
-    } else {
-      // Defer a resize for when the user first navigates to the quant tab
-      const onceResize = () => {
-        if (chartInstance) chartInstance.resize();
-      };
-      document.getElementById('tab-quant-btn').addEventListener('click', onceResize, { once: true });
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = wf.map(w => {
+        const sig = w.p50 > fc.last_observed_value ? '<span class="tag tag-green">&uarr; Up</span>' : '<span class="tag tag-red">&darr; Down</span>';
+        return `<tr><td>${w.week_end}</td><td>${fmt(w.expected)}</td><td>${fmt(w.p05)}</td><td>${fmt(w.p50)}</td><td>${fmt(w.p95)}</td><td>${sig}</td></tr>`;
+      }).join('');
+
+    } catch (err) {
+      setAlert('alert-quant', 'Chart render error: ' + err.message + ' (check backend response shape: data.quant.forecast)', 'error');
     }
-
-    const tbody = document.getElementById('table-body');
-    tbody.innerHTML = fc.weekly_forecast.map(w => {
-      const sig = w.p50 > fc.last_observed_value ? '<span class="tag tag-green">&uarr; Up</span>' : '<span class="tag tag-red">&darr; Down</span>';
-      return `<tr><td>${w.week_end}</td><td>${fmt(w.expected)}</td><td>${fmt(w.p05)}</td><td>${fmt(w.p50)}</td><td>${fmt(w.p95)}</td><td>${sig}</td></tr>`;
-    }).join('');
   }
 
   function renderNews(data) {
@@ -731,28 +727,6 @@
     } else { themeBody.innerHTML = '<tr><td colspan="4"><div class="empty" style="padding:30px 20px;"><p>No theme data.</p></div></td></tr>'; }
   }
 
-  function renderCosts(costs) {
-    if (!costs) return;
-    document.getElementById('cost-total').textContent = fmtUSD(costs.total_cost_exposure);
-    document.getElementById('cost-summary').textContent = costs.cost_pressure_summary || 'No summary available.';
-    const duty = costs.duty_rate;
-    if (duty) {
-      document.getElementById('cost-duty-rate').textContent = duty.rate_pct.toFixed(2) + '%';
-      document.getElementById('cost-duty-type').textContent = duty.rate_type || '';
-      const updated = duty.last_updated ? new Date(duty.last_updated).toLocaleDateString() : 'n/a';
-      document.getElementById('duty-body').innerHTML = `<tr><td>${duty.import_country||'\u2014'}</td><td>${duty.export_country||'\u2014'}</td><td>${duty.rate_pct.toFixed(2)}%</td><td>${duty.rate_type}</td><td>${duty.source}</td><td>${updated}</td></tr>`;
-    }
-    const cl = costs.clearance_cost;
-    if (cl) { document.getElementById('cost-clearance').textContent = fmtUSD(cl.base_cost); document.getElementById('cost-clearance-ccy').textContent = cl.currency || 'USD'; }
-    const safetyEl = document.getElementById('cost-safety');
-    const safety = costs.duty_safety || 'medium';
-    safetyEl.textContent = safety.charAt(0).toUpperCase() + safety.slice(1);
-    safetyEl.className = 'kpi-value safety-' + safety;
-    const drivers = costs.cost_drivers || [];
-    const driversEl = document.getElementById('cost-drivers');
-    driversEl.innerHTML = drivers.length ? drivers.map(d => `<div class="driver-item"><div class="driver-dot"></div><span>${d}</span></div>`).join('') : '<div class="driver-item"><div class="driver-dot"></div><span style="color:var(--text-f);font-style:italic;">No cost drivers identified.</span></div>';
-  }
-
   async function runDashboard() {
     const lane     = document.getElementById('inp-lane').value;
     const horizon  = parseInt(document.getElementById('inp-horizon').value) || 8;
@@ -770,7 +744,6 @@
       renderOverview(data.overview, data.news?.risk?.risk_label);
       renderQuant(data);
       renderNews(data);
-      renderCosts(data.costs);
       setStatus('Updated ' + new Date().toLocaleTimeString(), false);
     } catch (err) {
       setAlert('alert-overview', 'Error: ' + err.message, 'error');
