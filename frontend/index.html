@@ -461,6 +461,11 @@
     document.getElementById('tab-' + name).classList.add('active');
     const btn = document.getElementById('tab-' + name + '-btn');
     if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected','true'); }
+
+    // Force Chart.js to recalculate size now that the panel is visible
+    if (name === 'quant' && chartInstance) {
+      chartInstance.resize();
+    }
   }
   function regimeBadgeHTML(label) {
     let cls = 'regime-none';
@@ -534,7 +539,7 @@
     document.getElementById('chart-empty').style.display = 'none';
     if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
 
-    // Show canvas BEFORE creating the Chart instance so Chart.js reads non-zero dimensions
+    // Show canvas BEFORE new Chart() so Chart.js reads a real pixel height
     document.getElementById('forecast-chart').style.display = 'block';
 
     const ctx = document.getElementById('forecast-chart').getContext('2d');
