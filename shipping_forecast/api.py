@@ -96,7 +96,7 @@ async def forecast(req: ForecastRequest) -> ForecastResponse:
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
-        log.exception("forecast error")  # now prints full traceback to uvicorn terminal
+        log.exception("forecast error")
         raise HTTPException(status_code=500, detail="Internal server error") from exc
 
 
@@ -108,7 +108,7 @@ async def dashboard(req: ForecastRequest) -> DashboardResponse:
     """
     try:
         # --- Parallel fetch: forecast + events + oil ---
-        forecast_resp, event_feed, oil_signal = await asyncio.gather(
+        forecast_resp, event_feed, oil_result = await asyncio.gather(
             service.generate_forecast(req),
             _gdelt.fetch(
                 keywords=get_keywords_for_lane(req.lane),
@@ -117,6 +117,9 @@ async def dashboard(req: ForecastRequest) -> DashboardResponse:
             ),
             fetch_oil_signal(),
         )
+
+        # fetch_oil_signal now returns (OilSignal, history_points)
+        oil_signal, oil_history = oil_result
 
         fc: ForecastBlock = forecast_resp.forecast
         nr: NewsRiskBlock = forecast_resp.news_risk
@@ -134,7 +137,6 @@ async def dashboard(req: ForecastRequest) -> DashboardResponse:
         for art in (event_feed.articles or []):
             title_en, lang = await ensure_english_title(art.title)
 
-            # Compute relevance from title keywords
             if _has_keyword(art.title, HIGH_SEVERITY_KEYWORDS):
                 relevance = 0.95
             elif _has_keyword(art.title, DISRUPTION_KEYWORDS):
@@ -142,7 +144,6 @@ async def dashboard(req: ForecastRequest) -> DashboardResponse:
             else:
                 relevance = 0.5
 
-            # Theme matching
             art_themes = [
                 theme for theme, kws in THEME_CLUSTERS.items()
                 if _has_keyword(art.title, kws)
@@ -266,6 +267,7 @@ async def dashboard(req: ForecastRequest) -> DashboardResponse:
         news = NewsBundle(
             risk=news_risk_block,
             oil_signals=[oil_signal],
+            oil_history=oil_history,
             congestion_signals=congestion,
             event_summary=(
                 f"{regime} risk environment. "

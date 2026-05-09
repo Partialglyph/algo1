@@ -31,6 +31,11 @@ class WeeklyForecastPoint(BaseModel):
     p95: float
 
 
+class OilHistoryPoint(BaseModel):
+    date: str          # ISO date string e.g. "2025-01-15"
+    price: float
+
+
 # ---------------------------------------------------------------------------
 # Request
 # ---------------------------------------------------------------------------
@@ -132,7 +137,7 @@ class OilSignal(BaseModel):
     price: float
     change_24h_pct: Optional[float] = None
     trend: Literal["rising", "falling", "stable"] = "stable"
-    source: str = "EIA"
+    source: str = "yfinance"
     fetched_at: Optional[datetime] = None
 
 
@@ -193,6 +198,7 @@ class QuantBundle(BaseModel):
 class NewsBundle(BaseModel):
     risk: NewsRiskBlock
     oil_signals: List[OilSignal] = Field(default_factory=list)
+    oil_history: List[OilHistoryPoint] = Field(default_factory=list)
     congestion_signals: List[CongestionSignal] = Field(default_factory=list)
     event_summary: str = ""
 

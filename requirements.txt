@@ -6,3 +6,4 @@ openpyxl
 httpx
 pydantic
 deepL
+yfinance
