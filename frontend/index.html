@@ -106,7 +106,8 @@
     .panel-body { padding: 20px; }
 
     .chart-area { width: 100%; height: 280px; position: relative; }
-    canvas { width: 100% !important; height: 100% !important; display: block; }
+    /* Do NOT apply width/height overrides to canvas — Chart.js manages those attributes itself */
+    #forecast-chart { display: block; }
 
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
@@ -368,7 +369,8 @@
           <div class="panel-body">
             <div class="chart-area" id="chart-area">
               <div class="empty" id="chart-empty" style="position:absolute;inset:0;z-index:1;background:var(--surface);border-radius:var(--r-md);"><div class="empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><p>Choose a lane and click Run Forecast</p></div>
-              <canvas id="forecast-chart"></canvas>
+              <!-- width/height attributes give Chart.js a real fallback size when the panel is hidden -->
+              <canvas id="forecast-chart" width="800" height="280"></canvas>
             </div>
           </div>
         </div>
@@ -455,6 +457,7 @@
     const el = document.getElementById('nav-status');
     el.innerHTML = loading ? `<div class="spinner"></div><span>${text}</span>` : `<div class="status-dot" style="${text==='Ready'?'':'background:var(--amber)'}"></div><span>${text}</span>`;
   }
+
   function switchTab(name) {
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
@@ -462,11 +465,13 @@
     const btn = document.getElementById('tab-' + name + '-btn');
     if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected','true'); }
 
-    // Defer resize until after the browser has painted the newly-visible panel
+    // Double-rAF: first frame lets the browser apply display:flex to the panel,
+    // second frame fires after layout is actually calculated, so resize() gets real dimensions.
     if (name === 'quant' && chartInstance) {
-      requestAnimationFrame(() => chartInstance.resize());
+      requestAnimationFrame(() => requestAnimationFrame(() => chartInstance.resize()));
     }
   }
+
   function regimeBadgeHTML(label) {
     let cls = 'regime-none';
     if (label === 'Normal') cls = 'regime-normal';
@@ -535,7 +540,6 @@
     const p05Dataset = fcLabels.map((l, i) => ({ x: l, y: fc.weekly_forecast[i].p05 }));
     const p95Dataset = fcLabels.map((l, i) => ({ x: l, y: fc.weekly_forecast[i].p95 }));
 
-    // Hide placeholder (canvas is always present in DOM, no display toggling needed)
     document.getElementById('chart-empty').style.display = 'none';
     if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
 
@@ -544,8 +548,8 @@
       type: 'line',
       data: {
         datasets: [
-          { label: 'Historical',   data: histDataset, borderColor: '#8b909e', borderWidth: 1.5, pointRadius: 0, tension: 0.3, parsing: false },
-          { label: 'p95 (upside)', data: p95Dataset,  borderColor: 'rgba(79,124,255,0.3)', borderWidth: 1, borderDash: [4,3], pointRadius: 0, fill: '+1', backgroundColor: 'rgba(79,124,255,0.07)', tension: 0.3, parsing: false },
+          { label: 'Historical',    data: histDataset, borderColor: '#8b909e', borderWidth: 1.5, pointRadius: 0, tension: 0.3, parsing: false },
+          { label: 'p95 (upside)',  data: p95Dataset,  borderColor: 'rgba(79,124,255,0.3)', borderWidth: 1, borderDash: [4,3], pointRadius: 0, fill: '+1', backgroundColor: 'rgba(79,124,255,0.07)', tension: 0.3, parsing: false },
           { label: 'p50 (median)', data: p50Dataset,  borderColor: '#4f7cff', borderWidth: 2, pointRadius: 3, tension: 0.3, parsing: false },
           { label: 'p05 (downside)', data: p05Dataset, borderColor: 'rgba(79,124,255,0.3)', borderWidth: 1, borderDash: [4,3], pointRadius: 0, fill: false, tension: 0.3, parsing: false },
         ]
@@ -560,6 +564,11 @@
         }
       }
     });
+
+    // If the quant tab is already active when the forecast runs, resize immediately after one paint
+    if (document.getElementById('tab-quant').classList.contains('active')) {
+      requestAnimationFrame(() => chartInstance && chartInstance.resize());
+    }
 
     const tbody = document.getElementById('table-body');
     tbody.innerHTML = fc.weekly_forecast.map(w => {
