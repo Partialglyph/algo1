@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from datetime import timedelta
 
 try:
@@ -6,6 +7,10 @@ try:
     load_dotenv()
 except ImportError:
     pass  # python-dotenv not installed; rely on shell env
+
+# Root of the repository (two levels up from this file: shipping_forecast/settings.py)
+_PACKAGE_DIR = Path(__file__).resolve().parent
+_REPO_ROOT   = _PACKAGE_DIR.parent
 
 DEFAULT_LOOKBACK_DAYS = 365
 DEFAULT_NUM_PATHS = 5000
@@ -20,16 +25,22 @@ TRADING_ECONOMICS_API_KEY = "guest:guest"
 TRADING_ECONOMICS_CONTAINERIZED_SYMBOL = "CONTFREIGHT:COM"
 TRADING_ECONOMICS_WCI_SYMBOL = "WORLDCONTAINER:COM"
 
-CTS_FREE_CSV_PATH = "data/cts_global_price_index.csv"
+CTS_FREE_CSV_PATH = str(_REPO_ROOT / "data" / "cts_global_price_index.csv")
 CTS_DATE_COLUMN = "date"
 CTS_VALUE_COLUMN = "value"
 
-EXCEL_DATA_PATH = "data.xlsx"
+# Always resolved to the actual file, regardless of the working directory
+# uvicorn is launched from.
+EXCEL_DATA_PATH = str(
+    Path(os.getenv("EXCEL_DATA_PATH", "")).resolve()
+    if os.getenv("EXCEL_DATA_PATH", "")
+    else _REPO_ROOT / "data.xlsx"
+)
 
 # Translation — loaded from .env if present
 DEEPL_API_KEY: str | None = os.getenv("DEEPL_API_KEY", None)
 
-# Oil price source (EIA API — free, no key needed for basic endpoint)
+# Oil price source
 EIA_OIL_URL = "https://api.eia.gov/v2/petroleum/pri/spt/data/?api_key=DEMO&data[]=value&facets[series][]=RBRTE&sort[0][column]=period&sort[0][direction]=desc&length=7"
 
 # Vessel congestion stub endpoint (replace with real source when available)

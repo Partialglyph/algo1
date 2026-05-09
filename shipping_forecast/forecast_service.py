@@ -71,7 +71,6 @@ class ForecastService:
                         RatePoint(date=p.date, value=round(p.value * scale, 2))
                         for p in fred_points
                     ]
-                    # Append actual lane points at the end so the anchor is correct
                     combined = {p.date: p for p in scaled}
                     for p in historical:
                         combined[p.date] = p
@@ -83,34 +82,28 @@ class ForecastService:
             except Exception as exc:
                 log.warning("FRED fallback failed for lane '%s': %s", req.lane, exc)
 
-        # --- Monte Carlo: calibrate then simulate ---
+        # --- Monte Carlo: calibrate ---
         mc = MonteCarloShippingForecaster(num_paths=req.num_paths)
         calib = mc.calibrate(historical)
 
+        # Build news features and overlay BEFORE simulating so we only
+        # run simulate_paths once with the already-adjusted calibration.
         features = build_features(event_feed)
         overlay = compute_overlay(features)
 
         last_point = historical[-1]
-
-        # If the last data point is in the past, move the forecast anchor to today
-        # so the projection extends into the future rather than re-forecasting history.
         today = date.today()
         if last_point.date < today:
             last_point = RatePoint(date=today, value=last_point.value)
 
-        dates, paths = mc.simulate_paths(
-            last_price=last_point.value,
-            start_date=last_point.date,
-            horizon_weeks=req.horizon_weeks,
-            calib=calib,
-        )
-        # Apply overlay adjustments to calibration and re-simulate
         from dataclasses import replace as dc_replace
         adjusted_calib = dc_replace(
             calib,
             mu_daily=calib.mu_daily + overlay.delta_mu_daily,
             sigma_daily=calib.sigma_daily * overlay.sigma_multiplier,
         )
+
+        # Single simulation with the fully-adjusted calibration
         dates, paths = mc.simulate_paths(
             last_price=last_point.value,
             start_date=last_point.date,
