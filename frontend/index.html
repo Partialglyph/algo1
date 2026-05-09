@@ -367,8 +367,8 @@
           <div class="panel-head"><div><div class="panel-title">Price History &amp; Forecast</div><div class="panel-sub" id="chart-sub">Run a forecast to see projections</div></div></div>
           <div class="panel-body">
             <div class="chart-area" id="chart-area">
-              <div class="empty" id="chart-empty"><div class="empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><p>Choose a lane and click Run Forecast</p></div>
-              <canvas id="forecast-chart" style="display:none;"></canvas>
+              <div class="empty" id="chart-empty" style="position:absolute;inset:0;z-index:1;background:var(--surface);border-radius:var(--r-md);"><div class="empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><p>Choose a lane and click Run Forecast</p></div>
+              <canvas id="forecast-chart"></canvas>
             </div>
           </div>
         </div>
@@ -462,9 +462,9 @@
     const btn = document.getElementById('tab-' + name + '-btn');
     if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected','true'); }
 
-    // Force Chart.js to recalculate size now that the panel is visible
+    // Defer resize until after the browser has painted the newly-visible panel
     if (name === 'quant' && chartInstance) {
-      chartInstance.resize();
+      requestAnimationFrame(() => chartInstance.resize());
     }
   }
   function regimeBadgeHTML(label) {
@@ -535,12 +535,9 @@
     const p05Dataset = fcLabels.map((l, i) => ({ x: l, y: fc.weekly_forecast[i].p05 }));
     const p95Dataset = fcLabels.map((l, i) => ({ x: l, y: fc.weekly_forecast[i].p95 }));
 
-    // Hide placeholder and destroy old chart instance
+    // Hide placeholder (canvas is always present in DOM, no display toggling needed)
     document.getElementById('chart-empty').style.display = 'none';
     if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-
-    // Show canvas BEFORE new Chart() so Chart.js reads a real pixel height
-    document.getElementById('forecast-chart').style.display = 'block';
 
     const ctx = document.getElementById('forecast-chart').getContext('2d');
     chartInstance = new Chart(ctx, {
