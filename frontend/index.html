@@ -5,11 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Shipping Forecast</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
   <style>
+    /* ── SF Pro Display ─────────────────────────────────────────── */
+    @font-face { font-family: 'SF Pro Display'; src: url('../fonts/SFPRODISPLAYREGULAR.OTF') format('opentype'); font-weight: 400; font-style: normal; }
+    @font-face { font-family: 'SF Pro Display'; src: url('../fonts/SFPRODISPLAYMEDIUM.OTF') format('opentype'); font-weight: 500; font-style: normal; }
+    @font-face { font-family: 'SF Pro Display'; src: url('../fonts/SFPRODISPLAYBOLD.OTF') format('opentype'); font-weight: 700; font-style: normal; }
+    @font-face { font-family: 'SF Pro Display'; src: url('../fonts/SFPRODISPLAYLIGHTITALIC.OTF') format('opentype'); font-weight: 300; font-style: italic; }
+    @font-face { font-family: 'SF Pro Display'; src: url('../fonts/SFPRODISPLAYTHINITALIC.OTF') format('opentype'); font-weight: 100; font-style: italic; }
+    @font-face { font-family: 'SF Pro Display'; src: url('../fonts/SFPRODISPLAYSEMIBOLDITALIC.OTF') format('opentype'); font-weight: 600; font-style: italic; }
+    @font-face { font-family: 'SF Pro Display'; src: url('../fonts/SFPRODISPLAYBLACKITALIC.OTF') format('opentype'); font-weight: 900; font-style: italic; }
+    @font-face { font-family: 'SF Pro Display'; src: url('../fonts/SFPRODISPLAYHEAVYITALIC.OTF') format('opentype'); font-weight: 800; font-style: italic; }
+    @font-face { font-family: 'SF Pro Display'; src: url('../fonts/SFPRODISPLAYULTRALIGHTITALIC.OTF') format('opentype'); font-weight: 200; font-style: italic; }
+
     :root {
       --bg:        #0a0a0a;
       --surface:   #111111;
@@ -26,7 +33,7 @@
       --red:       #e05c5c;
       --amber:     #f5a623;
       --purple:    #a78bfa;
-      --font: 'Inter', 'Helvetica Neue', sans-serif;
+      --font: 'SF Pro Display', 'Helvetica Neue', sans-serif;
       --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
       --t: 160ms cubic-bezier(0.16,1,0.3,1);
     }
@@ -42,29 +49,141 @@
 
     main { display: grid; grid-template-columns: 240px 1fr; height: 100dvh; overflow: hidden; }
 
+    /* ── Sidebar ──────────────────────────────────────────────────── */
     .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 24px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 28px; }
     .sidebar-section-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-f); margin-bottom: 10px; }
     .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
     label { font-size: 0.75rem; font-weight: 500; color: var(--text-m); }
-    input[type="text"], input[type="number"], select { background: var(--bg); border: 1px solid var(--border-2); border-radius: var(--r-sm); padding: 8px 10px; font-size: 0.85rem; color: var(--text); width: 100%; outline: none; transition: border-color var(--t); }
-    input[type="text"]:focus, input[type="number"]:focus, select:focus { border-color: var(--accent); }
-    select { appearance: none; }
-    .btn-run { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: var(--r-sm); padding: 10px; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.02em; transition: background var(--t), opacity var(--t); margin-top: 4px; }
-    .btn-run:hover { background: var(--accent-h); }
-    .btn-run:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* ── Styled text / number inputs (uiverse-inspired) ─────────── */
+    .search-label {
+      display: flex;
+      align-items: center;
+      box-sizing: border-box;
+      position: relative;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #2a2a2a;
+      padding: 9px 10px;
+      cursor: text;
+      width: 100%;
+      transition: border-color var(--t), background var(--t);
+    }
+    .search-label:hover { border-color: rgba(255,255,255,0.18); }
+    .search-label:focus-within { background: #323232; border-color: rgba(255,255,255,0.22); }
+    .search-label input {
+      outline: none;
+      width: 100%;
+      border: none;
+      background: none;
+      color: #c8cad0;
+      font-size: 0.85rem;
+      font-family: var(--font);
+    }
+    .search-label input::placeholder { color: #5a5e6b; }
+
+    /* ── Generate button (gray) ───────────────────────────────────── */
+    .btn-run {
+      width: 100%;
+      background: #2e2e2e;
+      color: #c8cad0;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--r-sm);
+      padding: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      font-family: var(--font);
+      transition: background var(--t), border-color var(--t), color var(--t), opacity var(--t);
+      margin-top: 4px;
+    }
+    .btn-run:hover { background: #3a3a3a; border-color: rgba(255,255,255,0.18); color: var(--text); }
+    .btn-run:disabled { opacity: 0.4; cursor: not-allowed; }
+
     .divider { height: 1px; background: var(--border); margin: 4px 0; }
-    .lane-chips { display: flex; flex-direction: column; gap: 4px; }
-    .lane-chip { background: none; border: 1px solid var(--border); border-radius: var(--r-sm); padding: 7px 10px; font-size: 0.78rem; color: var(--text-m); text-align: left; transition: background var(--t), border-color var(--t), color var(--t); }
-    .lane-chip:hover { background: var(--surface-2); color: var(--text); }
-    .lane-chip.active { background: rgba(79,124,255,0.12); border-color: rgba(79,124,255,0.35); color: var(--accent); font-weight: 500; }
 
+    /* ── Custom dropdown ─────────────────────────────────────────── */
+    .dd-wrapper { position: relative; width: 100%; }
+    .dd-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+      background: #2a2a2a;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 9px 10px;
+      font-size: 0.85rem;
+      font-family: var(--font);
+      color: #c8cad0;
+      cursor: pointer;
+      transition: border-color var(--t), background var(--t);
+      text-align: left;
+    }
+    .dd-trigger:hover { border-color: rgba(255,255,255,0.18); }
+    .dd-trigger.open { background: #323232; border-color: rgba(255,255,255,0.22); }
+    .dd-trigger-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dd-trigger-text.placeholder { color: #5a5e6b; }
+    .dd-chevron {
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+      color: #7e7e7e;
+      transition: transform 200ms cubic-bezier(0.16,1,0.3,1);
+    }
+    .dd-trigger.open .dd-chevron { transform: rotate(180deg); }
+
+    .dd-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      width: 100%;
+      background: #1e1e1e;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      z-index: 100;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+      transform-origin: top center;
+      animation: ddOpen 180ms cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    .dd-menu.closing {
+      animation: ddClose 140ms cubic-bezier(0.4,0,1,1) forwards;
+    }
+    @keyframes ddOpen  { from { opacity: 0; transform: scaleY(0.85) translateY(-6px); } to { opacity: 1; transform: scaleY(1) translateY(0); } }
+    @keyframes ddClose { from { opacity: 1; transform: scaleY(1) translateY(0); }        to { opacity: 0; transform: scaleY(0.85) translateY(-6px); } }
+
+    .dd-list { list-style: none; padding: 6px 0; max-height: 260px; overflow-y: auto; }
+    .dd-list::-webkit-scrollbar { width: 4px; }
+    .dd-list::-webkit-scrollbar-track { background: transparent; }
+    .dd-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+
+    .dd-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      color: #8b909e;
+      cursor: pointer;
+      transition: background 100ms, color 100ms, transform 120ms;
+      min-height: 36px;
+    }
+    .dd-item:hover { background: rgba(255,255,255,0.05); color: var(--text); transform: translateX(3px); }
+    .dd-item.selected { color: var(--text); font-weight: 500; }
+    .dd-item.focused { background: rgba(255,255,255,0.06); color: var(--text); }
+    .dd-item-check { width: 13px; height: 13px; flex-shrink: 0; color: var(--accent); opacity: 0; transition: opacity 120ms; }
+    .dd-item.selected .dd-item-check { opacity: 1; }
+
+    /* ── Tabs ─────────────────────────────────────────────────────── */
     .content { overflow-y: auto; display: flex; flex-direction: column; }
-
     .tabs-bar {
       display: flex;
       gap: 6px;
       padding: 10px 16px;
-      border-bottom: none;
       position: sticky;
       top: 0;
       z-index: 5;
@@ -77,6 +196,7 @@
       padding: 5px 14px;
       font-size: 0.78rem;
       font-weight: 500;
+      font-family: var(--font);
       color: var(--text-m);
       cursor: pointer;
       transition: background var(--t), color var(--t), border-color var(--t);
@@ -84,34 +204,22 @@
       align-items: center;
       gap: 6px;
       white-space: nowrap;
-      margin-bottom: 0;
     }
     .tab-btn:hover { background: var(--surface-2); color: var(--text); }
-    .tab-btn.active {
-      background: var(--surface-2);
-      border-color: var(--border-2);
-      color: var(--text);
-    }
+    .tab-btn.active { background: var(--surface-2); border-color: var(--border-2); color: var(--text); }
     .tab-icon { width: 14px; height: 14px; opacity: 0.7; }
     .tab-panel { display: none; padding: clamp(20px,3vw,36px); flex-direction: column; gap: 24px; }
     .tab-panel.active { display: flex; }
 
-    .section-title {
-      font-size: 1.35rem;
-      font-weight: 400;
-      color: var(--text);
-      letter-spacing: -0.01em;
-      margin-bottom: 12px;
-    }
+    .section-title { font-size: 1.35rem; font-weight: 400; color: var(--text); letter-spacing: -0.01em; margin-bottom: 12px; }
 
+    /* ── KPI / Panel / Table (unchanged) ─────────────────────────── */
     .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
     .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 18px 20px; }
     .kpi-label { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-m); margin-bottom: 8px; }
     .kpi-value { font-size: clamp(1.4rem,2.5vw,1.8rem); font-weight: 300; letter-spacing: -0.02em; color: var(--text); font-variant-numeric: tabular-nums; }
     .kpi-delta { font-size: 0.72rem; font-weight: 500; margin-top: 4px; }
-    .kpi-delta.up { color: var(--green); }
-    .kpi-delta.down { color: var(--red); }
-    .kpi-delta.neu { color: var(--text-m); }
+    .kpi-delta.up { color: var(--green); } .kpi-delta.down { color: var(--red); } .kpi-delta.neu { color: var(--text-m); }
 
     .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); }
     .panel-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
@@ -138,14 +246,10 @@
 
     .regime-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; width: fit-content; }
     .regime-badge .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-    .regime-normal   { background: rgba(52,199,138,0.12); color: var(--green); }
-    .regime-normal   .dot { background: var(--green); }
-    .regime-elevated { background: rgba(245,166,35,0.12); color: var(--amber); }
-    .regime-elevated .dot { background: var(--amber); }
-    .regime-severe   { background: rgba(224,92,92,0.12); color: var(--red); }
-    .regime-severe   .dot { background: var(--red); }
-    .regime-none     { background: rgba(139,144,158,0.12); color: var(--text-m); }
-    .regime-none     .dot { background: var(--text-f); }
+    .regime-normal   { background: rgba(52,199,138,0.12); color: var(--green); } .regime-normal   .dot { background: var(--green); }
+    .regime-elevated { background: rgba(245,166,35,0.12);  color: var(--amber); } .regime-elevated .dot { background: var(--amber); }
+    .regime-severe   { background: rgba(224,92,92,0.12);   color: var(--red);   } .regime-severe   .dot { background: var(--red);   }
+    .regime-none     { background: rgba(139,144,158,0.12); color: var(--text-m);} .regime-none     .dot { background: var(--text-f);}
 
     .risk-overview { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     @media (max-width: 820px) { .risk-overview { grid-template-columns: 1fr; } }
@@ -156,9 +260,7 @@
     .score-bar-pct { font-size: 0.7rem; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
     .score-bar-track { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
     .score-bar-fill { height: 100%; border-radius: 99px; transition: width 0.55s cubic-bezier(0.16,1,0.3,1); }
-    .fill-green { background: var(--green); }
-    .fill-amber { background: var(--amber); }
-    .fill-red   { background: var(--red); }
+    .fill-green { background: var(--green); } .fill-amber { background: var(--amber); } .fill-red { background: var(--red); }
 
     .risk-meta-row { display: flex; gap: 20px; flex-wrap: wrap; }
     .risk-meta-item { display: flex; flex-direction: column; gap: 3px; }
@@ -174,8 +276,7 @@
     .article-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-md); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .article-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
     .article-title { font-size: 0.84rem; font-weight: 600; color: var(--text); line-height: 1.4; flex: 1; }
-    .article-title a { color: inherit; }
-    .article-title a:hover { color: var(--accent); text-decoration: none; }
+    .article-title a { color: inherit; } .article-title a:hover { color: var(--accent); text-decoration: none; }
     .article-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 0.7rem; color: var(--text-f); }
     .article-meta-sep { color: var(--text-f); }
     .article-section-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-f); margin-bottom: 3px; }
@@ -203,7 +304,6 @@
     .trend-falling { background: rgba(52,199,138,0.12); color: var(--green); }
     .trend-stable  { background: rgba(139,144,158,0.12); color: var(--text-m); }
 
-    .cong-row-improving td { color: var(--green); }
     .cong-row-worsening td { color: var(--red); }
 
     .sentiment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -240,23 +340,44 @@
     <aside class="sidebar">
       <div>
         <p class="sidebar-section-label">Configuration</p>
+
+        <!-- Lane dropdown -->
         <div class="field">
-          <label for="inp-lane">Lane</label>
-          <input id="inp-lane" type="text" placeholder="e.g. Far East → Europe" />
+          <label>Lane</label>
+          <div class="dd-wrapper" id="dd-lane-wrapper">
+            <button class="dd-trigger" id="dd-lane-btn" type="button" onclick="ddToggle('lane')" aria-haspopup="listbox" aria-expanded="false">
+              <span class="dd-trigger-text placeholder" id="dd-lane-label">Select a lane</span>
+              <svg class="dd-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="4 6 8 10 12 6"/></svg>
+            </button>
+            <ul class="dd-list" id="dd-lane-menu" role="listbox" style="display:none;" aria-label="Shipping lanes"></ul>
+          </div>
+          <!-- hidden input carries the value for runDashboard() -->
+          <input type="hidden" id="inp-lane" />
         </div>
+
         <div class="field">
-          <label for="inp-horizon">Forecast Horizon</label>
-          <input id="inp-horizon" type="number" min="1" max="52" value="8" />
+          <label for="inp-horizon">Forecast Horizon (weeks)</label>
+          <label class="search-label">
+            <input id="inp-horizon" type="number" min="1" max="52" value="8" required />
+          </label>
         </div>
+
         <div class="field">
-          <label for="inp-paths">Monte Carlo paths</label>
-          <input id="inp-paths" type="number" min="100" max="100000" value="5000" />
+          <label for="inp-paths">Monte Carlo Paths</label>
+          <label class="search-label">
+            <input id="inp-paths" type="number" min="100" max="100000" value="5000" required />
+          </label>
         </div>
+
         <div class="field">
-          <label for="inp-lookback">Lookback period</label>
-          <input id="inp-lookback" type="number" min="60" max="1825" value="365" />
+          <label for="inp-lookback">Lookback Period (days)</label>
+          <label class="search-label">
+            <input id="inp-lookback" type="number" min="60" max="1825" value="365" required />
+          </label>
         </div>
+
         <button class="btn-run" id="btn-run" type="button" onclick="runDashboard()">Generate</button>
+        <div class="alert" id="alert-sidebar" style="margin-top:10px;"></div>
       </div>
     </aside>
 
@@ -344,13 +465,126 @@
   </main>
 </div>
 
-<!-- Chart.js only — no date adapter needed, we use a plain category scale -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
-  function getBase() {
-    return window.AXION_API_BASE || 'http://localhost:8000';
+  /* ── Lane data ────────────────────────────────────────────────── */
+  const LANES = [
+    { id: 'ao-eu',   label: 'AO \u2192 Europe',              value: 'Australasia & Oceania to Europe Price Index (2026)' },
+    { id: 'ao-na',   label: 'AO \u2192 North America',       value: 'Australasia & Oceania to North America Price Index (2026)' },
+    { id: 'ao-sca',  label: 'AO \u2192 South & Central Am.', value: 'Australasia & Oceania to South & Central America Price Index (2026)' },
+    { id: 'ao-fe',   label: 'AO \u2192 Far East',            value: 'Australasia & Oceania to Far East Price Index (2026)' },
+    { id: 'ao-ssa',  label: 'AO \u2192 Sub Saharan Africa',  value: 'Australasia & Oceania to Sub Saharan Africa Price Index (2026)' },
+    { id: 'ao-ao',   label: 'AO \u2192 AO',                  value: 'Australasia & Oceania to Australasia & Oceania Price Index (2026)' },
+    { id: 'ao-isc',  label: 'AO \u2192 ISC & Middle East',   value: 'Australasia & Oceania to Indian Sub Cont & Middle East Price Index (2026)' },
+    { id: 'eu-eu',   label: 'Europe \u2192 Europe',          value: 'Europe to Europe Price Index (2026)' },
+    { id: 'eu-ssa',  label: 'Europe \u2192 Sub Saharan Africa', value: 'Europe to Sub Saharan Africa Price Index (2026)' },
+    { id: 'eu-sca',  label: 'Europe \u2192 South & Central Am.', value: 'Europe to South & Central America Price Index (2026)' },
+    { id: 'eu-ao',   label: 'Europe \u2192 AO',              value: 'Europe to Australasia & Oceania Price Index (2026)' },
+    { id: 'eu-fe',   label: 'Europe \u2192 Far East',        value: 'Europe to Far East Price Index (2026)' },
+    { id: 'eu-na',   label: 'Europe \u2192 North America',   value: 'Europe to North America Price Index (2026)' },
+    { id: 'eu-isc',  label: 'Europe \u2192 ISC & Middle East', value: 'Europe to Indian Sub Cont & Middle East Price Index (2026)' },
+    { id: 'fe-sca',  label: 'Far East \u2192 South & Central Am.', value: 'Far East to South & Central America Price Index (2026)' },
+    { id: 'fe-eu',   label: 'Far East \u2192 Europe',        value: 'Far East to Europe Price Index (2026)' },
+    { id: 'fe-isc',  label: 'Far East \u2192 ISC & Middle East', value: 'Far East to Indian Sub Cont & Middle East Price Index (2026)' },
+    { id: 'fe-ao',   label: 'Far East \u2192 AO',            value: 'Far East to Australasia & Oceania Price Index (2026)' },
+    { id: 'fe-na',   label: 'Far East \u2192 North America', value: 'Far East to North America Price Index (2026)' },
+  ];
+
+  /* ── Dropdown logic ───────────────────────────────────────────── */
+  let ddStates = {};
+
+  function ddBuildMenu(id, items) {
+    const menu = document.getElementById('dd-' + id + '-menu');
+    menu.innerHTML = items.map(item => `
+      <li class="dd-item" id="dd-item-${item.id}" role="option" data-value="${item.value}" data-label="${item.label}"
+          onclick="ddSelect('${id}', '${item.id}')" onmouseenter="ddFocus('${id}', '${item.id}')">
+        <span>${item.label}</span>
+        <svg class="dd-item-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="2 8 6 12 14 4"/></svg>
+      </li>`).join('');
   }
+
+  function ddToggle(id) {
+    const isOpen = ddStates[id];
+    if (isOpen) { ddClose(id); } else { ddOpen(id); }
+  }
+
+  function ddOpen(id) {
+    const menu = document.getElementById('dd-' + id + '-menu');
+    const btn  = document.getElementById('dd-' + id + '-btn');
+    menu.style.display = 'block';
+    menu.classList.remove('closing');
+    btn.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+    ddStates[id] = true;
+
+    // scroll selected item into view
+    const sel = menu.querySelector('.selected');
+    if (sel) sel.scrollIntoView({ block: 'nearest' });
+  }
+
+  function ddClose(id) {
+    const menu = document.getElementById('dd-' + id + '-menu');
+    const btn  = document.getElementById('dd-' + id + '-btn');
+    menu.classList.add('closing');
+    btn.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+    ddStates[id] = false;
+    menu.addEventListener('animationend', () => {
+      menu.style.display = 'none';
+      menu.classList.remove('closing');
+    }, { once: true });
+  }
+
+  function ddSelect(ddId, itemId) {
+    const item = LANES.find(l => l.id === itemId);
+    if (!item) return;
+
+    // update hidden input
+    document.getElementById('inp-lane').value = item.value;
+
+    // update trigger label
+    const labelEl = document.getElementById('dd-' + ddId + '-label');
+    labelEl.textContent = item.label;
+    labelEl.classList.remove('placeholder');
+
+    // mark selected in list
+    document.querySelectorAll('#dd-' + ddId + '-menu .dd-item').forEach(el => {
+      el.classList.toggle('selected', el.dataset.value === item.value);
+    });
+
+    ddClose(ddId);
+  }
+
+  function ddFocus(ddId, itemId) {
+    document.querySelectorAll('#dd-' + ddId + '-menu .dd-item').forEach(el => {
+      el.classList.toggle('focused', el.id === 'dd-item-' + itemId);
+    });
+  }
+
+  // close on outside click
+  document.addEventListener('mousedown', e => {
+    Object.keys(ddStates).forEach(id => {
+      if (!ddStates[id]) return;
+      const wrapper = document.getElementById('dd-' + id + '-wrapper');
+      if (wrapper && !wrapper.contains(e.target)) ddClose(id);
+    });
+  });
+
+  // keyboard nav
+  document.addEventListener('keydown', e => {
+    const openId = Object.keys(ddStates).find(id => ddStates[id]);
+    if (!openId) return;
+    const items = Array.from(document.querySelectorAll('#dd-' + openId + '-menu .dd-item'));
+    const focusedIdx = items.findIndex(el => el.classList.contains('focused'));
+    if (e.key === 'Escape') { ddClose(openId); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); const next = (focusedIdx + 1) % items.length; items[next].classList.add('focused'); items[focusedIdx]?.classList.remove('focused'); items[next].scrollIntoView({ block: 'nearest' }); }
+    else if (e.key === 'ArrowUp')   { e.preventDefault(); const prev = focusedIdx <= 0 ? items.length - 1 : focusedIdx - 1; items[prev].classList.add('focused'); items[focusedIdx]?.classList.remove('focused'); items[prev].scrollIntoView({ block: 'nearest' }); }
+    else if (e.key === 'Enter' && focusedIdx >= 0) { const item = LANES.find(l => 'dd-item-' + l.id === items[focusedIdx].id); if (item) ddSelect(openId, item.id); }
+  });
+
+  /* ── App utils ────────────────────────────────────────────────── */
+  function getBase() { return window.AXION_API_BASE || 'http://localhost:8000'; }
   function fetchAPI(path, options = {}) {
     const base = getBase().replace(/\/$/, '');
     return fetch(base + path, { ...options, headers: { 'Content-Type': 'application/json', ...(options.headers || {}) } });
@@ -358,14 +592,9 @@
   window.axionAPI = { fetch: fetchAPI };
   let chartInstance = null;
 
-  function setLane(lane, btn) {
-    document.getElementById('inp-lane').value = lane;
-    document.querySelectorAll('.lane-chip').forEach(c => c.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-  }
   function fmt(n) { return (n == null || isNaN(n)) ? '\u2014' : new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n); }
   function setAlert(id, msg, type) { const el = document.getElementById(id); if (!el) return; if (!msg) { el.className = 'alert'; el.textContent = ''; return; } el.className = 'alert ' + type; el.textContent = msg; }
-  function setStatus(text, loading) {}
+  function setStatus() {}
 
   function switchTab(name) {
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -373,9 +602,7 @@
     document.getElementById('tab-' + name).classList.add('active');
     const btn = document.getElementById('tab-' + name + '-btn');
     if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected','true'); }
-    if (name === 'quant' && chartInstance) {
-      requestAnimationFrame(() => requestAnimationFrame(() => chartInstance && chartInstance.resize()));
-    }
+    if (name === 'quant' && chartInstance) requestAnimationFrame(() => requestAnimationFrame(() => chartInstance && chartInstance.resize()));
   }
 
   function regimeBadgeHTML(label) {
@@ -419,30 +646,19 @@
   function renderQuant(data) {
     try {
       const fc = data.quant.forecast;
-      const regime = data.quant.regime_label;
-      const score = (data.news && data.news.risk) ? data.news.risk.net_risk_score : 0;
-
       const chartSubEl = document.getElementById('chart-sub');
       if (chartSubEl) chartSubEl.innerHTML = fc.lane + ' &middot; ' + fc.horizon_weeks + '-week horizon &middot; ' + fc.num_paths.toLocaleString() + ' paths';
 
-      // ---- Category-scale chart (no date adapter required) ----
-      const hp  = fc.historical_points || [];
-      const wf  = fc.weekly_forecast   || [];
+      const hp = fc.historical_points || [];
+      const wf = fc.weekly_forecast  || [];
       const histLabels = hp.map(p => p.date);
       const foreLabels = wf.map(w => w.week_end);
       const allLabels  = [...histLabels, ...foreLabels];
       const hLen = histLabels.length;
       const fLen = foreLabels.length;
-
-      const pad = (arr, before, after) => [
-        ...Array(before).fill(null),
-        ...arr,
-        ...Array(after).fill(null),
-      ];
-
+      const pad = (arr, before, after) => [...Array(before).fill(null), ...arr, ...Array(after).fill(null)];
       const histValues   = hp.map(p => p.value);
       const lastHist     = histValues.length ? histValues[histValues.length - 1] : null;
-
       const p95Data      = pad([lastHist, ...wf.map(w => w.p95)],      hLen - 1, 0);
       const expectedData = pad([lastHist, ...wf.map(w => w.expected)], hLen - 1, 0);
       const p50Data      = pad([lastHist, ...wf.map(w => w.p50)],      hLen - 1, 0);
@@ -452,118 +668,42 @@
       document.getElementById('chart-empty').style.display = 'none';
       const canvas = document.getElementById('forecast-chart');
       canvas.style.display = 'block';
-
       if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
       const ctx = canvas.getContext('2d');
-
       chartInstance = new Chart(ctx, {
         type: 'line',
-        data: {
-          labels: allLabels,
-          datasets: [
-            {
-              label: 'p95',
-              data: p95Data,
-              borderColor: 'rgba(79,124,255,0.3)',
-              backgroundColor: 'rgba(79,124,255,0.07)',
-              borderWidth: 1,
-              pointRadius: 0,
-              fill: '+2',
-              tension: 0.3,
-              spanGaps: true,
-            },
-            {
-              label: 'Expected',
-              data: expectedData,
-              borderColor: '#4f7cff',
-              backgroundColor: 'transparent',
-              borderWidth: 2,
-              pointRadius: 0,
-              tension: 0.3,
-              spanGaps: true,
-            },
-            {
-              label: 'p50',
-              data: p50Data,
-              borderColor: '#34c78a',
-              backgroundColor: 'transparent',
-              borderWidth: 1.5,
-              borderDash: [4, 3],
-              pointRadius: 0,
-              tension: 0.3,
-              spanGaps: true,
-            },
-            {
-              label: 'p05',
-              data: p05Data,
-              borderColor: 'rgba(79,124,255,0.3)',
-              backgroundColor: 'transparent',
-              borderWidth: 1,
-              pointRadius: 0,
-              tension: 0.3,
-              spanGaps: true,
-            },
-            {
-              label: 'Historical',
-              data: histData,
-              borderColor: 'rgba(139,144,158,0.7)',
-              backgroundColor: 'transparent',
-              borderWidth: 2,
-              pointRadius: 3,
-              pointBackgroundColor: 'rgba(139,144,158,0.7)',
-              tension: 0.2,
-              spanGaps: false,
-            },
-          ]
-        },
+        data: { labels: allLabels, datasets: [
+          { label: 'p95', data: p95Data, borderColor: 'rgba(79,124,255,0.3)', backgroundColor: 'rgba(79,124,255,0.07)', borderWidth: 1, pointRadius: 0, fill: '+2', tension: 0.3, spanGaps: true },
+          { label: 'Expected', data: expectedData, borderColor: '#4f7cff', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, tension: 0.3, spanGaps: true },
+          { label: 'p50', data: p50Data, borderColor: '#34c78a', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4,3], pointRadius: 0, tension: 0.3, spanGaps: true },
+          { label: 'p05', data: p05Data, borderColor: 'rgba(79,124,255,0.3)', backgroundColor: 'transparent', borderWidth: 1, pointRadius: 0, tension: 0.3, spanGaps: true },
+          { label: 'Historical', data: histData, borderColor: 'rgba(139,144,158,0.7)', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 3, pointBackgroundColor: 'rgba(139,144,158,0.7)', tension: 0.2, spanGaps: false },
+        ]},
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          responsive: true, maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
           plugins: {
-            legend: {
-              position: 'top',
-              labels: { color: '#8b909e', boxWidth: 12, font: { family: 'Inter', size: 11 }, padding: 16 }
-            },
-            tooltip: {
-              backgroundColor: '#1c2030',
-              borderColor: 'rgba(255,255,255,0.07)',
-              borderWidth: 1,
-              titleColor: '#e8eaf0',
-              bodyColor: '#8b909e',
-              padding: 10,
-              filter: item => item.parsed.y !== null,
-              callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y) }
-            }
+            legend: { position: 'top', labels: { color: '#8b909e', boxWidth: 12, font: { family: "'SF Pro Display'", size: 11 }, padding: 16 } },
+            tooltip: { backgroundColor: '#1c2030', borderColor: 'rgba(255,255,255,0.07)', borderWidth: 1, titleColor: '#e8eaf0', bodyColor: '#8b909e', padding: 10, filter: item => item.parsed.y !== null, callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y) } }
           },
           scales: {
-            x: {
-              grid:  { color: 'rgba(255,255,255,0.04)' },
-              ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, maxRotation: 0, maxTicksLimit: 10 },
-            },
-            y: {
-              grid:  { color: 'rgba(255,255,255,0.04)' },
-              ticks: { color: '#8b909e', font: { size: 11, family: 'Inter' }, callback: v => fmt(v) },
-            }
+            x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8b909e', font: { size: 11, family: "'SF Pro Display'" }, maxRotation: 0, maxTicksLimit: 10 } },
+            y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8b909e', font: { size: 11, family: "'SF Pro Display'" }, callback: v => fmt(v) } }
           }
         }
       });
-
       if (document.getElementById('tab-quant').classList.contains('active')) {
         requestAnimationFrame(() => chartInstance && chartInstance.resize());
       } else {
-        document.getElementById('tab-quant-btn').addEventListener('click',
-          () => { if (chartInstance) chartInstance.resize(); }, { once: true });
+        document.getElementById('tab-quant-btn').addEventListener('click', () => { if (chartInstance) chartInstance.resize(); }, { once: true });
       }
-
       const tbody = document.getElementById('table-body');
       tbody.innerHTML = wf.map(w => {
         const sig = w.p50 > fc.last_observed_value ? '<span class="tag tag-green">&uarr; Up</span>' : '<span class="tag tag-red">&darr; Down</span>';
         return `<tr><td>${w.week_end}</td><td>${fmt(w.expected)}</td><td>${fmt(w.p05)}</td><td>${fmt(w.p50)}</td><td>${fmt(w.p95)}</td><td>${sig}</td></tr>`;
       }).join('');
-
     } catch (err) {
-      setAlert('alert-quant', 'Chart render error: ' + err.message + ' (check backend response shape: data.quant.forecast)', 'error');
+      setAlert('alert-quant', 'Chart render error: ' + err.message, 'error');
     }
   }
 
@@ -571,21 +711,14 @@
     const nr = data.news && data.news.risk ? data.news.risk : {};
     const oilList = (data.news && data.news.oil_signals) || [];
     const cong = (data.news && data.news.congestion_signals) || [];
-
     document.getElementById('news-regime-badge').innerHTML = regimeBadgeHTML(nr.risk_label);
     const tabBadge = document.getElementById('risk-tab-badge');
-    if (nr.risk_label && nr.risk_label !== 'Normal') {
-      tabBadge.textContent = nr.risk_label; tabBadge.style.display = '';
-      tabBadge.style.background = nr.risk_label === 'Severe' ? 'var(--red)' : 'var(--amber)';
-      tabBadge.style.color = '#fff';
-    } else { tabBadge.style.display = 'none'; }
-
+    if (nr.risk_label && nr.risk_label !== 'Normal') { tabBadge.textContent = nr.risk_label; tabBadge.style.display = ''; tabBadge.style.background = nr.risk_label === 'Severe' ? 'var(--red)' : 'var(--amber)'; tabBadge.style.color = '#fff'; } else { tabBadge.style.display = 'none'; }
     const score = nr.net_risk_score || 0;
     document.getElementById('news-score-pct').textContent = score.toFixed(1) + '/100';
     const fill = document.getElementById('news-score-fill');
     fill.style.width = Math.min(score, 100) + '%';
     fill.className = 'score-bar-fill ' + (score < 33 ? 'fill-green' : score < 67 ? 'fill-amber' : 'fill-red');
-
     document.getElementById('news-sigma').textContent = nr.sigma_multiplier != null ? '\u00d7' + nr.sigma_multiplier.toFixed(2) : '\u2014';
     document.getElementById('news-delta-mu').textContent = nr.delta_mu_daily != null ? (nr.delta_mu_daily >= 0 ? '+' : '') + nr.delta_mu_daily.toFixed(4) : '\u2014';
     const vol = nr.article_volume || {};
@@ -594,7 +727,6 @@
     document.getElementById('vol-72h').textContent = vol.last_72h ?? '\u2014';
     document.getElementById('vol-7d').textContent  = vol.last_7d  ?? '\u2014';
     document.getElementById('news-panel-sub').textContent = 'GDELT \u00b7 ' + (vol.last_7d || 0) + ' articles this week \u00b7 ' + (nr.risk_label || '\u2014') + ' regime';
-
     if (oilList.length) {
       const oil = oilList[0];
       document.getElementById('oil-price-big').textContent = '$' + oil.price.toFixed(2);
@@ -603,7 +735,6 @@
       tb.textContent = oil.trend; tb.className = 'oil-trend-badge trend-' + oil.trend;
       if (oil.fetched_at) document.getElementById('oil-source').textContent = oil.source + ' \u00b7 ' + new Date(oil.fetched_at).toLocaleTimeString();
     }
-
     const congBody = document.getElementById('cong-body');
     if (cong.length) {
       document.getElementById('cong-sub').textContent = cong.length + ' node(s) monitored for this lane';
@@ -613,16 +744,13 @@
         return `<tr class="${c.trend === 'worsening' ? 'cong-row-worsening' : ''}"><td>${c.node_name}</td><td>${c.node_type}</td><td>${idx}%</td><td>${trendTag}</td><td style="color:var(--text-f);font-size:0.75rem;">${c.note || ''}</td></tr>`;
       }).join('');
     } else { congBody.innerHTML = '<tr><td colspan="5"><div class="empty" style="padding:30px 20px;"><p>No congestion signals available.</p></div></td></tr>'; }
-
     const narrative = nr.risk_summary || 'No narrative generated.';
     const sentences = narrative.match(/[^.!?]+[.!?]+/g) || [narrative];
     const paras = []; for (let i = 0; i < sentences.length; i += 3) paras.push(sentences.slice(i,i+3).join(' '));
     document.getElementById('news-narrative').innerHTML = paras.map(p => `<p style="margin-bottom:0.8em;line-height:1.65;">${p.trim()}</p>`).join('');
-
     const driversEl = document.getElementById('news-drivers');
     const drivers = nr.top_drivers || [];
     driversEl.innerHTML = drivers.length ? drivers.map(d => `<div class="driver-item"><div class="driver-dot"></div><span>${d}</span></div>`).join('') : '<div class="driver-item"><div class="driver-dot"></div><span style="color:var(--text-f);font-style:italic;">No drivers identified.</span></div>';
-
     const arts = nr.featured_articles || [];
     const artsEl = document.getElementById('news-articles');
     document.getElementById('articles-sub').textContent = arts.length ? 'Top ' + arts.length + ' GDELT matches for this lane' : 'No articles retrieved';
@@ -637,7 +765,6 @@
         return `<div class="article-card"><div class="article-header"><div class="article-title">${art.url ? `<a href="${art.url}" target="_blank" rel="noopener noreferrer">${art.title_english||art.title_original}</a>` : (art.title_english||art.title_original)}</div><span class="tag ${relevancePct>=80?'tag-red':relevancePct>=60?'tag-amber':'tag-blue'}" title="Shipping relevance">${relevancePct}% rel.</span></div><div class="article-meta">${art.source?`<span>${art.source}</span><span class="article-meta-sep">&middot;</span>`:''} ${pubDate?`<span>${pubDate}</span><span class="article-meta-sep">&middot;</span>`:''}<span>Risk contribution: ${(art.risk_contribution||0).toFixed(1)}</span>${isTranslated?`<span class="article-meta-sep">&middot;</span><button class="original-title-toggle" onclick="toggleOrig('${toggleId}')">Show original</button>`:''}</div>${isTranslated?`<div class="original-title" id="${toggleId}">${art.title_original}</div>`:''} ${themes?`<div class="article-themes">${themes}</div>`:''} ${toneBarHTML(art.tone||0)} ${art.summary_english?`<div><p class="article-section-label">Summary</p><p class="article-text">${art.summary_english}</p></div>`:''} ${art.why_it_matters?`<div><p class="article-section-label">Why it matters</p><p class="article-text">${art.why_it_matters}</p></div>`:''}</div>`;
       }).join('');
     }
-
     const themes = nr.theme_breakdown || [];
     const themeBody = document.getElementById('theme-body');
     if (themes.length) {
@@ -649,14 +776,20 @@
   }
 
   async function runDashboard() {
-    const lane     = document.getElementById('inp-lane').value;
+    const lane = document.getElementById('inp-lane').value.trim();
+    if (!lane) {
+      setAlert('alert-sidebar', 'Please select a lane first.', 'error');
+      return;
+    }
+    setAlert('alert-sidebar', '', '');
+    setAlert('alert-overview', '', '');
+    setAlert('alert-quant', '', '');
+
     const horizon  = parseInt(document.getElementById('inp-horizon').value) || 8;
     const paths    = parseInt(document.getElementById('inp-paths').value)   || 5000;
     const lookback = parseInt(document.getElementById('inp-lookback').value) || 365;
 
-    setAlert('alert-overview', '', ''); setAlert('alert-quant', '', '');
     document.getElementById('btn-run').disabled = true;
-
     try {
       const resp = await fetchAPI('/dashboard', { method: 'POST', body: JSON.stringify({ lane, horizon_weeks: horizon, num_paths: paths, lookback_days: lookback }) });
       if (!resp.ok) { const err = await resp.json().catch(() => ({ detail: resp.statusText })); throw new Error(err.detail || resp.statusText); }
@@ -671,6 +804,9 @@
       document.getElementById('btn-run').disabled = false;
     }
   }
+
+  /* ── Init ─────────────────────────────────────────────────────── */
+  ddBuildMenu('lane', LANES);
 </script>
 </body>
 </html>
