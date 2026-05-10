@@ -6,7 +6,6 @@
   <title>Shipping Forecast</title>
 
   <style>
-    /* ── SF Pro Display ─────────────────────────────────────────── */
     @font-face { font-family: 'SF Pro Display'; src: url('../fonts/SFPRODISPLAYREGULAR.OTF') format('opentype'); font-weight: 400; font-style: normal; }
     @font-face { font-family: 'SF Pro Display'; src: url('../fonts/SFPRODISPLAYMEDIUM.OTF') format('opentype'); font-weight: 500; font-style: normal; }
     @font-face { font-family: 'SF Pro Display'; src: url('../fonts/SFPRODISPLAYBOLD.OTF') format('opentype'); font-weight: 700; font-style: normal; }
@@ -48,140 +47,90 @@
     .app { display: grid; min-height: 100dvh; }
     main { display: grid; grid-template-columns: 240px 1fr; height: 100dvh; overflow: hidden; }
 
-    /* ── Sidebar ──────────────────────────────────────────────────── */
+    /* Sidebar */
     .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 24px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 28px; }
     .sidebar-section-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-f); margin-bottom: 10px; }
     .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
     label { font-size: 0.75rem; font-weight: 500; color: var(--text-m); }
 
-    /* ── Number inputs with minimal arrows ───────────────────────── */
+    /* Number inputs */
     .num-field {
-      display: flex;
-      align-items: center;
-      position: relative;
-      border: 1px solid transparent;
-      border-radius: 12px;
-      background: #2a2a2a;
-      padding: 9px 10px;
-      cursor: text;
-      width: 100%;
+      display: flex; align-items: center; position: relative;
+      border: 1px solid transparent; border-radius: 12px;
+      background: #2a2a2a; padding: 9px 10px; width: 100%;
       transition: border-color var(--t), background var(--t);
     }
     .num-field:hover { border-color: rgba(255,255,255,0.18); }
     .num-field:focus-within { background: #323232; border-color: rgba(255,255,255,0.22); }
     .num-field input[type="number"] {
-      outline: none;
-      width: 100%;
-      border: none;
-      background: none;
-      color: #c8cad0;
-      font-size: 0.85rem;
-      font-family: var(--font);
-      /* hide native spinners */
+      outline: none; width: 100%; border: none; background: none;
+      color: #c8cad0; font-size: 0.85rem; font-family: var(--font);
       -moz-appearance: textfield;
     }
     .num-field input[type="number"]::-webkit-inner-spin-button,
     .num-field input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     .num-field input[type="number"]::placeholder { color: #5a5e6b; }
-
-    /* custom arrow buttons */
-    .num-arrows {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-      flex-shrink: 0;
-      margin-left: 6px;
-    }
+    .num-arrows { display: flex; flex-direction: column; gap: 1px; flex-shrink: 0; margin-left: 6px; }
     .num-arrow {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 16px;
-      height: 11px;
-      background: none;
-      border: none;
-      padding: 0;
-      color: #5a5e6b;
-      cursor: pointer;
-      border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+      width: 16px; height: 11px; background: none; border: none; padding: 0;
+      color: #5a5e6b; cursor: pointer; border-radius: 3px;
       transition: color 100ms, background 100ms;
     }
     .num-arrow:hover { color: #c8cad0; background: rgba(255,255,255,0.06); }
     .num-arrow svg { width: 8px; height: 8px; display: block; }
 
-    /* ── Generate button (gray) ───────────────────────────────────── */
+    /* Generate button */
     .btn-run {
-      width: 100%;
-      background: #2e2e2e;
-      color: #c8cad0;
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: var(--r-sm);
-      padding: 10px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      font-family: var(--font);
+      width: 100%; background: #2e2e2e; color: #c8cad0;
+      border: 1px solid rgba(255,255,255,0.1); border-radius: var(--r-sm);
+      padding: 10px; font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 0.02em; font-family: var(--font); margin-top: 4px;
       transition: background var(--t), border-color var(--t), color var(--t), opacity var(--t);
-      margin-top: 4px;
     }
     .btn-run:hover { background: #3a3a3a; border-color: rgba(255,255,255,0.18); color: var(--text); }
     .btn-run:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .divider { height: 1px; background: var(--border); margin: 4px 0; }
-
-    /* ── Custom dropdown ─────────────────────────────────────────── */
+    /* ── Dropdown ── */
     .dd-wrapper { position: relative; width: 100%; }
+
     .dd-trigger {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      width: 100%;
-      background: #2a2a2a;
-      border: 1px solid transparent;
-      border-radius: 12px;
-      padding: 9px 10px;
-      font-size: 0.85rem;
-      font-family: var(--font);
-      color: #c8cad0;
-      cursor: pointer;
-      transition: border-color var(--t), background var(--t), border-radius 220ms cubic-bezier(0.16,1,0.3,1);
-      text-align: left;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      width: 100%; background: #2a2a2a; border: 1px solid transparent;
+      border-radius: 12px; padding: 9px 10px;
+      font-size: 0.85rem; font-family: var(--font); color: #c8cad0;
+      cursor: pointer; text-align: left;
+      transition: border-color var(--t), background var(--t), border-radius 200ms cubic-bezier(0.16,1,0.3,1);
     }
     .dd-trigger:hover { border-color: rgba(255,255,255,0.18); }
-    .dd-trigger.open { background: #323232; border-color: rgba(255,255,255,0.22); border-radius: 12px 12px 0 0; }
-    .dd-trigger-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .dd-trigger-text.placeholder { color: #5a5e6b; }
+    .dd-trigger[aria-expanded="true"] {
+      background: #323232; border-color: rgba(255,255,255,0.22);
+      border-radius: 12px 12px 0 0;
+    }
+    .dd-trigger-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #5a5e6b; }
+    .dd-trigger-text.has-value { color: #c8cad0; }
     .dd-chevron {
-      flex-shrink: 0;
-      width: 14px;
-      height: 14px;
-      color: #7e7e7e;
+      flex-shrink: 0; width: 14px; height: 14px; color: #7e7e7e;
       transition: transform 220ms cubic-bezier(0.16,1,0.3,1);
     }
-    .dd-trigger.open .dd-chevron { transform: rotate(180deg); }
+    .dd-trigger[aria-expanded="true"] .dd-chevron { transform: rotate(180deg); }
 
-    /* menu sits flush under trigger when open */
+    /* The menu — hidden by default via pointer-events + opacity, not display */
     .dd-menu {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      width: 100%;
-      background: #1e1e1e;
-      border: 1px solid rgba(255,255,255,0.1);
-      border-top: none;
-      border-radius: 0 0 12px 12px;
-      overflow: hidden;
-      z-index: 100;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      transform-origin: top center;
-      animation: ddOpen 200ms cubic-bezier(0.16,1,0.3,1) forwards;
+      position: absolute; top: 100%; left: 0; width: 100%;
+      background: #1e1e1e; border: 1px solid rgba(255,255,255,0.1);
+      border-top: none; border-radius: 0 0 12px 12px; overflow: hidden;
+      z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      transform-origin: top;
+      opacity: 0; transform: scaleY(0.9) translateY(-4px);
+      pointer-events: none;
+      transition: opacity 180ms cubic-bezier(0.16,1,0.3,1),
+                  transform 180ms cubic-bezier(0.16,1,0.3,1);
     }
-    .dd-menu.closing {
-      animation: ddClose 150ms cubic-bezier(0.4,0,1,1) forwards;
+    .dd-menu.open {
+      opacity: 1; transform: scaleY(1) translateY(0);
+      pointer-events: auto;
     }
-    @keyframes ddOpen  { from { opacity: 0; transform: scaleY(0.88); } to { opacity: 1; transform: scaleY(1); } }
-    @keyframes ddClose { from { opacity: 1; transform: scaleY(1); }     to { opacity: 0; transform: scaleY(0.88); } }
 
     .dd-list { list-style: none; padding: 4px 0; max-height: 220px; overflow-y: auto; }
     .dd-list::-webkit-scrollbar { width: 4px; }
@@ -189,84 +138,47 @@
     .dd-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
 
     .dd-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 8px 12px;
-      font-size: 0.8rem;
-      color: #8b909e;
-      cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 8px 12px; font-size: 0.8rem; color: #8b909e;
+      cursor: pointer; min-height: 34px;
       transition: background 100ms, color 100ms, transform 120ms;
-      min-height: 34px;
     }
-    .dd-item:hover { background: rgba(255,255,255,0.05); color: var(--text); transform: translateX(3px); }
+    .dd-item:hover, .dd-item.focused { background: rgba(255,255,255,0.05); color: var(--text); transform: translateX(3px); }
     .dd-item.selected { color: var(--text); font-weight: 500; }
-    .dd-item.focused { background: rgba(255,255,255,0.06); color: var(--text); }
-    .dd-item-check { width: 13px; height: 13px; flex-shrink: 0; color: var(--accent); opacity: 0; transition: opacity 120ms; }
-    .dd-item.selected .dd-item-check { opacity: 1; }
+    .dd-check { width: 13px; height: 13px; flex-shrink: 0; color: var(--accent); opacity: 0; transition: opacity 120ms; }
+    .dd-item.selected .dd-check { opacity: 1; }
 
-    /* ── Animated tabs ────────────────────────────────────────────── */
+    /* Tabs */
     .content { overflow-y: auto; display: flex; flex-direction: column; }
     .tabs-bar {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      padding: 10px 16px 0;
-      position: sticky;
-      top: 0;
-      z-index: 5;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 10px 16px 0;
+      position: sticky; top: 0; z-index: 5;
+      background: var(--bg); border-bottom: 1px solid var(--border);
     }
-    /* the pill track — tabs sit inside this */
-    .tabs-inner {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      position: relative;
-      padding-bottom: 0;
-    }
-    /* sliding underline indicator */
+    .tabs-inner { display: flex; align-items: center; gap: 2px; position: relative; }
     .tab-indicator {
-      position: absolute;
-      bottom: -1px;
-      height: 2px;
-      background: var(--text);
-      border-radius: 99px;
+      position: absolute; bottom: -1px; height: 2px;
+      background: var(--text); border-radius: 99px; pointer-events: none;
       transition: left 240ms cubic-bezier(0.16,1,0.3,1), width 240ms cubic-bezier(0.16,1,0.3,1);
-      pointer-events: none;
     }
     .tab-btn {
-      background: none;
-      border: none;
-      border-radius: var(--r-sm) var(--r-sm) 0 0;
-      padding: 7px 14px 10px;
-      font-size: 0.78rem;
-      font-weight: 500;
-      font-family: var(--font);
-      color: var(--text-f);
-      cursor: pointer;
+      background: none; border: none; border-radius: var(--r-sm) var(--r-sm) 0 0;
+      padding: 7px 14px 10px; font-size: 0.78rem; font-weight: 500;
+      font-family: var(--font); color: var(--text-f); cursor: pointer;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap;
       transition: color 180ms ease;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-      position: relative;
     }
     .tab-btn:hover { color: var(--text-m); }
     .tab-btn.active { color: var(--text); }
     .tab-icon { width: 14px; height: 14px; opacity: 0.7; }
     .tab-btn.active .tab-icon { opacity: 1; }
-
-    /* panel fade+slide in */
     .tab-panel { display: none; padding: clamp(20px,3vw,36px); flex-direction: column; gap: 24px; }
     .tab-panel.active { display: flex; animation: panelIn 220ms cubic-bezier(0.16,1,0.3,1) both; }
     @keyframes panelIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
     .section-title { font-size: 1.35rem; font-weight: 400; color: var(--text); letter-spacing: -0.01em; margin-bottom: 12px; }
 
-    /* ── KPI / Panel / Table ──────────────────────────────────────── */
+    /* KPI / Panel / Table */
     .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
     .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 18px 20px; }
     .kpi-label { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-m); margin-bottom: 8px; }
@@ -282,7 +194,6 @@
 
     .chart-area { width: 100%; height: 280px; position: relative; }
     canvas { width: 100% !important; height: 100% !important; }
-
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
     thead tr { border-bottom: 1px solid var(--border); }
@@ -358,7 +269,6 @@
     .trend-stable  { background: rgba(139,144,158,0.12); color: var(--text-m); }
 
     .cong-row-worsening td { color: var(--red); }
-
     .sentiment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     @media (max-width: 700px) { .sentiment-row { grid-template-columns: 1fr; } }
     .sentiment-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-md); padding: 16px 18px; }
@@ -398,11 +308,16 @@
         <div class="field">
           <label>Lane</label>
           <div class="dd-wrapper" id="dd-lane-wrapper">
-            <button class="dd-trigger" id="dd-lane-btn" type="button" onclick="ddToggle('lane')" aria-haspopup="listbox" aria-expanded="false">
-              <span class="dd-trigger-text placeholder" id="dd-lane-label">Select a lane</span>
-              <svg class="dd-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="4 6 8 10 12 6"/></svg>
+            <button class="dd-trigger" id="dd-lane-btn" type="button"
+                    aria-haspopup="listbox" aria-expanded="false" aria-controls="dd-lane-menu">
+              <span class="dd-trigger-text" id="dd-lane-label">Select a lane</span>
+              <svg class="dd-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="4 6 8 10 12 6"/>
+              </svg>
             </button>
-            <ul class="dd-list" id="dd-lane-menu" role="listbox" style="display:none;" aria-label="Shipping lanes"></ul>
+            <div class="dd-menu" id="dd-lane-menu" role="listbox" aria-label="Shipping lanes">
+              <ul class="dd-list" id="dd-lane-list"></ul>
+            </div>
           </div>
           <input type="hidden" id="inp-lane" />
         </div>
@@ -545,32 +460,118 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
 <script>
-  /* ── Lane data ────────────────────────────────────────────────── */
+  /* ── Lane data ── */
   const LANES = [
-    { id: 'ao-eu',   label: 'AO \u2192 Europe',              value: 'Australasia & Oceania to Europe Price Index (2026)' },
-    { id: 'ao-na',   label: 'AO \u2192 North America',       value: 'Australasia & Oceania to North America Price Index (2026)' },
-    { id: 'ao-sca',  label: 'AO \u2192 South & Central Am.', value: 'Australasia & Oceania to South & Central America Price Index (2026)' },
-    { id: 'ao-fe',   label: 'AO \u2192 Far East',            value: 'Australasia & Oceania to Far East Price Index (2026)' },
-    { id: 'ao-ssa',  label: 'AO \u2192 Sub Saharan Africa',  value: 'Australasia & Oceania to Sub Saharan Africa Price Index (2026)' },
-    { id: 'ao-ao',   label: 'AO \u2192 AO',                  value: 'Australasia & Oceania to Australasia & Oceania Price Index (2026)' },
-    { id: 'ao-isc',  label: 'AO \u2192 ISC & Middle East',   value: 'Australasia & Oceania to Indian Sub Cont & Middle East Price Index (2026)' },
-    { id: 'eu-eu',   label: 'Europe \u2192 Europe',          value: 'Europe to Europe Price Index (2026)' },
-    { id: 'eu-ssa',  label: 'Europe \u2192 Sub Saharan Africa', value: 'Europe to Sub Saharan Africa Price Index (2026)' },
-    { id: 'eu-sca',  label: 'Europe \u2192 South & Central Am.', value: 'Europe to South & Central America Price Index (2026)' },
-    { id: 'eu-ao',   label: 'Europe \u2192 AO',              value: 'Europe to Australasia & Oceania Price Index (2026)' },
-    { id: 'eu-fe',   label: 'Europe \u2192 Far East',        value: 'Europe to Far East Price Index (2026)' },
-    { id: 'eu-na',   label: 'Europe \u2192 North America',   value: 'Europe to North America Price Index (2026)' },
-    { id: 'eu-isc',  label: 'Europe \u2192 ISC & Middle East', value: 'Europe to Indian Sub Cont & Middle East Price Index (2026)' },
-    { id: 'fe-sca',  label: 'Far East \u2192 South & Central Am.', value: 'Far East to South & Central America Price Index (2026)' },
-    { id: 'fe-eu',   label: 'Far East \u2192 Europe',        value: 'Far East to Europe Price Index (2026)' },
-    { id: 'fe-isc',  label: 'Far East \u2192 ISC & Middle East', value: 'Far East to Indian Sub Cont & Middle East Price Index (2026)' },
-    { id: 'fe-ao',   label: 'Far East \u2192 AO',            value: 'Far East to Australasia & Oceania Price Index (2026)' },
-    { id: 'fe-na',   label: 'Far East \u2192 North America', value: 'Far East to North America Price Index (2026)' },
+    { id:'ao-eu',  label:'AO \u2192 Europe',                value:'Australasia & Oceania to Europe Price Index (2026)' },
+    { id:'ao-na',  label:'AO \u2192 North America',         value:'Australasia & Oceania to North America Price Index (2026)' },
+    { id:'ao-sca', label:'AO \u2192 South & Central Am.',   value:'Australasia & Oceania to South & Central America Price Index (2026)' },
+    { id:'ao-fe',  label:'AO \u2192 Far East',              value:'Australasia & Oceania to Far East Price Index (2026)' },
+    { id:'ao-ssa', label:'AO \u2192 Sub Saharan Africa',    value:'Australasia & Oceania to Sub Saharan Africa Price Index (2026)' },
+    { id:'ao-ao',  label:'AO \u2192 AO',                    value:'Australasia & Oceania to Australasia & Oceania Price Index (2026)' },
+    { id:'ao-isc', label:'AO \u2192 ISC & Middle East',     value:'Australasia & Oceania to Indian Sub Cont & Middle East Price Index (2026)' },
+    { id:'eu-eu',  label:'Europe \u2192 Europe',            value:'Europe to Europe Price Index (2026)' },
+    { id:'eu-ssa', label:'Europe \u2192 Sub Saharan Africa',value:'Europe to Sub Saharan Africa Price Index (2026)' },
+    { id:'eu-sca', label:'Europe \u2192 South & Central Am.',value:'Europe to South & Central America Price Index (2026)' },
+    { id:'eu-ao',  label:'Europe \u2192 AO',                value:'Europe to Australasia & Oceania Price Index (2026)' },
+    { id:'eu-fe',  label:'Europe \u2192 Far East',          value:'Europe to Far East Price Index (2026)' },
+    { id:'eu-na',  label:'Europe \u2192 North America',     value:'Europe to North America Price Index (2026)' },
+    { id:'eu-isc', label:'Europe \u2192 ISC & Middle East', value:'Europe to Indian Sub Cont & Middle East Price Index (2026)' },
+    { id:'fe-sca', label:'Far East \u2192 South & Central Am.',value:'Far East to South & Central America Price Index (2026)' },
+    { id:'fe-eu',  label:'Far East \u2192 Europe',          value:'Far East to Europe Price Index (2026)' },
+    { id:'fe-isc', label:'Far East \u2192 ISC & Middle East',value:'Far East to Indian Sub Cont & Middle East Price Index (2026)' },
+    { id:'fe-ao',  label:'Far East \u2192 AO',              value:'Far East to Australasia & Oceania Price Index (2026)' },
+    { id:'fe-na',  label:'Far East \u2192 North America',   value:'Far East to North America Price Index (2026)' },
   ];
 
-  /* ── Number nudge ─────────────────────────────────────────────── */
+  /* ── Dropdown ── */
+  (function () {
+    const btn     = document.getElementById('dd-lane-btn');
+    const menu    = document.getElementById('dd-lane-menu');
+    const list    = document.getElementById('dd-lane-list');
+    const label   = document.getElementById('dd-lane-label');
+    const hidden  = document.getElementById('inp-lane');
+    let open      = false;
+    let focusedIdx = -1;
+
+    // Build list items
+    list.innerHTML = LANES.map((lane, i) => `
+      <li class="dd-item" data-idx="${i}" role="option" aria-selected="false">
+        <span>${lane.label}</span>
+        <svg class="dd-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <polyline points="2 8 6 12 14 4"/>
+        </svg>
+      </li>`).join('');
+
+    const items = Array.from(list.querySelectorAll('.dd-item'));
+
+    function openMenu() {
+      open = true;
+      menu.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+      // scroll to selected
+      const sel = list.querySelector('.selected');
+      if (sel) sel.scrollIntoView({ block: 'nearest' });
+    }
+
+    function closeMenu() {
+      open = false;
+      menu.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+      focusedIdx = -1;
+      items.forEach(el => el.classList.remove('focused'));
+    }
+
+    function selectIdx(i) {
+      const lane = LANES[i];
+      if (!lane) return;
+      hidden.value  = lane.value;
+      label.textContent = lane.label;
+      label.classList.add('has-value');
+      items.forEach((el, j) => {
+        el.classList.toggle('selected', j === i);
+        el.setAttribute('aria-selected', j === i ? 'true' : 'false');
+      });
+      closeMenu();
+    }
+
+    function setFocus(i) {
+      items.forEach(el => el.classList.remove('focused'));
+      if (i >= 0 && i < items.length) {
+        items[i].classList.add('focused');
+        items[i].scrollIntoView({ block: 'nearest' });
+        focusedIdx = i;
+      }
+    }
+
+    btn.addEventListener('click', () => open ? closeMenu() : openMenu());
+
+    items.forEach((el, i) => {
+      el.addEventListener('click', () => selectIdx(i));
+      el.addEventListener('mouseenter', () => setFocus(i));
+    });
+
+    document.addEventListener('mousedown', e => {
+      if (open && !document.getElementById('dd-lane-wrapper').contains(e.target)) closeMenu();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (!open) {
+        if ((e.key === 'Enter' || e.key === ' ') && document.activeElement === btn) {
+          e.preventDefault(); openMenu();
+        }
+        return;
+      }
+      if (e.key === 'Escape')      { closeMenu(); btn.focus(); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); setFocus(focusedIdx < items.length - 1 ? focusedIdx + 1 : 0); }
+      else if (e.key === 'ArrowUp')   { e.preventDefault(); setFocus(focusedIdx > 0 ? focusedIdx - 1 : items.length - 1); }
+      else if (e.key === 'Enter' && focusedIdx >= 0) { e.preventDefault(); selectIdx(focusedIdx); }
+      else if (e.key === 'Home')   { e.preventDefault(); setFocus(0); }
+      else if (e.key === 'End')    { e.preventDefault(); setFocus(items.length - 1); }
+    });
+  })();
+
+  /* ── Number nudge ── */
   function nudge(id, delta) {
     const el = document.getElementById(id);
     const val = parseFloat(el.value) || 0;
@@ -583,110 +584,34 @@
     el.dispatchEvent(new Event('input'));
   }
 
-  /* ── Dropdown logic ───────────────────────────────────────────── */
-  let ddStates = {};
-
-  function ddBuildMenu(id, items) {
-    const menu = document.getElementById('dd-' + id + '-menu');
-    menu.innerHTML = items.map(item => `
-      <li class="dd-item" id="dd-item-${item.id}" role="option" data-value="${item.value}" data-label="${item.label}"
-          onclick="ddSelect('${id}', '${item.id}')" onmouseenter="ddFocus('${id}', '${item.id}')">
-        <span>${item.label}</span>
-        <svg class="dd-item-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="2 8 6 12 14 4"/></svg>
-      </li>`).join('');
-  }
-
-  function ddToggle(id) {
-    ddStates[id] ? ddClose(id) : ddOpen(id);
-  }
-
-  function ddOpen(id) {
-    const menu = document.getElementById('dd-' + id + '-menu');
-    const btn  = document.getElementById('dd-' + id + '-btn');
-    menu.style.display = 'block';
-    menu.classList.remove('closing');
-    btn.classList.add('open');
-    btn.setAttribute('aria-expanded', 'true');
-    ddStates[id] = true;
-    const sel = menu.querySelector('.selected');
-    if (sel) sel.scrollIntoView({ block: 'nearest' });
-  }
-
-  function ddClose(id) {
-    const menu = document.getElementById('dd-' + id + '-menu');
-    const btn  = document.getElementById('dd-' + id + '-btn');
-    menu.classList.add('closing');
-    btn.classList.remove('open');
-    btn.setAttribute('aria-expanded', 'false');
-    ddStates[id] = false;
-    menu.addEventListener('animationend', () => {
-      menu.style.display = 'none';
-      menu.classList.remove('closing');
-    }, { once: true });
-  }
-
-  function ddSelect(ddId, itemId) {
-    const item = LANES.find(l => l.id === itemId);
-    if (!item) return;
-    document.getElementById('inp-lane').value = item.value;
-    const labelEl = document.getElementById('dd-' + ddId + '-label');
-    labelEl.textContent = item.label;
-    labelEl.classList.remove('placeholder');
-    document.querySelectorAll('#dd-' + ddId + '-menu .dd-item').forEach(el => {
-      el.classList.toggle('selected', el.dataset.value === item.value);
-    });
-    // close immediately — the menu animates out and the trigger shrinks back
-    ddClose(ddId);
-  }
-
-  function ddFocus(ddId, itemId) {
-    document.querySelectorAll('#dd-' + ddId + '-menu .dd-item').forEach(el => {
-      el.classList.toggle('focused', el.id === 'dd-item-' + itemId);
-    });
-  }
-
-  document.addEventListener('mousedown', e => {
-    Object.keys(ddStates).forEach(id => {
-      if (!ddStates[id]) return;
-      const wrapper = document.getElementById('dd-' + id + '-wrapper');
-      if (wrapper && !wrapper.contains(e.target)) ddClose(id);
-    });
-  });
-
-  document.addEventListener('keydown', e => {
-    const openId = Object.keys(ddStates).find(id => ddStates[id]);
-    if (!openId) return;
-    const items = Array.from(document.querySelectorAll('#dd-' + openId + '-menu .dd-item'));
-    const focusedIdx = items.findIndex(el => el.classList.contains('focused'));
-    if (e.key === 'Escape') { ddClose(openId); }
-    else if (e.key === 'ArrowDown') { e.preventDefault(); const next = (focusedIdx + 1) % items.length; items[next].classList.add('focused'); items[focusedIdx]?.classList.remove('focused'); items[next].scrollIntoView({ block: 'nearest' }); }
-    else if (e.key === 'ArrowUp')   { e.preventDefault(); const prev = focusedIdx <= 0 ? items.length - 1 : focusedIdx - 1; items[prev].classList.add('focused'); items[focusedIdx]?.classList.remove('focused'); items[prev].scrollIntoView({ block: 'nearest' }); }
-    else if (e.key === 'Enter' && focusedIdx >= 0) { const item = LANES.find(l => 'dd-item-' + l.id === items[focusedIdx].id); if (item) ddSelect(openId, item.id); }
-  });
-
-  /* ── Animated tab indicator ───────────────────────────────────── */
+  /* ── Tab indicator ── */
   function moveIndicator(btnEl) {
     const indicator = document.getElementById('tab-indicator');
     const inner     = document.getElementById('tabs-inner');
     if (!indicator || !btnEl) return;
-    const innerRect = inner.getBoundingClientRect();
-    const btnRect   = btnEl.getBoundingClientRect();
-    indicator.style.left  = (btnRect.left - innerRect.left) + 'px';
-    indicator.style.width = btnRect.width + 'px';
+    const ir = inner.getBoundingClientRect();
+    const br = btnEl.getBoundingClientRect();
+    indicator.style.left  = (br.left - ir.left) + 'px';
+    indicator.style.width = br.width + 'px';
   }
 
-  /* ── App utils ────────────────────────────────────────────────── */
+  /* ── App utils ── */
   function getBase() { return window.AXION_API_BASE || 'http://localhost:8000'; }
-  function fetchAPI(path, options = {}) {
-    const base = getBase().replace(/\/$/, '');
-    return fetch(base + path, { ...options, headers: { 'Content-Type': 'application/json', ...(options.headers || {}) } });
+  function fetchAPI(path, opts = {}) {
+    return fetch(getBase().replace(/\/$/, '') + path, {
+      ...opts, headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) }
+    });
   }
   window.axionAPI = { fetch: fetchAPI };
   let chartInstance = null;
 
   function fmt(n) { return (n == null || isNaN(n)) ? '\u2014' : new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n); }
-  function setAlert(id, msg, type) { const el = document.getElementById(id); if (!el) return; if (!msg) { el.className = 'alert'; el.textContent = ''; return; } el.className = 'alert ' + type; el.textContent = msg; }
-  function setStatus() {}
+  function setAlert(id, msg, type) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!msg) { el.className = 'alert'; el.textContent = ''; return; }
+    el.className = 'alert ' + type; el.textContent = msg;
+  }
 
   function switchTab(name) {
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -698,10 +623,7 @@
   }
 
   function regimeBadgeHTML(label) {
-    let cls = 'regime-none';
-    if (label === 'Normal') cls = 'regime-normal';
-    else if (label === 'Elevated') cls = 'regime-elevated';
-    else if (label === 'Severe') cls = 'regime-severe';
+    const cls = label === 'Normal' ? 'regime-normal' : label === 'Elevated' ? 'regime-elevated' : label === 'Severe' ? 'regime-severe' : 'regime-none';
     return `<div class="regime-badge ${cls}"><div class="dot"></div>${label || 'Unknown'}</div>`;
   }
   function toneBarHTML(tone) {
@@ -724,13 +646,12 @@
     document.getElementById('ov-lane').textContent = ov.lane || '\u2014';
     if (ov.oil_price != null) {
       document.getElementById('ov-oil-price').textContent = '$' + ov.oil_price.toFixed(2);
-      const trendEl = document.getElementById('ov-oil-trend');
-      trendEl.textContent = ov.oil_trend || 'stable';
-      trendEl.className = 'kpi-delta ' + (ov.oil_trend === 'rising' ? 'down' : ov.oil_trend === 'falling' ? 'up' : 'neu');
+      const tEl = document.getElementById('ov-oil-trend');
+      tEl.textContent = ov.oil_trend || 'stable';
+      tEl.className = 'kpi-delta ' + (ov.oil_trend === 'rising' ? 'down' : ov.oil_trend === 'falling' ? 'up' : 'neu');
     }
-    const conclusionsEl = document.getElementById('ov-conclusions');
     const conclusions = ov.key_conclusions || [];
-    conclusionsEl.innerHTML = conclusions.length
+    document.getElementById('ov-conclusions').innerHTML = conclusions.length
       ? conclusions.map(c => `<div class="conclusion-item"><div class="conclusion-dot"></div><span>${c}</span></div>`).join('')
       : '<div class="conclusion-item"><div class="conclusion-dot"></div><span style="color:var(--text-f);font-style:italic;">No conclusions available.</span></div>';
   }
@@ -738,174 +659,142 @@
   function renderQuant(data) {
     try {
       const fc = data.quant.forecast;
-      const chartSubEl = document.getElementById('chart-sub');
-      if (chartSubEl) chartSubEl.innerHTML = fc.lane + ' &middot; ' + fc.horizon_weeks + '-week horizon &middot; ' + fc.num_paths.toLocaleString() + ' paths';
-
-      const hp = fc.historical_points || [];
-      const wf = fc.weekly_forecast  || [];
-      const histLabels = hp.map(p => p.date);
-      const foreLabels = wf.map(w => w.week_end);
-      const allLabels  = [...histLabels, ...foreLabels];
-      const hLen = histLabels.length;
-      const fLen = foreLabels.length;
-      const pad = (arr, before, after) => [...Array(before).fill(null), ...arr, ...Array(after).fill(null)];
-      const histValues   = hp.map(p => p.value);
-      const lastHist     = histValues.length ? histValues[histValues.length - 1] : null;
-      const p95Data      = pad([lastHist, ...wf.map(w => w.p95)],      hLen - 1, 0);
-      const expectedData = pad([lastHist, ...wf.map(w => w.expected)], hLen - 1, 0);
-      const p50Data      = pad([lastHist, ...wf.map(w => w.p50)],      hLen - 1, 0);
-      const p05Data      = pad([lastHist, ...wf.map(w => w.p05)],      hLen - 1, 0);
-      const histData     = pad(histValues, 0, fLen);
-
+      const hp = fc.historical_points || [], wf = fc.weekly_forecast || [];
+      const hLen = hp.length, fLen = wf.length;
+      const pad = (arr, b, a) => [...Array(b).fill(null), ...arr, ...Array(a).fill(null)];
+      const histValues = hp.map(p => p.value);
+      const lastHist   = histValues.length ? histValues[histValues.length - 1] : null;
+      const allLabels  = [...hp.map(p => p.date), ...wf.map(w => w.week_end)];
       document.getElementById('chart-empty').style.display = 'none';
       const canvas = document.getElementById('forecast-chart');
       canvas.style.display = 'block';
       if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-      const ctx = canvas.getContext('2d');
-      chartInstance = new Chart(ctx, {
+      chartInstance = new Chart(canvas.getContext('2d'), {
         type: 'line',
         data: { labels: allLabels, datasets: [
-          { label: 'p95', data: p95Data, borderColor: 'rgba(79,124,255,0.3)', backgroundColor: 'rgba(79,124,255,0.07)', borderWidth: 1, pointRadius: 0, fill: '+2', tension: 0.3, spanGaps: true },
-          { label: 'Expected', data: expectedData, borderColor: '#4f7cff', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, tension: 0.3, spanGaps: true },
-          { label: 'p50', data: p50Data, borderColor: '#34c78a', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4,3], pointRadius: 0, tension: 0.3, spanGaps: true },
-          { label: 'p05', data: p05Data, borderColor: 'rgba(79,124,255,0.3)', backgroundColor: 'transparent', borderWidth: 1, pointRadius: 0, tension: 0.3, spanGaps: true },
-          { label: 'Historical', data: histData, borderColor: 'rgba(139,144,158,0.7)', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 3, pointBackgroundColor: 'rgba(139,144,158,0.7)', tension: 0.2, spanGaps: false },
+          { label:'p95',      data:pad([lastHist,...wf.map(w=>w.p95)],hLen-1,0),      borderColor:'rgba(79,124,255,0.3)', backgroundColor:'rgba(79,124,255,0.07)', borderWidth:1, pointRadius:0, fill:'+2', tension:0.3, spanGaps:true },
+          { label:'Expected', data:pad([lastHist,...wf.map(w=>w.expected)],hLen-1,0), borderColor:'#4f7cff', backgroundColor:'transparent', borderWidth:2, pointRadius:0, tension:0.3, spanGaps:true },
+          { label:'p50',      data:pad([lastHist,...wf.map(w=>w.p50)],hLen-1,0),      borderColor:'#34c78a', backgroundColor:'transparent', borderWidth:1.5, borderDash:[4,3], pointRadius:0, tension:0.3, spanGaps:true },
+          { label:'p05',      data:pad([lastHist,...wf.map(w=>w.p05)],hLen-1,0),      borderColor:'rgba(79,124,255,0.3)', backgroundColor:'transparent', borderWidth:1, pointRadius:0, tension:0.3, spanGaps:true },
+          { label:'Historical', data:pad(histValues,0,fLen), borderColor:'rgba(139,144,158,0.7)', backgroundColor:'transparent', borderWidth:2, pointRadius:3, pointBackgroundColor:'rgba(139,144,158,0.7)', tension:0.2, spanGaps:false },
         ]},
         options: {
-          responsive: true, maintainAspectRatio: false,
-          interaction: { mode: 'index', intersect: false },
-          plugins: {
-            legend: { position: 'top', labels: { color: '#8b909e', boxWidth: 12, font: { family: "'SF Pro Display'", size: 11 }, padding: 16 } },
-            tooltip: { backgroundColor: '#1c2030', borderColor: 'rgba(255,255,255,0.07)', borderWidth: 1, titleColor: '#e8eaf0', bodyColor: '#8b909e', padding: 10, filter: item => item.parsed.y !== null, callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y) } }
+          responsive:true, maintainAspectRatio:false,
+          interaction:{ mode:'index', intersect:false },
+          plugins:{
+            legend:{ position:'top', labels:{ color:'#8b909e', boxWidth:12, font:{ family:"'SF Pro Display'", size:11 }, padding:16 } },
+            tooltip:{ backgroundColor:'#1c2030', borderColor:'rgba(255,255,255,0.07)', borderWidth:1, titleColor:'#e8eaf0', bodyColor:'#8b909e', padding:10, filter:i=>i.parsed.y!==null, callbacks:{ label:c=>' '+c.dataset.label+': '+fmt(c.parsed.y) } }
           },
-          scales: {
-            x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8b909e', font: { size: 11, family: "'SF Pro Display'" }, maxRotation: 0, maxTicksLimit: 10 } },
-            y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8b909e', font: { size: 11, family: "'SF Pro Display'" }, callback: v => fmt(v) } }
+          scales:{
+            x:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#8b909e', font:{ size:11, family:"'SF Pro Display'" }, maxRotation:0, maxTicksLimit:10 } },
+            y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#8b909e', font:{ size:11, family:"'SF Pro Display'" }, callback:v=>fmt(v) } }
           }
         }
       });
-      if (document.getElementById('tab-quant').classList.contains('active')) {
-        requestAnimationFrame(() => chartInstance && chartInstance.resize());
-      } else {
-        document.getElementById('tab-quant-btn').addEventListener('click', () => { if (chartInstance) chartInstance.resize(); }, { once: true });
+      if (!document.getElementById('tab-quant').classList.contains('active')) {
+        document.getElementById('tab-quant-btn').addEventListener('click', () => chartInstance && chartInstance.resize(), { once:true });
       }
-      const tbody = document.getElementById('table-body');
-      tbody.innerHTML = wf.map(w => {
+      document.getElementById('table-body').innerHTML = wf.map(w => {
         const sig = w.p50 > fc.last_observed_value ? '<span class="tag tag-green">&uarr; Up</span>' : '<span class="tag tag-red">&darr; Down</span>';
         return `<tr><td>${w.week_end}</td><td>${fmt(w.expected)}</td><td>${fmt(w.p05)}</td><td>${fmt(w.p50)}</td><td>${fmt(w.p95)}</td><td>${sig}</td></tr>`;
       }).join('');
-    } catch (err) {
-      setAlert('alert-quant', 'Chart render error: ' + err.message, 'error');
-    }
+    } catch(err) { setAlert('alert-quant','Chart render error: '+err.message,'error'); }
   }
 
   function renderNews(data) {
-    const nr = data.news && data.news.risk ? data.news.risk : {};
-    const oilList = (data.news && data.news.oil_signals) || [];
-    const cong = (data.news && data.news.congestion_signals) || [];
+    const nr = data.news?.risk || {};
+    const oilList = data.news?.oil_signals || [];
+    const cong    = data.news?.congestion_signals || [];
     document.getElementById('news-regime-badge').innerHTML = regimeBadgeHTML(nr.risk_label);
     const tabBadge = document.getElementById('risk-tab-badge');
-    if (nr.risk_label && nr.risk_label !== 'Normal') { tabBadge.textContent = nr.risk_label; tabBadge.style.display = ''; tabBadge.style.background = nr.risk_label === 'Severe' ? 'var(--red)' : 'var(--amber)'; tabBadge.style.color = '#fff'; } else { tabBadge.style.display = 'none'; }
+    if (nr.risk_label && nr.risk_label !== 'Normal') {
+      tabBadge.textContent = nr.risk_label; tabBadge.style.display='';
+      tabBadge.style.background = nr.risk_label === 'Severe' ? 'var(--red)' : 'var(--amber)';
+      tabBadge.style.color = '#fff';
+    } else { tabBadge.style.display='none'; }
     const score = nr.net_risk_score || 0;
-    document.getElementById('news-score-pct').textContent = score.toFixed(1) + '/100';
+    document.getElementById('news-score-pct').textContent = score.toFixed(1)+'/100';
     const fill = document.getElementById('news-score-fill');
-    fill.style.width = Math.min(score, 100) + '%';
-    fill.className = 'score-bar-fill ' + (score < 33 ? 'fill-green' : score < 67 ? 'fill-amber' : 'fill-red');
-    document.getElementById('news-sigma').textContent = nr.sigma_multiplier != null ? '\u00d7' + nr.sigma_multiplier.toFixed(2) : '\u2014';
-    document.getElementById('news-delta-mu').textContent = nr.delta_mu_daily != null ? (nr.delta_mu_daily >= 0 ? '+' : '') + nr.delta_mu_daily.toFixed(4) : '\u2014';
+    fill.style.width = Math.min(score,100)+'%';
+    fill.className = 'score-bar-fill '+(score<33?'fill-green':score<67?'fill-amber':'fill-red');
+    document.getElementById('news-sigma').textContent    = nr.sigma_multiplier!=null ? '\u00d7'+nr.sigma_multiplier.toFixed(2) : '\u2014';
+    document.getElementById('news-delta-mu').textContent = nr.delta_mu_daily!=null   ? (nr.delta_mu_daily>=0?'+':'')+nr.delta_mu_daily.toFixed(4) : '\u2014';
     const vol = nr.article_volume || {};
-    document.getElementById('news-vol-ratio').textContent = vol.volume_vs_baseline != null ? vol.volume_vs_baseline.toFixed(1) + '\u00d7' : '\u2014';
+    document.getElementById('news-vol-ratio').textContent = vol.volume_vs_baseline!=null ? vol.volume_vs_baseline.toFixed(1)+'\u00d7' : '\u2014';
     document.getElementById('vol-24h').textContent = vol.last_24h ?? '\u2014';
     document.getElementById('vol-72h').textContent = vol.last_72h ?? '\u2014';
     document.getElementById('vol-7d').textContent  = vol.last_7d  ?? '\u2014';
-    document.getElementById('news-panel-sub').textContent = 'GDELT \u00b7 ' + (vol.last_7d || 0) + ' articles this week \u00b7 ' + (nr.risk_label || '\u2014') + ' regime';
+    document.getElementById('news-panel-sub').textContent = 'GDELT \u00b7 '+(vol.last_7d||0)+' articles this week \u00b7 '+(nr.risk_label||'\u2014')+' regime';
     if (oilList.length) {
       const oil = oilList[0];
-      document.getElementById('oil-price-big').textContent = '$' + oil.price.toFixed(2);
-      document.getElementById('oil-benchmark').textContent = oil.benchmark + ' Crude';
+      document.getElementById('oil-price-big').textContent = '$'+oil.price.toFixed(2);
+      document.getElementById('oil-benchmark').textContent = oil.benchmark+' Crude';
       const tb = document.getElementById('oil-trend-badge');
-      tb.textContent = oil.trend; tb.className = 'oil-trend-badge trend-' + oil.trend;
-      if (oil.fetched_at) document.getElementById('oil-source').textContent = oil.source + ' \u00b7 ' + new Date(oil.fetched_at).toLocaleTimeString();
+      tb.textContent = oil.trend; tb.className = 'oil-trend-badge trend-'+oil.trend;
+      if (oil.fetched_at) document.getElementById('oil-source').textContent = oil.source+' \u00b7 '+new Date(oil.fetched_at).toLocaleTimeString();
     }
     const congBody = document.getElementById('cong-body');
     if (cong.length) {
-      document.getElementById('cong-sub').textContent = cong.length + ' node(s) monitored for this lane';
+      document.getElementById('cong-sub').textContent = cong.length+' node(s) monitored for this lane';
       congBody.innerHTML = cong.map(c => {
-        const idx = (c.congestion_index * 100).toFixed(0);
-        const trendTag = c.trend === 'improving' ? '<span class="tag tag-green">Improving</span>' : c.trend === 'worsening' ? '<span class="tag tag-red">Worsening</span>' : '<span class="tag tag-blue">Stable</span>';
-        return `<tr class="${c.trend === 'worsening' ? 'cong-row-worsening' : ''}"><td>${c.node_name}</td><td>${c.node_type}</td><td>${idx}%</td><td>${trendTag}</td><td style="color:var(--text-f);font-size:0.75rem;">${c.note || ''}</td></tr>`;
+        const idx = (c.congestion_index*100).toFixed(0);
+        const trendTag = c.trend==='improving'?'<span class="tag tag-green">Improving</span>':c.trend==='worsening'?'<span class="tag tag-red">Worsening</span>':'<span class="tag tag-blue">Stable</span>';
+        return `<tr class="${c.trend==='worsening'?'cong-row-worsening':''}"><td>${c.node_name}</td><td>${c.node_type}</td><td>${idx}%</td><td>${trendTag}</td><td style="color:var(--text-f);font-size:0.75rem;">${c.note||''}</td></tr>`;
       }).join('');
     } else { congBody.innerHTML = '<tr><td colspan="5"><div class="empty" style="padding:30px 20px;"><p>No congestion signals available.</p></div></td></tr>'; }
-    const narrative = nr.risk_summary || 'No narrative generated.';
-    const sentences = narrative.match(/[^.!?]+[.!?]+/g) || [narrative];
-    const paras = []; for (let i = 0; i < sentences.length; i += 3) paras.push(sentences.slice(i,i+3).join(' '));
-    document.getElementById('news-narrative').innerHTML = paras.map(p => `<p style="margin-bottom:0.8em;line-height:1.65;">${p.trim()}</p>`).join('');
-    const driversEl = document.getElementById('news-drivers');
+    const sentences = (nr.risk_summary||'No narrative generated.').match(/[^.!?]+[.!?]+/g) || [nr.risk_summary||''];
+    const paras = []; for (let i=0;i<sentences.length;i+=3) paras.push(sentences.slice(i,i+3).join(' '));
+    document.getElementById('news-narrative').innerHTML = paras.map(p=>`<p style="margin-bottom:0.8em;line-height:1.65;">${p.trim()}</p>`).join('');
     const drivers = nr.top_drivers || [];
-    driversEl.innerHTML = drivers.length ? drivers.map(d => `<div class="driver-item"><div class="driver-dot"></div><span>${d}</span></div>`).join('') : '<div class="driver-item"><div class="driver-dot"></div><span style="color:var(--text-f);font-style:italic;">No drivers identified.</span></div>';
+    document.getElementById('news-drivers').innerHTML = drivers.length
+      ? drivers.map(d=>`<div class="driver-item"><div class="driver-dot"></div><span>${d}</span></div>`).join('')
+      : '<div class="driver-item"><div class="driver-dot"></div><span style="color:var(--text-f);font-style:italic;">No drivers identified.</span></div>';
     const arts = nr.featured_articles || [];
+    document.getElementById('articles-sub').textContent = arts.length ? 'Top '+arts.length+' GDELT matches for this lane' : 'No articles retrieved';
     const artsEl = document.getElementById('news-articles');
-    document.getElementById('articles-sub').textContent = arts.length ? 'Top ' + arts.length + ' GDELT matches for this lane' : 'No articles retrieved';
     if (!arts.length) { artsEl.innerHTML = '<div class="empty" style="padding:40px 20px;"><p>No articles available for this lane.</p></div>'; }
     else {
-      artsEl.innerHTML = arts.map((art, i) => {
+      artsEl.innerHTML = arts.map((art,i) => {
         const isTranslated = art.language && art.language !== 'en';
-        const themes = (art.themes || []).map(t => `<span class="tag tag-blue">${t}</span>`).join('');
-        const relevancePct = Math.round((art.shipping_relevance || 0) * 100);
-        const pubDate = art.published_at ? new Date(art.published_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '';
-        const toggleId = 'orig-' + i;
-        return `<div class="article-card"><div class="article-header"><div class="article-title">${art.url ? `<a href="${art.url}" target="_blank" rel="noopener noreferrer">${art.title_english||art.title_original}</a>` : (art.title_english||art.title_original)}</div><span class="tag ${relevancePct>=80?'tag-red':relevancePct>=60?'tag-amber':'tag-blue'}" title="Shipping relevance">${relevancePct}% rel.</span></div><div class="article-meta">${art.source?`<span>${art.source}</span><span class="article-meta-sep">&middot;</span>`:''} ${pubDate?`<span>${pubDate}</span><span class="article-meta-sep">&middot;</span>`:''}<span>Risk contribution: ${(art.risk_contribution||0).toFixed(1)}</span>${isTranslated?`<span class="article-meta-sep">&middot;</span><button class="original-title-toggle" onclick="toggleOrig('${toggleId}')">Show original</button>`:''}</div>${isTranslated?`<div class="original-title" id="${toggleId}">${art.title_original}</div>`:''} ${themes?`<div class="article-themes">${themes}</div>`:''} ${toneBarHTML(art.tone||0)} ${art.summary_english?`<div><p class="article-section-label">Summary</p><p class="article-text">${art.summary_english}</p></div>`:''} ${art.why_it_matters?`<div><p class="article-section-label">Why it matters</p><p class="article-text">${art.why_it_matters}</p></div>`:''}</div>`;
+        const themes = (art.themes||[]).map(t=>`<span class="tag tag-blue">${t}</span>`).join('');
+        const relevancePct = Math.round((art.shipping_relevance||0)*100);
+        const pubDate = art.published_at ? new Date(art.published_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+        const toggleId = 'orig-'+i;
+        return `<div class="article-card"><div class="article-header"><div class="article-title">${art.url?`<a href="${art.url}" target="_blank" rel="noopener noreferrer">${art.title_english||art.title_original}</a>`:(art.title_english||art.title_original)}</div><span class="tag ${relevancePct>=80?'tag-red':relevancePct>=60?'tag-amber':'tag-blue'}" title="Shipping relevance">${relevancePct}% rel.</span></div><div class="article-meta">${art.source?`<span>${art.source}</span><span class="article-meta-sep">&middot;</span>`:''} ${pubDate?`<span>${pubDate}</span><span class="article-meta-sep">&middot;</span>`:''}<span>Risk contribution: ${(art.risk_contribution||0).toFixed(1)}</span>${isTranslated?`<span class="article-meta-sep">&middot;</span><button class="original-title-toggle" onclick="toggleOrig('${toggleId}')">Show original</button>`:''}</div>${isTranslated?`<div class="original-title" id="${toggleId}">${art.title_original}</div>`:''} ${themes?`<div class="article-themes">${themes}</div>`:''} ${toneBarHTML(art.tone||0)} ${art.summary_english?`<div><p class="article-section-label">Summary</p><p class="article-text">${art.summary_english}</p></div>`:''} ${art.why_it_matters?`<div><p class="article-section-label">Why it matters</p><p class="article-text">${art.why_it_matters}</p></div>`:''}</div>`;
       }).join('');
     }
     const themes = nr.theme_breakdown || [];
-    const themeBody = document.getElementById('theme-body');
-    if (themes.length) {
-      themeBody.innerHTML = themes.map(t => {
-        const cls = t.risk_contribution > 20 ? 'tag-red' : t.risk_contribution > 10 ? 'tag-amber' : 'tag-blue';
-        return `<tr><td>${t.theme}</td><td>${t.article_count}</td><td style="font-variant-numeric:tabular-nums;">${t.avg_tone!=null?t.avg_tone.toFixed(2):'\u2014'}</td><td><span class="tag ${cls}">${t.risk_contribution.toFixed(1)}</span></td></tr>`;
-      }).join('');
-    } else { themeBody.innerHTML = '<tr><td colspan="4"><div class="empty" style="padding:30px 20px;"><p>No theme data.</p></div></td></tr>'; }
+    document.getElementById('theme-body').innerHTML = themes.length
+      ? themes.map(t=>`<tr><td>${t.theme}</td><td>${t.article_count}</td><td style="font-variant-numeric:tabular-nums;">${t.avg_tone!=null?t.avg_tone.toFixed(2):'\u2014'}</td><td><span class="tag ${t.risk_contribution>20?'tag-red':t.risk_contribution>10?'tag-amber':'tag-blue'}">${t.risk_contribution.toFixed(1)}</span></td></tr>`).join('')
+      : '<tr><td colspan="4"><div class="empty" style="padding:30px 20px;"><p>No theme data.</p></div></td></tr>';
   }
 
   async function runDashboard() {
     const lane = document.getElementById('inp-lane').value.trim();
-    if (!lane) {
-      setAlert('alert-sidebar', 'Please select a lane first.', 'error');
-      return;
-    }
-    setAlert('alert-sidebar', '', '');
-    setAlert('alert-overview', '', '');
-    setAlert('alert-quant', '', '');
-
-    const horizon  = parseInt(document.getElementById('inp-horizon').value) || 8;
-    const paths    = parseInt(document.getElementById('inp-paths').value)   || 5000;
+    if (!lane) { setAlert('alert-sidebar','Please select a lane first.','error'); return; }
+    setAlert('alert-sidebar','',''); setAlert('alert-overview','',''); setAlert('alert-quant','','');
+    const horizon  = parseInt(document.getElementById('inp-horizon').value)  || 8;
+    const paths    = parseInt(document.getElementById('inp-paths').value)    || 5000;
     const lookback = parseInt(document.getElementById('inp-lookback').value) || 365;
-
     document.getElementById('btn-run').disabled = true;
     try {
-      const resp = await fetchAPI('/dashboard', { method: 'POST', body: JSON.stringify({ lane, horizon_weeks: horizon, num_paths: paths, lookback_days: lookback }) });
-      if (!resp.ok) { const err = await resp.json().catch(() => ({ detail: resp.statusText })); throw new Error(err.detail || resp.statusText); }
+      const resp = await fetchAPI('/dashboard', { method:'POST', body:JSON.stringify({ lane, horizon_weeks:horizon, num_paths:paths, lookback_days:lookback }) });
+      if (!resp.ok) { const err = await resp.json().catch(()=>({ detail:resp.statusText })); throw new Error(err.detail||resp.statusText); }
       const data = await resp.json();
       renderOverview(data.overview, data.news?.risk?.risk_label);
       renderQuant(data);
       renderNews(data);
-    } catch (err) {
-      setAlert('alert-overview', 'Error: ' + err.message, 'error');
-      setAlert('alert-quant',    'Error: ' + err.message, 'error');
-    } finally {
-      document.getElementById('btn-run').disabled = false;
-    }
+    } catch(err) {
+      setAlert('alert-overview','Error: '+err.message,'error');
+      setAlert('alert-quant',   'Error: '+err.message,'error');
+    } finally { document.getElementById('btn-run').disabled = false; }
   }
 
-  /* ── Init ─────────────────────────────────────────────────────── */
-  ddBuildMenu('lane', LANES);
-  // position indicator on the initially active tab after layout
+  /* ── Init ── */
   requestAnimationFrame(() => {
     const activeBtn = document.querySelector('.tab-btn.active');
     if (activeBtn) moveIndicator(activeBtn);
   });
-
-  // keep indicator in sync on resize
   window.addEventListener('resize', () => {
     const activeBtn = document.querySelector('.tab-btn.active');
     if (activeBtn) moveIndicator(activeBtn);
