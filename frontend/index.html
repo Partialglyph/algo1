@@ -46,7 +46,6 @@
     a:hover { text-decoration: underline; }
 
     .app { display: grid; min-height: 100dvh; }
-
     main { display: grid; grid-template-columns: 240px 1fr; height: 100dvh; overflow: hidden; }
 
     /* ── Sidebar ──────────────────────────────────────────────────── */
@@ -55,24 +54,22 @@
     .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
     label { font-size: 0.75rem; font-weight: 500; color: var(--text-m); }
 
-    /* ── Styled text / number inputs (uiverse-inspired) ─────────── */
-    .search-label {
+    /* ── Number inputs with minimal arrows ───────────────────────── */
+    .num-field {
       display: flex;
       align-items: center;
-      box-sizing: border-box;
       position: relative;
       border: 1px solid transparent;
       border-radius: 12px;
-      overflow: hidden;
       background: #2a2a2a;
       padding: 9px 10px;
       cursor: text;
       width: 100%;
       transition: border-color var(--t), background var(--t);
     }
-    .search-label:hover { border-color: rgba(255,255,255,0.18); }
-    .search-label:focus-within { background: #323232; border-color: rgba(255,255,255,0.22); }
-    .search-label input {
+    .num-field:hover { border-color: rgba(255,255,255,0.18); }
+    .num-field:focus-within { background: #323232; border-color: rgba(255,255,255,0.22); }
+    .num-field input[type="number"] {
       outline: none;
       width: 100%;
       border: none;
@@ -80,8 +77,37 @@
       color: #c8cad0;
       font-size: 0.85rem;
       font-family: var(--font);
+      /* hide native spinners */
+      -moz-appearance: textfield;
     }
-    .search-label input::placeholder { color: #5a5e6b; }
+    .num-field input[type="number"]::-webkit-inner-spin-button,
+    .num-field input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .num-field input[type="number"]::placeholder { color: #5a5e6b; }
+
+    /* custom arrow buttons */
+    .num-arrows {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      flex-shrink: 0;
+      margin-left: 6px;
+    }
+    .num-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 11px;
+      background: none;
+      border: none;
+      padding: 0;
+      color: #5a5e6b;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: color 100ms, background 100ms;
+    }
+    .num-arrow:hover { color: #c8cad0; background: rgba(255,255,255,0.06); }
+    .num-arrow svg { width: 8px; height: 8px; display: block; }
 
     /* ── Generate button (gray) ───────────────────────────────────── */
     .btn-run {
@@ -119,11 +145,11 @@
       font-family: var(--font);
       color: #c8cad0;
       cursor: pointer;
-      transition: border-color var(--t), background var(--t);
+      transition: border-color var(--t), background var(--t), border-radius 220ms cubic-bezier(0.16,1,0.3,1);
       text-align: left;
     }
     .dd-trigger:hover { border-color: rgba(255,255,255,0.18); }
-    .dd-trigger.open { background: #323232; border-color: rgba(255,255,255,0.22); }
+    .dd-trigger.open { background: #323232; border-color: rgba(255,255,255,0.22); border-radius: 12px 12px 0 0; }
     .dd-trigger-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .dd-trigger-text.placeholder { color: #5a5e6b; }
     .dd-chevron {
@@ -131,31 +157,33 @@
       width: 14px;
       height: 14px;
       color: #7e7e7e;
-      transition: transform 200ms cubic-bezier(0.16,1,0.3,1);
+      transition: transform 220ms cubic-bezier(0.16,1,0.3,1);
     }
     .dd-trigger.open .dd-chevron { transform: rotate(180deg); }
 
+    /* menu sits flush under trigger when open */
     .dd-menu {
       position: absolute;
-      top: calc(100% + 4px);
+      top: 100%;
       left: 0;
       width: 100%;
       background: #1e1e1e;
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 10px;
+      border-top: none;
+      border-radius: 0 0 12px 12px;
       overflow: hidden;
       z-index: 100;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
       transform-origin: top center;
-      animation: ddOpen 180ms cubic-bezier(0.16,1,0.3,1) forwards;
+      animation: ddOpen 200ms cubic-bezier(0.16,1,0.3,1) forwards;
     }
     .dd-menu.closing {
-      animation: ddClose 140ms cubic-bezier(0.4,0,1,1) forwards;
+      animation: ddClose 150ms cubic-bezier(0.4,0,1,1) forwards;
     }
-    @keyframes ddOpen  { from { opacity: 0; transform: scaleY(0.85) translateY(-6px); } to { opacity: 1; transform: scaleY(1) translateY(0); } }
-    @keyframes ddClose { from { opacity: 1; transform: scaleY(1) translateY(0); }        to { opacity: 0; transform: scaleY(0.85) translateY(-6px); } }
+    @keyframes ddOpen  { from { opacity: 0; transform: scaleY(0.88); } to { opacity: 1; transform: scaleY(1); } }
+    @keyframes ddClose { from { opacity: 1; transform: scaleY(1); }     to { opacity: 0; transform: scaleY(0.88); } }
 
-    .dd-list { list-style: none; padding: 6px 0; max-height: 260px; overflow-y: auto; }
+    .dd-list { list-style: none; padding: 4px 0; max-height: 220px; overflow-y: auto; }
     .dd-list::-webkit-scrollbar { width: 4px; }
     .dd-list::-webkit-scrollbar-track { background: transparent; }
     .dd-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
@@ -170,7 +198,7 @@
       color: #8b909e;
       cursor: pointer;
       transition: background 100ms, color 100ms, transform 120ms;
-      min-height: 36px;
+      min-height: 34px;
     }
     .dd-item:hover { background: rgba(255,255,255,0.05); color: var(--text); transform: translateX(3px); }
     .dd-item.selected { color: var(--text); font-weight: 500; }
@@ -178,42 +206,67 @@
     .dd-item-check { width: 13px; height: 13px; flex-shrink: 0; color: var(--accent); opacity: 0; transition: opacity 120ms; }
     .dd-item.selected .dd-item-check { opacity: 1; }
 
-    /* ── Tabs ─────────────────────────────────────────────────────── */
+    /* ── Animated tabs ────────────────────────────────────────────── */
     .content { overflow-y: auto; display: flex; flex-direction: column; }
     .tabs-bar {
       display: flex;
-      gap: 6px;
-      padding: 10px 16px;
+      align-items: center;
+      gap: 2px;
+      padding: 10px 16px 0;
       position: sticky;
       top: 0;
       z-index: 5;
       background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    /* the pill track — tabs sit inside this */
+    .tabs-inner {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      position: relative;
+      padding-bottom: 0;
+    }
+    /* sliding underline indicator */
+    .tab-indicator {
+      position: absolute;
+      bottom: -1px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 99px;
+      transition: left 240ms cubic-bezier(0.16,1,0.3,1), width 240ms cubic-bezier(0.16,1,0.3,1);
+      pointer-events: none;
     }
     .tab-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      padding: 5px 14px;
+      background: none;
+      border: none;
+      border-radius: var(--r-sm) var(--r-sm) 0 0;
+      padding: 7px 14px 10px;
       font-size: 0.78rem;
       font-weight: 500;
       font-family: var(--font);
-      color: var(--text-m);
+      color: var(--text-f);
       cursor: pointer;
-      transition: background var(--t), color var(--t), border-color var(--t);
+      transition: color 180ms ease;
       display: flex;
       align-items: center;
       gap: 6px;
       white-space: nowrap;
+      position: relative;
     }
-    .tab-btn:hover { background: var(--surface-2); color: var(--text); }
-    .tab-btn.active { background: var(--surface-2); border-color: var(--border-2); color: var(--text); }
+    .tab-btn:hover { color: var(--text-m); }
+    .tab-btn.active { color: var(--text); }
     .tab-icon { width: 14px; height: 14px; opacity: 0.7; }
+    .tab-btn.active .tab-icon { opacity: 1; }
+
+    /* panel fade+slide in */
     .tab-panel { display: none; padding: clamp(20px,3vw,36px); flex-direction: column; gap: 24px; }
-    .tab-panel.active { display: flex; }
+    .tab-panel.active { display: flex; animation: panelIn 220ms cubic-bezier(0.16,1,0.3,1) both; }
+    @keyframes panelIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
     .section-title { font-size: 1.35rem; font-weight: 400; color: var(--text); letter-spacing: -0.01em; margin-bottom: 12px; }
 
-    /* ── KPI / Panel / Table (unchanged) ─────────────────────────── */
+    /* ── KPI / Panel / Table ──────────────────────────────────────── */
     .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
     .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 18px 20px; }
     .kpi-label { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-m); margin-bottom: 8px; }
@@ -351,29 +404,52 @@
             </button>
             <ul class="dd-list" id="dd-lane-menu" role="listbox" style="display:none;" aria-label="Shipping lanes"></ul>
           </div>
-          <!-- hidden input carries the value for runDashboard() -->
           <input type="hidden" id="inp-lane" />
         </div>
 
         <div class="field">
           <label for="inp-horizon">Forecast Horizon (weeks)</label>
-          <label class="search-label">
-            <input id="inp-horizon" type="number" min="1" max="52" value="8" required />
-          </label>
+          <div class="num-field">
+            <input id="inp-horizon" type="number" min="1" max="52" value="8" placeholder="8" />
+            <div class="num-arrows">
+              <button class="num-arrow" type="button" onclick="nudge('inp-horizon',1)" tabindex="-1" aria-label="Increase">
+                <svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 5 4 2 7 5"/></svg>
+              </button>
+              <button class="num-arrow" type="button" onclick="nudge('inp-horizon',-1)" tabindex="-1" aria-label="Decrease">
+                <svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 3 4 6 7 3"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="field">
           <label for="inp-paths">Monte Carlo Paths</label>
-          <label class="search-label">
-            <input id="inp-paths" type="number" min="100" max="100000" value="5000" required />
-          </label>
+          <div class="num-field">
+            <input id="inp-paths" type="number" min="100" max="100000" value="5000" placeholder="5000" />
+            <div class="num-arrows">
+              <button class="num-arrow" type="button" onclick="nudge('inp-paths',100)" tabindex="-1" aria-label="Increase">
+                <svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 5 4 2 7 5"/></svg>
+              </button>
+              <button class="num-arrow" type="button" onclick="nudge('inp-paths',-100)" tabindex="-1" aria-label="Decrease">
+                <svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 3 4 6 7 3"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="field">
           <label for="inp-lookback">Lookback Period (days)</label>
-          <label class="search-label">
-            <input id="inp-lookback" type="number" min="60" max="1825" value="365" required />
-          </label>
+          <div class="num-field">
+            <input id="inp-lookback" type="number" min="60" max="1825" value="365" placeholder="365" />
+            <div class="num-arrows">
+              <button class="num-arrow" type="button" onclick="nudge('inp-lookback',30)" tabindex="-1" aria-label="Increase">
+                <svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 5 4 2 7 5"/></svg>
+              </button>
+              <button class="num-arrow" type="button" onclick="nudge('inp-lookback',-30)" tabindex="-1" aria-label="Decrease">
+                <svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 3 4 6 7 3"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
 
         <button class="btn-run" id="btn-run" type="button" onclick="runDashboard()">Generate</button>
@@ -383,19 +459,22 @@
 
     <section class="content">
       <div class="tabs-bar">
-        <button class="tab-btn active" id="tab-overview-btn" onclick="switchTab('overview')" aria-selected="true">
-          <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
-          Overview
-        </button>
-        <button class="tab-btn" id="tab-quant-btn" onclick="switchTab('quant')" aria-selected="false">
-          <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><polyline points="1 11 4 7 7 9 10 4 15 8"/></svg>
-          Quantitative
-        </button>
-        <button class="tab-btn" id="tab-news-btn" onclick="switchTab('news')" aria-selected="false">
-          <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="1" y="2" width="14" height="12" rx="2"/><line x1="4" y1="6" x2="12" y2="6"/><line x1="4" y1="9" x2="9" y2="9"/></svg>
-          News &amp; Risk
-          <span id="risk-tab-badge" style="display:none; background:var(--amber); color:#000; font-size:0.6rem; font-weight:700; padding:1px 6px; border-radius:99px; margin-left:2px;"></span>
-        </button>
+        <div class="tabs-inner" id="tabs-inner">
+          <div class="tab-indicator" id="tab-indicator"></div>
+          <button class="tab-btn active" id="tab-overview-btn" onclick="switchTab('overview')" aria-selected="true">
+            <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+            Overview
+          </button>
+          <button class="tab-btn" id="tab-quant-btn" onclick="switchTab('quant')" aria-selected="false">
+            <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><polyline points="1 11 4 7 7 9 10 4 15 8"/></svg>
+            Quantitative
+          </button>
+          <button class="tab-btn" id="tab-news-btn" onclick="switchTab('news')" aria-selected="false">
+            <svg class="tab-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="1" y="2" width="14" height="12" rx="2"/><line x1="4" y1="6" x2="12" y2="6"/><line x1="4" y1="9" x2="9" y2="9"/></svg>
+            News &amp; Risk
+            <span id="risk-tab-badge" style="display:none; background:var(--amber); color:#000; font-size:0.6rem; font-weight:700; padding:1px 6px; border-radius:99px; margin-left:2px;"></span>
+          </button>
+        </div>
       </div>
 
       <!-- OVERVIEW -->
@@ -491,6 +570,19 @@
     { id: 'fe-na',   label: 'Far East \u2192 North America', value: 'Far East to North America Price Index (2026)' },
   ];
 
+  /* ── Number nudge ─────────────────────────────────────────────── */
+  function nudge(id, delta) {
+    const el = document.getElementById(id);
+    const val = parseFloat(el.value) || 0;
+    const min = parseFloat(el.min);
+    const max = parseFloat(el.max);
+    let next = val + delta;
+    if (!isNaN(min)) next = Math.max(min, next);
+    if (!isNaN(max)) next = Math.min(max, next);
+    el.value = next;
+    el.dispatchEvent(new Event('input'));
+  }
+
   /* ── Dropdown logic ───────────────────────────────────────────── */
   let ddStates = {};
 
@@ -505,8 +597,7 @@
   }
 
   function ddToggle(id) {
-    const isOpen = ddStates[id];
-    if (isOpen) { ddClose(id); } else { ddOpen(id); }
+    ddStates[id] ? ddClose(id) : ddOpen(id);
   }
 
   function ddOpen(id) {
@@ -517,8 +608,6 @@
     btn.classList.add('open');
     btn.setAttribute('aria-expanded', 'true');
     ddStates[id] = true;
-
-    // scroll selected item into view
     const sel = menu.querySelector('.selected');
     if (sel) sel.scrollIntoView({ block: 'nearest' });
   }
@@ -539,20 +628,14 @@
   function ddSelect(ddId, itemId) {
     const item = LANES.find(l => l.id === itemId);
     if (!item) return;
-
-    // update hidden input
     document.getElementById('inp-lane').value = item.value;
-
-    // update trigger label
     const labelEl = document.getElementById('dd-' + ddId + '-label');
     labelEl.textContent = item.label;
     labelEl.classList.remove('placeholder');
-
-    // mark selected in list
     document.querySelectorAll('#dd-' + ddId + '-menu .dd-item').forEach(el => {
       el.classList.toggle('selected', el.dataset.value === item.value);
     });
-
+    // close immediately — the menu animates out and the trigger shrinks back
     ddClose(ddId);
   }
 
@@ -562,7 +645,6 @@
     });
   }
 
-  // close on outside click
   document.addEventListener('mousedown', e => {
     Object.keys(ddStates).forEach(id => {
       if (!ddStates[id]) return;
@@ -571,7 +653,6 @@
     });
   });
 
-  // keyboard nav
   document.addEventListener('keydown', e => {
     const openId = Object.keys(ddStates).find(id => ddStates[id]);
     if (!openId) return;
@@ -582,6 +663,17 @@
     else if (e.key === 'ArrowUp')   { e.preventDefault(); const prev = focusedIdx <= 0 ? items.length - 1 : focusedIdx - 1; items[prev].classList.add('focused'); items[focusedIdx]?.classList.remove('focused'); items[prev].scrollIntoView({ block: 'nearest' }); }
     else if (e.key === 'Enter' && focusedIdx >= 0) { const item = LANES.find(l => 'dd-item-' + l.id === items[focusedIdx].id); if (item) ddSelect(openId, item.id); }
   });
+
+  /* ── Animated tab indicator ───────────────────────────────────── */
+  function moveIndicator(btnEl) {
+    const indicator = document.getElementById('tab-indicator');
+    const inner     = document.getElementById('tabs-inner');
+    if (!indicator || !btnEl) return;
+    const innerRect = inner.getBoundingClientRect();
+    const btnRect   = btnEl.getBoundingClientRect();
+    indicator.style.left  = (btnRect.left - innerRect.left) + 'px';
+    indicator.style.width = btnRect.width + 'px';
+  }
 
   /* ── App utils ────────────────────────────────────────────────── */
   function getBase() { return window.AXION_API_BASE || 'http://localhost:8000'; }
@@ -601,7 +693,7 @@
     document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
     document.getElementById('tab-' + name).classList.add('active');
     const btn = document.getElementById('tab-' + name + '-btn');
-    if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected','true'); }
+    if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected','true'); moveIndicator(btn); }
     if (name === 'quant' && chartInstance) requestAnimationFrame(() => requestAnimationFrame(() => chartInstance && chartInstance.resize()));
   }
 
@@ -807,6 +899,17 @@
 
   /* ── Init ─────────────────────────────────────────────────────── */
   ddBuildMenu('lane', LANES);
+  // position indicator on the initially active tab after layout
+  requestAnimationFrame(() => {
+    const activeBtn = document.querySelector('.tab-btn.active');
+    if (activeBtn) moveIndicator(activeBtn);
+  });
+
+  // keep indicator in sync on resize
+  window.addEventListener('resize', () => {
+    const activeBtn = document.querySelector('.tab-btn.active');
+    if (activeBtn) moveIndicator(activeBtn);
+  });
 </script>
 </body>
 </html>
