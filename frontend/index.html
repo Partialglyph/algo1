@@ -40,22 +40,22 @@
     html { -webkit-font-smoothing: antialiased; font-size: 16px; }
     body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100dvh; line-height: 1.55; }
     button { cursor: pointer; font: inherit; }
-    input, select { font: inherit; color: inherit; }
+    input, select, textarea { font: inherit; color: inherit; }
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
     .app { display: grid; min-height: 100dvh; }
     main { display: grid; grid-template-columns: 240px 1fr; height: 100dvh; overflow: hidden; }
 
-    /* Sidebar */
+    /* ── Sidebar ── */
     .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 24px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 28px; }
     .sidebar-section-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-f); margin-bottom: 10px; }
     .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
     label { font-size: 0.75rem; font-weight: 500; color: var(--text-m); }
 
-    /* Number inputs */
+    /* ── Number inputs ── */
     .num-field {
-      display: flex; align-items: center; position: relative;
+      display: flex; align-items: center;
       border: 1px solid transparent; border-radius: 12px;
       background: #2a2a2a; padding: 9px 10px; width: 100%;
       transition: border-color var(--t), background var(--t);
@@ -80,7 +80,7 @@
     .num-arrow:hover { color: #c8cad0; background: rgba(255,255,255,0.06); }
     .num-arrow svg { width: 8px; height: 8px; display: block; }
 
-    /* Generate button */
+    /* ── Generate button ── */
     .btn-run {
       width: 100%; background: #2e2e2e; color: #c8cad0;
       border: 1px solid rgba(255,255,255,0.1); border-radius: var(--r-sm);
@@ -91,9 +91,122 @@
     .btn-run:hover { background: #3a3a3a; border-color: rgba(255,255,255,0.18); color: var(--text); }
     .btn-run:disabled { opacity: 0.4; cursor: not-allowed; }
 
+    /* ── Progress bar ── */
+    #progress-bar-wrap {
+      position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+      z-index: 9999; pointer-events: none;
+      opacity: 0; transition: opacity 200ms;
+    }
+    #progress-bar-wrap.visible { opacity: 1; }
+    #progress-bar {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--accent), #a78bfa);
+      border-radius: 0 2px 2px 0;
+      transition: width 400ms cubic-bezier(0.16,1,0.3,1);
+      box-shadow: 0 0 10px rgba(79,124,255,0.6);
+    }
+    #progress-bar.indeterminate {
+      width: 40% !important;
+      animation: indeterminate 1.6s cubic-bezier(0.4,0,0.6,1) infinite;
+    }
+    @keyframes indeterminate {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+
+    /* ── Skeleton / loading overlay ── */
+    .panel-loading { position: relative; overflow: hidden; }
+    .panel-loading::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(26,26,26,0) 0%, rgba(255,255,255,0.04) 50%, rgba(26,26,26,0) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s ease infinite;
+      border-radius: inherit;
+      z-index: 10;
+    }
+    .skeleton-mask {
+      position: absolute; inset: 0;
+      background: rgba(17,17,17,0.82);
+      border-radius: inherit;
+      z-index: 9;
+      backdrop-filter: blur(1px);
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position:  200% 0; }
+    }
+
+    /* ── Tooltip ── */
+    .sf-tooltip {
+      position: fixed;
+      background: #1c1c1e;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 7px 11px;
+      font-family: var(--font);
+      font-size: 0.72rem;
+      color: var(--text-m);
+      line-height: 1.5;
+      max-width: 220px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.55);
+      pointer-events: none;
+      z-index: 5000;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 140ms ease, transform 140ms ease;
+    }
+    .sf-tooltip.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .sf-tooltip-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    /* ── Custom context menu ── */
+    #ctx-menu {
+      position: fixed;
+      background: #1c1c1e;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 5px;
+      min-width: 190px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+      z-index: 8000;
+      opacity: 0;
+      transform: scale(0.95) translateY(-4px);
+      transform-origin: top left;
+      pointer-events: none;
+      transition: opacity 140ms cubic-bezier(0.16,1,0.3,1), transform 140ms cubic-bezier(0.16,1,0.3,1);
+      font-family: var(--font);
+    }
+    #ctx-menu.open {
+      opacity: 1; transform: scale(1) translateY(0); pointer-events: auto;
+    }
+    .ctx-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 10px; border-radius: 6px;
+      font-size: 0.8rem; color: var(--text-m);
+      cursor: pointer;
+      transition: background 100ms, color 100ms;
+    }
+    .ctx-item:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+    .ctx-item svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.7; }
+    .ctx-item:hover svg { opacity: 1; }
+    .ctx-item.disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+    .ctx-sep { height: 1px; background: var(--border); margin: 4px 0; }
+    .ctx-section-label {
+      font-size: 0.6rem; font-weight: 600; letter-spacing: 0.09em;
+      text-transform: uppercase; color: var(--text-f);
+      padding: 5px 10px 3px;
+    }
+
     /* ── Dropdown ── */
     .dd-wrapper { position: relative; width: 100%; }
-
     .dd-trigger {
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
       width: 100%; background: #2a2a2a; border: 1px solid transparent;
@@ -103,19 +216,11 @@
       transition: border-color var(--t), background var(--t), border-radius 200ms cubic-bezier(0.16,1,0.3,1);
     }
     .dd-trigger:hover { border-color: rgba(255,255,255,0.18); }
-    .dd-trigger[aria-expanded="true"] {
-      background: #323232; border-color: rgba(255,255,255,0.22);
-      border-radius: 12px 12px 0 0;
-    }
+    .dd-trigger[aria-expanded="true"] { background: #323232; border-color: rgba(255,255,255,0.22); border-radius: 12px 12px 0 0; }
     .dd-trigger-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #5a5e6b; }
     .dd-trigger-text.has-value { color: #c8cad0; }
-    .dd-chevron {
-      flex-shrink: 0; width: 14px; height: 14px; color: #7e7e7e;
-      transition: transform 220ms cubic-bezier(0.16,1,0.3,1);
-    }
+    .dd-chevron { flex-shrink: 0; width: 14px; height: 14px; color: #7e7e7e; transition: transform 220ms cubic-bezier(0.16,1,0.3,1); }
     .dd-trigger[aria-expanded="true"] .dd-chevron { transform: rotate(180deg); }
-
-    /* The menu — hidden by default via pointer-events + opacity, not display */
     .dd-menu {
       position: absolute; top: 100%; left: 0; width: 100%;
       background: #1e1e1e; border: 1px solid rgba(255,255,255,0.1);
@@ -124,19 +229,13 @@
       transform-origin: top;
       opacity: 0; transform: scaleY(0.9) translateY(-4px);
       pointer-events: none;
-      transition: opacity 180ms cubic-bezier(0.16,1,0.3,1),
-                  transform 180ms cubic-bezier(0.16,1,0.3,1);
+      transition: opacity 180ms cubic-bezier(0.16,1,0.3,1), transform 180ms cubic-bezier(0.16,1,0.3,1);
     }
-    .dd-menu.open {
-      opacity: 1; transform: scaleY(1) translateY(0);
-      pointer-events: auto;
-    }
-
+    .dd-menu.open { opacity: 1; transform: scaleY(1) translateY(0); pointer-events: auto; }
     .dd-list { list-style: none; padding: 4px 0; max-height: 220px; overflow-y: auto; }
     .dd-list::-webkit-scrollbar { width: 4px; }
     .dd-list::-webkit-scrollbar-track { background: transparent; }
     .dd-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
-
     .dd-item {
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
       padding: 8px 12px; font-size: 0.8rem; color: #8b909e;
@@ -148,7 +247,7 @@
     .dd-check { width: 13px; height: 13px; flex-shrink: 0; color: var(--accent); opacity: 0; transition: opacity 120ms; }
     .dd-item.selected .dd-check { opacity: 1; }
 
-    /* Tabs */
+    /* ── Tabs ── */
     .content { overflow-y: auto; display: flex; flex-direction: column; }
     .tabs-bar {
       display: flex; align-items: center; padding: 10px 16px 0;
@@ -178,15 +277,15 @@
 
     .section-title { font-size: 1.35rem; font-weight: 400; color: var(--text); letter-spacing: -0.01em; margin-bottom: 12px; }
 
-    /* KPI / Panel / Table */
+    /* ── KPI / Panel / Table ── */
     .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
-    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 18px 20px; }
+    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 18px 20px; position: relative; }
     .kpi-label { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-m); margin-bottom: 8px; }
     .kpi-value { font-size: clamp(1.4rem,2.5vw,1.8rem); font-weight: 300; letter-spacing: -0.02em; color: var(--text); font-variant-numeric: tabular-nums; }
     .kpi-delta { font-size: 0.72rem; font-weight: 500; margin-top: 4px; }
     .kpi-delta.up { color: var(--green); } .kpi-delta.down { color: var(--red); } .kpi-delta.neu { color: var(--text-m); }
 
-    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); position: relative; }
     .panel-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
     .panel-title { font-size: 0.82rem; font-weight: 600; color: var(--text); letter-spacing: 0.01em; }
     .panel-sub { font-size: 0.72rem; color: var(--text-m); margin-top: 2px; }
@@ -195,20 +294,20 @@
     .chart-area { width: 100%; height: 280px; position: relative; }
     canvas { width: 100% !important; height: 100% !important; }
     .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; font-variant-numeric: tabular-nums; font-family: var(--font); }
     thead tr { border-bottom: 1px solid var(--border); }
-    th { padding: 10px 14px; text-align: left; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-m); white-space: nowrap; }
-    td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text); }
+    th { padding: 10px 14px; text-align: left; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-m); white-space: nowrap; font-family: var(--font); }
+    td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text); font-family: var(--font); }
     tbody tr:last-child td { border-bottom: none; }
     tbody tr:hover td { background: var(--surface-2); }
-    .tag { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 0.68rem; font-weight: 600; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 0.68rem; font-weight: 600; font-family: var(--font); }
     .tag-green { background: rgba(52,199,138,0.12); color: var(--green); }
     .tag-red   { background: rgba(224,92,92,0.12);  color: var(--red); }
     .tag-amber { background: rgba(245,166,35,0.12);  color: var(--amber); }
     .tag-blue  { background: rgba(79,124,255,0.12);  color: var(--accent); }
     .tag-purple{ background: rgba(167,139,250,0.12); color: var(--purple); }
 
-    .regime-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; width: fit-content; }
+    .regime-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; width: fit-content; font-family: var(--font); }
     .regime-badge .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .regime-normal   { background: rgba(52,199,138,0.12); color: var(--green); } .regime-normal   .dot { background: var(--green); }
     .regime-elevated { background: rgba(245,166,35,0.12);  color: var(--amber); } .regime-elevated .dot { background: var(--amber); }
@@ -298,13 +397,45 @@
 </head>
 <body>
 
+<!-- Progress bar -->
+<div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+
+<!-- Tooltip -->
+<div class="sf-tooltip" id="sf-tooltip">
+  <div class="sf-tooltip-title" id="sf-tooltip-title"></div>
+  <div id="sf-tooltip-body"></div>
+</div>
+
+<!-- Custom context menu -->
+<div id="ctx-menu">
+  <div class="ctx-section-label" id="ctx-panel-label" style="display:none">Panel</div>
+  <div class="ctx-item" id="ctx-export" style="display:none" onclick="ctxExport()">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+      <rect x="1" y="1" width="14" height="14" rx="2"/>
+      <polyline points="4 9 8 13 12 9"/>
+      <line x1="8" y1="3" x2="8" y2="13"/>
+    </svg>
+    Export as PNG
+  </div>
+  <div class="ctx-sep" id="ctx-sep" style="display:none"></div>
+  <div class="ctx-item" onclick="ctxRefresh()">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+      <polyline points="1 4 1 1 4 1"/>
+      <path d="M1 1 C4 1, 6 3, 7 6"/>
+      <polyline points="15 12 15 15 12 15"/>
+      <path d="M15 15 C12 15, 10 13, 9 10"/>
+      <line x1="1" y1="8" x2="15" y2="8" stroke-dasharray="3 2"/>
+    </svg>
+    Hard Refresh
+  </div>
+</div>
+
 <div class="app">
   <main>
     <aside class="sidebar">
       <div>
         <p class="sidebar-section-label">Configuration</p>
 
-        <!-- Lane dropdown -->
         <div class="field">
           <label>Lane</label>
           <div class="dd-wrapper" id="dd-lane-wrapper">
@@ -327,12 +458,8 @@
           <div class="num-field">
             <input id="inp-horizon" type="number" min="1" max="52" value="8" placeholder="8" />
             <div class="num-arrows">
-              <button class="num-arrow" type="button" onclick="nudge('inp-horizon',1)" tabindex="-1" aria-label="Increase">
-                <svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 5 4 2 7 5"/></svg>
-              </button>
-              <button class="num-arrow" type="button" onclick="nudge('inp-horizon',-1)" tabindex="-1" aria-label="Decrease">
-                <svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 3 4 6 7 3"/></svg>
-              </button>
+              <button class="num-arrow" type="button" onclick="nudge('inp-horizon',1)" tabindex="-1" aria-label="Increase"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 5 4 2 7 5"/></svg></button>
+              <button class="num-arrow" type="button" onclick="nudge('inp-horizon',-1)" tabindex="-1" aria-label="Decrease"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 3 4 6 7 3"/></svg></button>
             </div>
           </div>
         </div>
@@ -342,12 +469,8 @@
           <div class="num-field">
             <input id="inp-paths" type="number" min="100" max="100000" value="5000" placeholder="5000" />
             <div class="num-arrows">
-              <button class="num-arrow" type="button" onclick="nudge('inp-paths',100)" tabindex="-1" aria-label="Increase">
-                <svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 5 4 2 7 5"/></svg>
-              </button>
-              <button class="num-arrow" type="button" onclick="nudge('inp-paths',-100)" tabindex="-1" aria-label="Decrease">
-                <svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 3 4 6 7 3"/></svg>
-              </button>
+              <button class="num-arrow" type="button" onclick="nudge('inp-paths',100)" tabindex="-1" aria-label="Increase"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 5 4 2 7 5"/></svg></button>
+              <button class="num-arrow" type="button" onclick="nudge('inp-paths',-100)" tabindex="-1" aria-label="Decrease"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 3 4 6 7 3"/></svg></button>
             </div>
           </div>
         </div>
@@ -357,12 +480,8 @@
           <div class="num-field">
             <input id="inp-lookback" type="number" min="60" max="1825" value="365" placeholder="365" />
             <div class="num-arrows">
-              <button class="num-arrow" type="button" onclick="nudge('inp-lookback',30)" tabindex="-1" aria-label="Increase">
-                <svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 5 4 2 7 5"/></svg>
-              </button>
-              <button class="num-arrow" type="button" onclick="nudge('inp-lookback',-30)" tabindex="-1" aria-label="Decrease">
-                <svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 3 4 6 7 3"/></svg>
-              </button>
+              <button class="num-arrow" type="button" onclick="nudge('inp-lookback',30)" tabindex="-1" aria-label="Increase"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 5 4 2 7 5"/></svg></button>
+              <button class="num-arrow" type="button" onclick="nudge('inp-lookback',-30)" tabindex="-1" aria-label="Decrease"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 3 4 6 7 3"/></svg></button>
             </div>
           </div>
         </div>
@@ -396,20 +515,20 @@
       <div class="tab-panel active" id="tab-overview">
         <div class="alert" id="alert-overview"></div>
         <div class="kpi-row">
-          <div class="kpi-card"><div class="kpi-label">Current Index</div><div class="kpi-value" id="ov-current">&mdash;</div><div class="kpi-delta neu" id="ov-change"></div></div>
-          <div class="kpi-card"><div class="kpi-label">Sentiment</div><div class="kpi-value" style="font-size:1.1rem;" id="ov-sentiment">&mdash;</div><div class="kpi-delta neu" id="ov-confidence"></div></div>
-          <div class="kpi-card"><div class="kpi-label">Risk Regime</div><div id="ov-regime-badge" style="margin-top:4px;"></div></div>
-          <div class="kpi-card"><div class="kpi-label">Brent Crude</div><div class="kpi-value" id="ov-oil-price">&mdash;</div><div class="kpi-delta" id="ov-oil-trend"></div></div>
+          <div class="kpi-card exportable" data-export-label="Current Index"><div class="kpi-label">Current Index</div><div class="kpi-value" id="ov-current">&mdash;</div><div class="kpi-delta neu" id="ov-change"></div></div>
+          <div class="kpi-card exportable" data-export-label="Sentiment"><div class="kpi-label">Sentiment</div><div class="kpi-value" style="font-size:1.1rem;" id="ov-sentiment">&mdash;</div><div class="kpi-delta neu" id="ov-confidence"></div></div>
+          <div class="kpi-card exportable" data-export-label="Risk Regime"><div class="kpi-label">Risk Regime</div><div id="ov-regime-badge" style="margin-top:4px;"></div></div>
+          <div class="kpi-card exportable" data-export-label="Brent Crude"><div class="kpi-label">Brent Crude</div><div class="kpi-value" id="ov-oil-price">&mdash;</div><div class="kpi-delta" id="ov-oil-trend"></div></div>
         </div>
-        <div class="panel"><div class="panel-head"><div class="panel-title">Outlook</div></div><div class="panel-body"><div class="sentiment-row"><div class="sentiment-card"><div class="sentiment-label">Overall Prediction</div><div class="sentiment-value" id="ov-prediction">Run a forecast to see the outlook.</div></div><div class="sentiment-card"><div class="sentiment-label">Lane</div><div class="sentiment-value" id="ov-lane" style="font-size:0.82rem; color:var(--text-m);">Select a lane and run.</div></div></div></div></div>
-        <div class="panel"><div class="panel-head"><div class="panel-title">Key Conclusions</div></div><div class="panel-body"><div class="conclusions-list" id="ov-conclusions"><div class="conclusion-item"><div class="conclusion-dot"></div><span style="color:var(--text-f); font-style:italic;">No data yet.</span></div></div></div></div>
+        <div class="panel exportable" data-export-label="Outlook"><div class="panel-head"><div class="panel-title">Outlook</div></div><div class="panel-body"><div class="sentiment-row"><div class="sentiment-card"><div class="sentiment-label">Overall Prediction</div><div class="sentiment-value" id="ov-prediction">Run a forecast to see the outlook.</div></div><div class="sentiment-card"><div class="sentiment-label">Lane</div><div class="sentiment-value" id="ov-lane" style="font-size:0.82rem; color:var(--text-m);">Select a lane and run.</div></div></div></div></div>
+        <div class="panel exportable" data-export-label="Key Conclusions"><div class="panel-head"><div class="panel-title">Key Conclusions</div></div><div class="panel-body"><div class="conclusions-list" id="ov-conclusions"><div class="conclusion-item"><div class="conclusion-dot"></div><span style="color:var(--text-f); font-style:italic;">No data yet.</span></div></div></div></div>
       </div>
 
       <!-- QUANTITATIVE -->
       <div class="tab-panel" id="tab-quant">
         <div class="alert" id="alert-quant"></div>
         <h2 class="section-title">Price History and Forecast</h2>
-        <div class="panel">
+        <div class="panel exportable" data-export-label="Forecast Chart">
           <div class="panel-body">
             <div class="chart-area" id="chart-area">
               <div class="empty" id="chart-empty" style="position:absolute;inset:0;z-index:1;background:var(--surface);border-radius:var(--r-md);"><div class="empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><p>Choose a lane and click Generate</p></div>
@@ -418,14 +537,14 @@
           </div>
         </div>
         <h2 class="section-title">Weekly Breakdown</h2>
-        <div class="panel">
+        <div class="panel exportable" data-export-label="Weekly Breakdown">
           <div class="panel-body" style="padding:0;"><div class="table-wrap"><table id="forecast-table"><thead><tr><th>Week end</th><th>Expected</th><th>p05</th><th>p50</th><th>p95</th><th>Signal</th></tr></thead><tbody id="table-body"><tr><td colspan="6"><div class="empty" style="padding:40px 20px;"><p>No data yet</p></div></td></tr></tbody></table></div></div>
         </div>
       </div>
 
       <!-- NEWS & RISK -->
       <div class="tab-panel" id="tab-news">
-        <div class="panel" id="news-overview-panel">
+        <div class="panel exportable" data-export-label="Event Risk &amp; Regime" id="news-overview-panel">
           <div class="panel-head"><div><div class="panel-title">Event Risk &amp; Regime</div><div class="panel-sub" id="news-panel-sub">GDELT news signal &middot; run a forecast to load</div></div><div id="news-regime-badge"></div></div>
           <div class="panel-body">
             <div class="risk-overview">
@@ -448,357 +567,530 @@
             </div>
           </div>
         </div>
-        <div class="panel"><div class="panel-head"><div><div class="panel-title">Oil Signal</div><div class="panel-sub">Brent crude spot price</div></div></div><div class="panel-body"><div class="oil-card"><div class="oil-meta"><div class="oil-benchmark" id="oil-benchmark">Brent Crude</div><div class="oil-trend-badge trend-stable" id="oil-trend-badge">stable</div><div style="font-size:0.7rem; color:var(--text-f); margin-top:4px;" id="oil-source">fetched on load</div></div><div class="oil-price-big" id="oil-price-big">&mdash;</div></div></div></div>
-        <div class="panel"><div class="panel-head"><div class="panel-title">Port &amp; Chokepoint Congestion</div><div class="panel-sub" id="cong-sub">Key nodes for this lane</div></div><div class="panel-body" style="padding:0;"><div class="table-wrap"><table><thead><tr><th>Node</th><th>Type</th><th>Congestion Index</th><th>Trend</th><th>Note</th></tr></thead><tbody id="cong-body"><tr><td colspan="5"><div class="empty" style="padding:30px 20px;"><p>No congestion data yet</p></div></td></tr></tbody></table></div></div></div>
-        <div class="panel"><div class="panel-head"><div class="panel-title">Risk Narrative</div></div><div class="panel-body"><p class="risk-narrative" id="news-narrative">Run a forecast to generate the risk narrative for this lane.</p></div></div>
-        <div class="panel"><div class="panel-head"><div class="panel-title">Key Drivers</div><div class="panel-sub">Primary factors behind the net risk score</div></div><div class="panel-body"><div class="drivers-list" id="news-drivers"><div class="driver-item"><div class="driver-dot"></div><span style="color:var(--text-f);font-style:italic;">No data yet</span></div></div></div></div>
-        <div class="panel"><div class="panel-head"><div><div class="panel-title">Featured Articles</div><div class="panel-sub" id="articles-sub">Top GDELT matches for this lane</div></div></div><div class="panel-body"><div class="articles-list" id="news-articles"><div class="empty" style="padding:40px 20px;"><div class="empty-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="13" y2="12"/></svg></div><p>Featured articles will appear here after running a forecast.</p></div></div></div></div>
-        <div class="panel"><div class="panel-head"><div class="panel-title">Theme Breakdown</div><div class="panel-sub">Risk contribution by coverage cluster</div></div><div class="panel-body" style="padding:0;"><div class="table-wrap"><table><thead><tr><th>Theme</th><th>Articles</th><th>Avg Tone</th><th>Risk Contribution</th></tr></thead><tbody id="theme-body"><tr><td colspan="4"><div class="empty" style="padding:30px 20px;"><p>No theme data yet</p></div></td></tr></tbody></table></div></div></div>
+        <div class="panel exportable" data-export-label="Oil Signal"><div class="panel-head"><div><div class="panel-title">Oil Signal</div><div class="panel-sub">Brent crude spot price</div></div></div><div class="panel-body"><div class="oil-card"><div class="oil-meta"><div class="oil-benchmark" id="oil-benchmark">Brent Crude</div><div class="oil-trend-badge trend-stable" id="oil-trend-badge">stable</div><div style="font-size:0.7rem; color:var(--text-f); margin-top:4px;" id="oil-source">fetched on load</div></div><div class="oil-price-big" id="oil-price-big">&mdash;</div></div></div></div>
+        <div class="panel exportable" data-export-label="Port Congestion"><div class="panel-head"><div class="panel-title">Port &amp; Chokepoint Congestion</div><div class="panel-sub" id="cong-sub">Key nodes for this lane</div></div><div class="panel-body" style="padding:0;"><div class="table-wrap"><table><thead><tr><th>Node</th><th>Type</th><th>Congestion Index</th><th>Trend</th><th>Note</th></tr></thead><tbody id="cong-body"><tr><td colspan="5"><div class="empty" style="padding:30px 20px;"><p>No congestion data yet</p></div></td></tr></tbody></table></div></div></div>
+        <div class="panel exportable" data-export-label="Risk Narrative"><div class="panel-head"><div class="panel-title">Risk Narrative</div></div><div class="panel-body"><p class="risk-narrative" id="news-narrative">Run a forecast to generate the risk narrative for this lane.</p></div></div>
+        <div class="panel exportable" data-export-label="Key Drivers"><div class="panel-head"><div class="panel-title">Key Drivers</div><div class="panel-sub">Primary factors behind the net risk score</div></div><div class="panel-body"><div class="drivers-list" id="news-drivers"><div class="driver-item"><div class="driver-dot"></div><span style="color:var(--text-f);font-style:italic;">No data yet</span></div></div></div></div>
+        <div class="panel exportable" data-export-label="Featured Articles"><div class="panel-head"><div><div class="panel-title">Featured Articles</div><div class="panel-sub" id="articles-sub">Top GDELT matches for this lane</div></div></div><div class="panel-body"><div class="articles-list" id="news-articles"><div class="empty" style="padding:40px 20px;"><div class="empty-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="13" y2="12"/></svg></div><p>Featured articles will appear here after running a forecast.</p></div></div></div></div>
+        <div class="panel exportable" data-export-label="Theme Breakdown"><div class="panel-head"><div class="panel-title">Theme Breakdown</div><div class="panel-sub">Risk contribution by coverage cluster</div></div><div class="panel-body" style="padding:0;"><div class="table-wrap"><table><thead><tr><th>Theme</th><th>Articles</th><th>Avg Tone</th><th>Risk Contribution</th></tr></thead><tbody id="theme-body"><tr><td colspan="4"><div class="empty" style="padding:30px 20px;"><p>No theme data yet</p></div></td></tr></tbody></table></div></div></div>
       </div>
     </section>
   </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
-  /* ── Lane data ── */
-  const LANES = [
-    { id:'ao-eu',  label:'AO \u2192 Europe',                value:'Australasia & Oceania to Europe Price Index (2026)' },
-    { id:'ao-na',  label:'AO \u2192 North America',         value:'Australasia & Oceania to North America Price Index (2026)' },
-    { id:'ao-sca', label:'AO \u2192 South & Central Am.',   value:'Australasia & Oceania to South & Central America Price Index (2026)' },
-    { id:'ao-fe',  label:'AO \u2192 Far East',              value:'Australasia & Oceania to Far East Price Index (2026)' },
-    { id:'ao-ssa', label:'AO \u2192 Sub Saharan Africa',    value:'Australasia & Oceania to Sub Saharan Africa Price Index (2026)' },
-    { id:'ao-ao',  label:'AO \u2192 AO',                    value:'Australasia & Oceania to Australasia & Oceania Price Index (2026)' },
-    { id:'ao-isc', label:'AO \u2192 ISC & Middle East',     value:'Australasia & Oceania to Indian Sub Cont & Middle East Price Index (2026)' },
-    { id:'eu-eu',  label:'Europe \u2192 Europe',            value:'Europe to Europe Price Index (2026)' },
-    { id:'eu-ssa', label:'Europe \u2192 Sub Saharan Africa',value:'Europe to Sub Saharan Africa Price Index (2026)' },
-    { id:'eu-sca', label:'Europe \u2192 South & Central Am.',value:'Europe to South & Central America Price Index (2026)' },
-    { id:'eu-ao',  label:'Europe \u2192 AO',                value:'Europe to Australasia & Oceania Price Index (2026)' },
-    { id:'eu-fe',  label:'Europe \u2192 Far East',          value:'Europe to Far East Price Index (2026)' },
-    { id:'eu-na',  label:'Europe \u2192 North America',     value:'Europe to North America Price Index (2026)' },
-    { id:'eu-isc', label:'Europe \u2192 ISC & Middle East', value:'Europe to Indian Sub Cont & Middle East Price Index (2026)' },
-    { id:'fe-sca', label:'Far East \u2192 South & Central Am.',value:'Far East to South & Central America Price Index (2026)' },
-    { id:'fe-eu',  label:'Far East \u2192 Europe',          value:'Far East to Europe Price Index (2026)' },
-    { id:'fe-isc', label:'Far East \u2192 ISC & Middle East',value:'Far East to Indian Sub Cont & Middle East Price Index (2026)' },
-    { id:'fe-ao',  label:'Far East \u2192 AO',              value:'Far East to Australasia & Oceania Price Index (2026)' },
-    { id:'fe-na',  label:'Far East \u2192 North America',   value:'Far East to North America Price Index (2026)' },
-  ];
+/* =========================================================
+   LANE DATA
+========================================================= */
+const LANES = [
+  { id:'ao-eu',  label:'AO \u2192 Europe',                 value:'Australasia & Oceania to Europe Price Index (2026)',                         tooltip:'Freight rates from Australasia & Oceania ports to European destinations.' },
+  { id:'ao-na',  label:'AO \u2192 North America',          value:'Australasia & Oceania to North America Price Index (2026)',                   tooltip:'Freight rates from Australasia & Oceania to US and Canadian ports.' },
+  { id:'ao-sca', label:'AO \u2192 South & Central Am.',    value:'Australasia & Oceania to South & Central America Price Index (2026)',         tooltip:'Rates covering AO exports to South and Central American markets.' },
+  { id:'ao-fe',  label:'AO \u2192 Far East',               value:'Australasia & Oceania to Far East Price Index (2026)',                        tooltip:'Intra-Pacific rates between AO and Far East (China, Japan, Korea).' },
+  { id:'ao-ssa', label:'AO \u2192 Sub Saharan Africa',     value:'Australasia & Oceania to Sub Saharan Africa Price Index (2026)',              tooltip:'Long-haul rates from AO to Sub-Saharan African ports.' },
+  { id:'ao-ao',  label:'AO \u2192 AO',                     value:'Australasia & Oceania to Australasia & Oceania Price Index (2026)',           tooltip:'Intra-regional AO trades including Transtasman and Pacific Island routes.' },
+  { id:'ao-isc', label:'AO \u2192 ISC & Middle East',      value:'Australasia & Oceania to Indian Sub Cont & Middle East Price Index (2026)',   tooltip:'Rates from AO westbound into the Indian Subcontinent and Middle East.' },
+  { id:'eu-eu',  label:'Europe \u2192 Europe',             value:'Europe to Europe Price Index (2026)',                                         tooltip:'Short-sea and feeder rates within European waters.' },
+  { id:'eu-ssa', label:'Europe \u2192 Sub Saharan Africa', value:'Europe to Sub Saharan Africa Price Index (2026)',                             tooltip:'Southbound rates from North European and Med ports to Sub-Saharan Africa.' },
+  { id:'eu-sca', label:'Europe \u2192 South & Central Am.',value:'Europe to South & Central America Price Index (2026)',                        tooltip:'Rates on the Europe to ECSA and WCSA trade lanes.' },
+  { id:'eu-ao',  label:'Europe \u2192 AO',                 value:'Europe to Australasia & Oceania Price Index (2026)',                          tooltip:'Long-haul rates from Europe eastbound to Australian and NZ ports.' },
+  { id:'eu-fe',  label:'Europe \u2192 Far East',           value:'Europe to Far East Price Index (2026)',                                       tooltip:'Asia-Europe backhaul rates \u2014 key bellwether for global demand.' },
+  { id:'eu-na',  label:'Europe \u2192 North America',      value:'Europe to North America Price Index (2026)',                                  tooltip:'Transatlantic rates from European ports to US East Coast and Gulf.' },
+  { id:'eu-isc', label:'Europe \u2192 ISC & Middle East',  value:'Europe to Indian Sub Cont & Middle East Price Index (2026)',                  tooltip:'Rates through the Mediterranean and Suez into ISC/Middle East markets.' },
+  { id:'fe-sca', label:'Far East \u2192 South & Central Am.',value:'Far East to South & Central America Price Index (2026)',                   tooltip:'Trans-Pacific rates from East Asian ports to South/Central America.' },
+  { id:'fe-eu',  label:'Far East \u2192 Europe',           value:'Far East to Europe Price Index (2026)',                                       tooltip:'Headhaul Asia-Europe rates \u2014 the highest-volume container trade lane.' },
+  { id:'fe-isc', label:'Far East \u2192 ISC & Middle East',value:'Far East to Indian Sub Cont & Middle East Price Index (2026)',                tooltip:'Intra-Asia rates from the Far East westbound to ISC and Gulf ports.' },
+  { id:'fe-ao',  label:'Far East \u2192 AO',               value:'Far East to Australasia & Oceania Price Index (2026)',                        tooltip:'Trans-Tasman and South Pacific rates from Far East origins.' },
+  { id:'fe-na',  label:'Far East \u2192 North America',    value:'Far East to North America Price Index (2026)',                                tooltip:'Transpacific headhaul \u2014 the dominant Asia-USWC/USEC trade.' },
+];
 
-  /* ── Dropdown ── */
-  (function () {
-    const btn     = document.getElementById('dd-lane-btn');
-    const menu    = document.getElementById('dd-lane-menu');
-    const list    = document.getElementById('dd-lane-list');
-    const label   = document.getElementById('dd-lane-label');
-    const hidden  = document.getElementById('inp-lane');
-    let open      = false;
-    let focusedIdx = -1;
+/* =========================================================
+   TOOLTIP
+========================================================= */
+(function () {
+  const tip   = document.getElementById('sf-tooltip');
+  const tipT  = document.getElementById('sf-tooltip-title');
+  const tipB  = document.getElementById('sf-tooltip-body');
+  let hideTimer;
 
-    // Build list items
-    list.innerHTML = LANES.map((lane, i) => `
-      <li class="dd-item" data-idx="${i}" role="option" aria-selected="false">
-        <span>${lane.label}</span>
-        <svg class="dd-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-          <polyline points="2 8 6 12 14 4"/>
-        </svg>
-      </li>`).join('');
-
-    const items = Array.from(list.querySelectorAll('.dd-item'));
-
-    function openMenu() {
-      open = true;
-      menu.classList.add('open');
-      btn.setAttribute('aria-expanded', 'true');
-      // scroll to selected
-      const sel = list.querySelector('.selected');
-      if (sel) sel.scrollIntoView({ block: 'nearest' });
-    }
-
-    function closeMenu() {
-      open = false;
-      menu.classList.remove('open');
-      btn.setAttribute('aria-expanded', 'false');
-      focusedIdx = -1;
-      items.forEach(el => el.classList.remove('focused'));
-    }
-
-    function selectIdx(i) {
-      const lane = LANES[i];
-      if (!lane) return;
-      hidden.value  = lane.value;
-      label.textContent = lane.label;
-      label.classList.add('has-value');
-      items.forEach((el, j) => {
-        el.classList.toggle('selected', j === i);
-        el.setAttribute('aria-selected', j === i ? 'true' : 'false');
-      });
-      closeMenu();
-    }
-
-    function setFocus(i) {
-      items.forEach(el => el.classList.remove('focused'));
-      if (i >= 0 && i < items.length) {
-        items[i].classList.add('focused');
-        items[i].scrollIntoView({ block: 'nearest' });
-        focusedIdx = i;
-      }
-    }
-
-    btn.addEventListener('click', () => open ? closeMenu() : openMenu());
-
-    items.forEach((el, i) => {
-      el.addEventListener('click', () => selectIdx(i));
-      el.addEventListener('mouseenter', () => setFocus(i));
-    });
-
-    document.addEventListener('mousedown', e => {
-      if (open && !document.getElementById('dd-lane-wrapper').contains(e.target)) closeMenu();
-    });
-
-    document.addEventListener('keydown', e => {
-      if (!open) {
-        if ((e.key === 'Enter' || e.key === ' ') && document.activeElement === btn) {
-          e.preventDefault(); openMenu();
-        }
-        return;
-      }
-      if (e.key === 'Escape')      { closeMenu(); btn.focus(); }
-      else if (e.key === 'ArrowDown') { e.preventDefault(); setFocus(focusedIdx < items.length - 1 ? focusedIdx + 1 : 0); }
-      else if (e.key === 'ArrowUp')   { e.preventDefault(); setFocus(focusedIdx > 0 ? focusedIdx - 1 : items.length - 1); }
-      else if (e.key === 'Enter' && focusedIdx >= 0) { e.preventDefault(); selectIdx(focusedIdx); }
-      else if (e.key === 'Home')   { e.preventDefault(); setFocus(0); }
-      else if (e.key === 'End')    { e.preventDefault(); setFocus(items.length - 1); }
-    });
-  })();
-
-  /* ── Number nudge ── */
-  function nudge(id, delta) {
-    const el = document.getElementById(id);
-    const val = parseFloat(el.value) || 0;
-    const min = parseFloat(el.min);
-    const max = parseFloat(el.max);
-    let next = val + delta;
-    if (!isNaN(min)) next = Math.max(min, next);
-    if (!isNaN(max)) next = Math.min(max, next);
-    el.value = next;
-    el.dispatchEvent(new Event('input'));
+  function show(el, e) {
+    const title = el.dataset.tooltipTitle || '';
+    const body  = el.dataset.tooltip || '';
+    if (!body && !title) return;
+    clearTimeout(hideTimer);
+    tipT.textContent = title;
+    tipT.style.display = title ? '' : 'none';
+    tipB.textContent = body;
+    position(e);
+    tip.classList.add('show');
   }
 
-  /* ── Tab indicator ── */
-  function moveIndicator(btnEl) {
-    const indicator = document.getElementById('tab-indicator');
-    const inner     = document.getElementById('tabs-inner');
-    if (!indicator || !btnEl) return;
-    const ir = inner.getBoundingClientRect();
-    const br = btnEl.getBoundingClientRect();
-    indicator.style.left  = (br.left - ir.left) + 'px';
-    indicator.style.width = br.width + 'px';
-  }
-
-  /* ── App utils ── */
-  function getBase() { return window.AXION_API_BASE || 'http://localhost:8000'; }
-  function fetchAPI(path, opts = {}) {
-    return fetch(getBase().replace(/\/$/, '') + path, {
-      ...opts, headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) }
+  function position(e) {
+    const pad = 12;
+    let x = e.clientX + pad;
+    let y = e.clientY + pad;
+    tip.style.left = x + 'px';
+    tip.style.top  = y + 'px';
+    // keep in viewport
+    requestAnimationFrame(() => {
+      const r = tip.getBoundingClientRect();
+      if (r.right  > window.innerWidth  - 8) tip.style.left = (e.clientX - r.width - pad) + 'px';
+      if (r.bottom > window.innerHeight - 8) tip.style.top  = (e.clientY - r.height - pad) + 'px';
     });
   }
-  window.axionAPI = { fetch: fetchAPI };
-  let chartInstance = null;
 
-  function fmt(n) { return (n == null || isNaN(n)) ? '\u2014' : new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n); }
-  function setAlert(id, msg, type) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (!msg) { el.className = 'alert'; el.textContent = ''; return; }
-    el.className = 'alert ' + type; el.textContent = msg;
+  function hide() {
+    hideTimer = setTimeout(() => tip.classList.remove('show'), 80);
   }
 
-  function switchTab(name) {
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
-    document.getElementById('tab-' + name).classList.add('active');
-    const btn = document.getElementById('tab-' + name + '-btn');
-    if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected','true'); moveIndicator(btn); }
-    if (name === 'quant' && chartInstance) requestAnimationFrame(() => requestAnimationFrame(() => chartInstance && chartInstance.resize()));
-  }
-
-  function regimeBadgeHTML(label) {
-    const cls = label === 'Normal' ? 'regime-normal' : label === 'Elevated' ? 'regime-elevated' : label === 'Severe' ? 'regime-severe' : 'regime-none';
-    return `<div class="regime-badge ${cls}"><div class="dot"></div>${label || 'Unknown'}</div>`;
-  }
-  function toneBarHTML(tone) {
-    const pct = Math.max(0, Math.min(100, ((tone + 10) / 20) * 100));
-    const color = tone < -1 ? 'var(--red)' : tone > 1 ? 'var(--green)' : 'var(--amber)';
-    return `<div class="article-tone-bar"><div class="tone-track"><div class="tone-fill" style="width:${pct.toFixed(0)}%;background:${color};"></div></div><span class="tone-label">${tone.toFixed(2)}</span></div>`;
-  }
-  function toggleOrig(id) { const el = document.getElementById(id); if (el) el.classList.toggle('show'); }
-
-  function renderOverview(ov, regime) {
-    if (!ov) return;
-    document.getElementById('ov-current').textContent = fmt(ov.current_value);
-    const chg = ov.latest_change_pct;
-    const chgEl = document.getElementById('ov-change');
-    if (chg != null) { chgEl.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(1) + '% vs 8-wk forecast'; chgEl.className = 'kpi-delta ' + (chg > 0 ? 'up' : chg < 0 ? 'down' : 'neu'); }
-    document.getElementById('ov-sentiment').textContent = ov.overall_sentiment || '\u2014';
-    document.getElementById('ov-confidence').textContent = ov.confidence_score != null ? 'Confidence: ' + Math.round(ov.confidence_score * 100) + '%' : '';
-    document.getElementById('ov-regime-badge').innerHTML = regimeBadgeHTML(ov.risk_regime || regime);
-    document.getElementById('ov-prediction').textContent = ov.overall_prediction || '\u2014';
-    document.getElementById('ov-lane').textContent = ov.lane || '\u2014';
-    if (ov.oil_price != null) {
-      document.getElementById('ov-oil-price').textContent = '$' + ov.oil_price.toFixed(2);
-      const tEl = document.getElementById('ov-oil-trend');
-      tEl.textContent = ov.oil_trend || 'stable';
-      tEl.className = 'kpi-delta ' + (ov.oil_trend === 'rising' ? 'down' : ov.oil_trend === 'falling' ? 'up' : 'neu');
-    }
-    const conclusions = ov.key_conclusions || [];
-    document.getElementById('ov-conclusions').innerHTML = conclusions.length
-      ? conclusions.map(c => `<div class="conclusion-item"><div class="conclusion-dot"></div><span>${c}</span></div>`).join('')
-      : '<div class="conclusion-item"><div class="conclusion-dot"></div><span style="color:var(--text-f);font-style:italic;">No conclusions available.</span></div>';
-  }
-
-  function renderQuant(data) {
-    try {
-      const fc = data.quant.forecast;
-      const hp = fc.historical_points || [], wf = fc.weekly_forecast || [];
-      const hLen = hp.length, fLen = wf.length;
-      const pad = (arr, b, a) => [...Array(b).fill(null), ...arr, ...Array(a).fill(null)];
-      const histValues = hp.map(p => p.value);
-      const lastHist   = histValues.length ? histValues[histValues.length - 1] : null;
-      const allLabels  = [...hp.map(p => p.date), ...wf.map(w => w.week_end)];
-      document.getElementById('chart-empty').style.display = 'none';
-      const canvas = document.getElementById('forecast-chart');
-      canvas.style.display = 'block';
-      if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-      chartInstance = new Chart(canvas.getContext('2d'), {
-        type: 'line',
-        data: { labels: allLabels, datasets: [
-          { label:'p95',      data:pad([lastHist,...wf.map(w=>w.p95)],hLen-1,0),      borderColor:'rgba(79,124,255,0.3)', backgroundColor:'rgba(79,124,255,0.07)', borderWidth:1, pointRadius:0, fill:'+2', tension:0.3, spanGaps:true },
-          { label:'Expected', data:pad([lastHist,...wf.map(w=>w.expected)],hLen-1,0), borderColor:'#4f7cff', backgroundColor:'transparent', borderWidth:2, pointRadius:0, tension:0.3, spanGaps:true },
-          { label:'p50',      data:pad([lastHist,...wf.map(w=>w.p50)],hLen-1,0),      borderColor:'#34c78a', backgroundColor:'transparent', borderWidth:1.5, borderDash:[4,3], pointRadius:0, tension:0.3, spanGaps:true },
-          { label:'p05',      data:pad([lastHist,...wf.map(w=>w.p05)],hLen-1,0),      borderColor:'rgba(79,124,255,0.3)', backgroundColor:'transparent', borderWidth:1, pointRadius:0, tension:0.3, spanGaps:true },
-          { label:'Historical', data:pad(histValues,0,fLen), borderColor:'rgba(139,144,158,0.7)', backgroundColor:'transparent', borderWidth:2, pointRadius:3, pointBackgroundColor:'rgba(139,144,158,0.7)', tension:0.2, spanGaps:false },
-        ]},
-        options: {
-          responsive:true, maintainAspectRatio:false,
-          interaction:{ mode:'index', intersect:false },
-          plugins:{
-            legend:{ position:'top', labels:{ color:'#8b909e', boxWidth:12, font:{ family:"'SF Pro Display'", size:11 }, padding:16 } },
-            tooltip:{ backgroundColor:'#1c2030', borderColor:'rgba(255,255,255,0.07)', borderWidth:1, titleColor:'#e8eaf0', bodyColor:'#8b909e', padding:10, filter:i=>i.parsed.y!==null, callbacks:{ label:c=>' '+c.dataset.label+': '+fmt(c.parsed.y) } }
-          },
-          scales:{
-            x:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#8b909e', font:{ size:11, family:"'SF Pro Display'" }, maxRotation:0, maxTicksLimit:10 } },
-            y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#8b909e', font:{ size:11, family:"'SF Pro Display'" }, callback:v=>fmt(v) } }
-          }
-        }
-      });
-      if (!document.getElementById('tab-quant').classList.contains('active')) {
-        document.getElementById('tab-quant-btn').addEventListener('click', () => chartInstance && chartInstance.resize(), { once:true });
-      }
-      document.getElementById('table-body').innerHTML = wf.map(w => {
-        const sig = w.p50 > fc.last_observed_value ? '<span class="tag tag-green">&uarr; Up</span>' : '<span class="tag tag-red">&darr; Down</span>';
-        return `<tr><td>${w.week_end}</td><td>${fmt(w.expected)}</td><td>${fmt(w.p05)}</td><td>${fmt(w.p50)}</td><td>${fmt(w.p95)}</td><td>${sig}</td></tr>`;
-      }).join('');
-    } catch(err) { setAlert('alert-quant','Chart render error: '+err.message,'error'); }
-  }
-
-  function renderNews(data) {
-    const nr = data.news?.risk || {};
-    const oilList = data.news?.oil_signals || [];
-    const cong    = data.news?.congestion_signals || [];
-    document.getElementById('news-regime-badge').innerHTML = regimeBadgeHTML(nr.risk_label);
-    const tabBadge = document.getElementById('risk-tab-badge');
-    if (nr.risk_label && nr.risk_label !== 'Normal') {
-      tabBadge.textContent = nr.risk_label; tabBadge.style.display='';
-      tabBadge.style.background = nr.risk_label === 'Severe' ? 'var(--red)' : 'var(--amber)';
-      tabBadge.style.color = '#fff';
-    } else { tabBadge.style.display='none'; }
-    const score = nr.net_risk_score || 0;
-    document.getElementById('news-score-pct').textContent = score.toFixed(1)+'/100';
-    const fill = document.getElementById('news-score-fill');
-    fill.style.width = Math.min(score,100)+'%';
-    fill.className = 'score-bar-fill '+(score<33?'fill-green':score<67?'fill-amber':'fill-red');
-    document.getElementById('news-sigma').textContent    = nr.sigma_multiplier!=null ? '\u00d7'+nr.sigma_multiplier.toFixed(2) : '\u2014';
-    document.getElementById('news-delta-mu').textContent = nr.delta_mu_daily!=null   ? (nr.delta_mu_daily>=0?'+':'')+nr.delta_mu_daily.toFixed(4) : '\u2014';
-    const vol = nr.article_volume || {};
-    document.getElementById('news-vol-ratio').textContent = vol.volume_vs_baseline!=null ? vol.volume_vs_baseline.toFixed(1)+'\u00d7' : '\u2014';
-    document.getElementById('vol-24h').textContent = vol.last_24h ?? '\u2014';
-    document.getElementById('vol-72h').textContent = vol.last_72h ?? '\u2014';
-    document.getElementById('vol-7d').textContent  = vol.last_7d  ?? '\u2014';
-    document.getElementById('news-panel-sub').textContent = 'GDELT \u00b7 '+(vol.last_7d||0)+' articles this week \u00b7 '+(nr.risk_label||'\u2014')+' regime';
-    if (oilList.length) {
-      const oil = oilList[0];
-      document.getElementById('oil-price-big').textContent = '$'+oil.price.toFixed(2);
-      document.getElementById('oil-benchmark').textContent = oil.benchmark+' Crude';
-      const tb = document.getElementById('oil-trend-badge');
-      tb.textContent = oil.trend; tb.className = 'oil-trend-badge trend-'+oil.trend;
-      if (oil.fetched_at) document.getElementById('oil-source').textContent = oil.source+' \u00b7 '+new Date(oil.fetched_at).toLocaleTimeString();
-    }
-    const congBody = document.getElementById('cong-body');
-    if (cong.length) {
-      document.getElementById('cong-sub').textContent = cong.length+' node(s) monitored for this lane';
-      congBody.innerHTML = cong.map(c => {
-        const idx = (c.congestion_index*100).toFixed(0);
-        const trendTag = c.trend==='improving'?'<span class="tag tag-green">Improving</span>':c.trend==='worsening'?'<span class="tag tag-red">Worsening</span>':'<span class="tag tag-blue">Stable</span>';
-        return `<tr class="${c.trend==='worsening'?'cong-row-worsening':''}"><td>${c.node_name}</td><td>${c.node_type}</td><td>${idx}%</td><td>${trendTag}</td><td style="color:var(--text-f);font-size:0.75rem;">${c.note||''}</td></tr>`;
-      }).join('');
-    } else { congBody.innerHTML = '<tr><td colspan="5"><div class="empty" style="padding:30px 20px;"><p>No congestion signals available.</p></div></td></tr>'; }
-    const sentences = (nr.risk_summary||'No narrative generated.').match(/[^.!?]+[.!?]+/g) || [nr.risk_summary||''];
-    const paras = []; for (let i=0;i<sentences.length;i+=3) paras.push(sentences.slice(i,i+3).join(' '));
-    document.getElementById('news-narrative').innerHTML = paras.map(p=>`<p style="margin-bottom:0.8em;line-height:1.65;">${p.trim()}</p>`).join('');
-    const drivers = nr.top_drivers || [];
-    document.getElementById('news-drivers').innerHTML = drivers.length
-      ? drivers.map(d=>`<div class="driver-item"><div class="driver-dot"></div><span>${d}</span></div>`).join('')
-      : '<div class="driver-item"><div class="driver-dot"></div><span style="color:var(--text-f);font-style:italic;">No drivers identified.</span></div>';
-    const arts = nr.featured_articles || [];
-    document.getElementById('articles-sub').textContent = arts.length ? 'Top '+arts.length+' GDELT matches for this lane' : 'No articles retrieved';
-    const artsEl = document.getElementById('news-articles');
-    if (!arts.length) { artsEl.innerHTML = '<div class="empty" style="padding:40px 20px;"><p>No articles available for this lane.</p></div>'; }
-    else {
-      artsEl.innerHTML = arts.map((art,i) => {
-        const isTranslated = art.language && art.language !== 'en';
-        const themes = (art.themes||[]).map(t=>`<span class="tag tag-blue">${t}</span>`).join('');
-        const relevancePct = Math.round((art.shipping_relevance||0)*100);
-        const pubDate = art.published_at ? new Date(art.published_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
-        const toggleId = 'orig-'+i;
-        return `<div class="article-card"><div class="article-header"><div class="article-title">${art.url?`<a href="${art.url}" target="_blank" rel="noopener noreferrer">${art.title_english||art.title_original}</a>`:(art.title_english||art.title_original)}</div><span class="tag ${relevancePct>=80?'tag-red':relevancePct>=60?'tag-amber':'tag-blue'}" title="Shipping relevance">${relevancePct}% rel.</span></div><div class="article-meta">${art.source?`<span>${art.source}</span><span class="article-meta-sep">&middot;</span>`:''} ${pubDate?`<span>${pubDate}</span><span class="article-meta-sep">&middot;</span>`:''}<span>Risk contribution: ${(art.risk_contribution||0).toFixed(1)}</span>${isTranslated?`<span class="article-meta-sep">&middot;</span><button class="original-title-toggle" onclick="toggleOrig('${toggleId}')">Show original</button>`:''}</div>${isTranslated?`<div class="original-title" id="${toggleId}">${art.title_original}</div>`:''} ${themes?`<div class="article-themes">${themes}</div>`:''} ${toneBarHTML(art.tone||0)} ${art.summary_english?`<div><p class="article-section-label">Summary</p><p class="article-text">${art.summary_english}</p></div>`:''} ${art.why_it_matters?`<div><p class="article-section-label">Why it matters</p><p class="article-text">${art.why_it_matters}</p></div>`:''}</div>`;
-      }).join('');
-    }
-    const themes = nr.theme_breakdown || [];
-    document.getElementById('theme-body').innerHTML = themes.length
-      ? themes.map(t=>`<tr><td>${t.theme}</td><td>${t.article_count}</td><td style="font-variant-numeric:tabular-nums;">${t.avg_tone!=null?t.avg_tone.toFixed(2):'\u2014'}</td><td><span class="tag ${t.risk_contribution>20?'tag-red':t.risk_contribution>10?'tag-amber':'tag-blue'}">${t.risk_contribution.toFixed(1)}</span></td></tr>`).join('')
-      : '<tr><td colspan="4"><div class="empty" style="padding:30px 20px;"><p>No theme data.</p></div></td></tr>';
-  }
-
-  async function runDashboard() {
-    const lane = document.getElementById('inp-lane').value.trim();
-    if (!lane) { setAlert('alert-sidebar','Please select a lane first.','error'); return; }
-    setAlert('alert-sidebar','',''); setAlert('alert-overview','',''); setAlert('alert-quant','','');
-    const horizon  = parseInt(document.getElementById('inp-horizon').value)  || 8;
-    const paths    = parseInt(document.getElementById('inp-paths').value)    || 5000;
-    const lookback = parseInt(document.getElementById('inp-lookback').value) || 365;
-    document.getElementById('btn-run').disabled = true;
-    try {
-      const resp = await fetchAPI('/dashboard', { method:'POST', body:JSON.stringify({ lane, horizon_weeks:horizon, num_paths:paths, lookback_days:lookback }) });
-      if (!resp.ok) { const err = await resp.json().catch(()=>({ detail:resp.statusText })); throw new Error(err.detail||resp.statusText); }
-      const data = await resp.json();
-      renderOverview(data.overview, data.news?.risk?.risk_label);
-      renderQuant(data);
-      renderNews(data);
-    } catch(err) {
-      setAlert('alert-overview','Error: '+err.message,'error');
-      setAlert('alert-quant',   'Error: '+err.message,'error');
-    } finally { document.getElementById('btn-run').disabled = false; }
-  }
-
-  /* ── Init ── */
-  requestAnimationFrame(() => {
-    const activeBtn = document.querySelector('.tab-btn.active');
-    if (activeBtn) moveIndicator(activeBtn);
+  document.addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-tooltip]');
+    if (el) show(el, e);
   });
-  window.addEventListener('resize', () => {
-    const activeBtn = document.querySelector('.tab-btn.active');
-    if (activeBtn) moveIndicator(activeBtn);
+  document.addEventListener('mousemove', e => {
+    if (tip.classList.contains('show')) position(e);
   });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest('[data-tooltip]')) hide();
+  });
+  document.addEventListener('mousedown', hide);
+})();
+
+/* =========================================================
+   DROPDOWN
+========================================================= */
+(function () {
+  const btn    = document.getElementById('dd-lane-btn');
+  const menu   = document.getElementById('dd-lane-menu');
+  const list   = document.getElementById('dd-lane-list');
+  const label  = document.getElementById('dd-lane-label');
+  const hidden = document.getElementById('inp-lane');
+  let open = false, focusedIdx = -1;
+
+  list.innerHTML = LANES.map((lane, i) => `
+    <li class="dd-item" data-idx="${i}" role="option" aria-selected="false"
+        data-tooltip-title="${lane.label}"
+        data-tooltip="${lane.tooltip}">
+      <span>${lane.label}</span>
+      <svg class="dd-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="2 8 6 12 14 4"/></svg>
+    </li>`).join('');
+
+  const items = Array.from(list.querySelectorAll('.dd-item'));
+
+  function openMenu() {
+    open = true; menu.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+    const sel = list.querySelector('.selected');
+    if (sel) sel.scrollIntoView({ block: 'nearest' });
+  }
+  function closeMenu() {
+    open = false; menu.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+    focusedIdx = -1;
+    items.forEach(el => el.classList.remove('focused'));
+  }
+  function selectIdx(i) {
+    const lane = LANES[i]; if (!lane) return;
+    hidden.value = lane.value;
+    label.textContent = lane.label;
+    label.classList.add('has-value');
+    // Update trigger tooltip to show current lane info
+    btn.dataset.tooltipTitle = lane.label;
+    btn.dataset.tooltip = lane.tooltip;
+    items.forEach((el, j) => {
+      el.classList.toggle('selected', j === i);
+      el.setAttribute('aria-selected', j === i ? 'true' : 'false');
+    });
+    closeMenu();
+  }
+  function setFocus(i) {
+    items.forEach(el => el.classList.remove('focused'));
+    if (i >= 0 && i < items.length) { items[i].classList.add('focused'); items[i].scrollIntoView({ block:'nearest' }); focusedIdx = i; }
+  }
+
+  btn.addEventListener('click', () => open ? closeMenu() : openMenu());
+  items.forEach((el, i) => { el.addEventListener('click', () => selectIdx(i)); el.addEventListener('mouseenter', () => setFocus(i)); });
+  document.addEventListener('mousedown', e => { if (open && !document.getElementById('dd-lane-wrapper').contains(e.target)) closeMenu(); });
+  document.addEventListener('keydown', e => {
+    if (!open) { if ((e.key==='Enter'||e.key===' ') && document.activeElement===btn) { e.preventDefault(); openMenu(); } return; }
+    if (e.key==='Escape')     { closeMenu(); btn.focus(); }
+    else if (e.key==='ArrowDown') { e.preventDefault(); setFocus(focusedIdx < items.length-1 ? focusedIdx+1 : 0); }
+    else if (e.key==='ArrowUp')   { e.preventDefault(); setFocus(focusedIdx > 0 ? focusedIdx-1 : items.length-1); }
+    else if (e.key==='Enter' && focusedIdx>=0) { e.preventDefault(); selectIdx(focusedIdx); }
+    else if (e.key==='Home')  { e.preventDefault(); setFocus(0); }
+    else if (e.key==='End')   { e.preventDefault(); setFocus(items.length-1); }
+  });
+})();
+
+/* =========================================================
+   PROGRESS BAR
+========================================================= */
+const Progress = (() => {
+  const wrap = document.getElementById('progress-bar-wrap');
+  const bar  = document.getElementById('progress-bar');
+  let timer;
+
+  function start() {
+    clearTimeout(timer);
+    bar.classList.remove('indeterminate');
+    bar.style.width = '0%';
+    wrap.classList.add('visible');
+    requestAnimationFrame(() => {
+      bar.classList.add('indeterminate');
+    });
+  }
+
+  function finish() {
+    bar.classList.remove('indeterminate');
+    bar.style.transition = 'width 300ms ease';
+    bar.style.width = '100%';
+    timer = setTimeout(() => {
+      wrap.classList.remove('visible');
+      setTimeout(() => { bar.style.width = '0%'; bar.style.transition = ''; }, 250);
+    }, 380);
+  }
+
+  return { start, finish };
+})();
+
+/* =========================================================
+   SKELETON LOADING
+========================================================= */
+const SKELETON_TARGETS = [
+  'tab-overview', 'tab-quant', 'tab-news'
+];
+
+function skeletonShow() {
+  document.querySelectorAll('.panel, .kpi-card').forEach(el => {
+    if (!el.querySelector('.skeleton-mask')) {
+      const mask = document.createElement('div');
+      mask.className = 'skeleton-mask';
+      el.appendChild(mask);
+    }
+    el.classList.add('panel-loading');
+  });
+}
+
+function skeletonHide() {
+  document.querySelectorAll('.panel-loading').forEach(el => {
+    el.classList.remove('panel-loading');
+    el.querySelectorAll('.skeleton-mask').forEach(m => m.remove());
+  });
+}
+
+/* =========================================================
+   CONTEXT MENU
+========================================================= */
+let ctxTargetPanel = null;
+
+(function () {
+  const menu       = document.getElementById('ctx-menu');
+  const exportItem = document.getElementById('ctx-export');
+  const exportSep  = document.getElementById('ctx-sep');
+  const panelLabel = document.getElementById('ctx-panel-label');
+
+  function openAt(x, y, panel) {
+    ctxTargetPanel = panel || null;
+    const hasPanel = !!panel;
+    exportItem.style.display  = hasPanel ? '' : 'none';
+    exportSep.style.display   = hasPanel ? '' : 'none';
+    panelLabel.style.display  = hasPanel ? '' : 'none';
+    if (hasPanel) {
+      const lbl = panel.dataset.exportLabel || 'Panel';
+      panelLabel.textContent = lbl;
+    }
+    // position, keep in viewport
+    menu.style.left = x + 'px';
+    menu.style.top  = y + 'px';
+    menu.classList.add('open');
+    requestAnimationFrame(() => {
+      const r = menu.getBoundingClientRect();
+      if (r.right  > window.innerWidth  - 8) menu.style.left = (x - r.width)  + 'px';
+      if (r.bottom > window.innerHeight - 8) menu.style.top  = (y - r.height) + 'px';
+    });
+  }
+
+  function close() { menu.classList.remove('open'); }
+
+  document.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    const panel = e.target.closest('.exportable');
+    openAt(e.clientX, e.clientY, panel);
+  });
+  document.addEventListener('mousedown', e => {
+    if (!menu.contains(e.target)) close();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  // close after any item click
+  menu.addEventListener('click', () => setTimeout(close, 80));
+})();
+
+function ctxRefresh() {
+  window.location.reload(true);
+}
+
+function ctxExport() {
+  if (!ctxTargetPanel) return;
+  const label = (ctxTargetPanel.dataset.exportLabel || 'panel').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+  html2canvas(ctxTargetPanel, {
+    backgroundColor: '#111111',
+    scale: 2,
+    useCORS: true,
+    logging: false,
+  }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = `shipping_forecast_${label}_${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(err => console.warn('Export failed:', err));
+}
+
+/* =========================================================
+   UTILITIES
+========================================================= */
+function nudge(id, delta) {
+  const el = document.getElementById(id);
+  const val = parseFloat(el.value) || 0;
+  const min = parseFloat(el.min), max = parseFloat(el.max);
+  let next = val + delta;
+  if (!isNaN(min)) next = Math.max(min, next);
+  if (!isNaN(max)) next = Math.min(max, next);
+  el.value = next;
+  el.dispatchEvent(new Event('input'));
+}
+
+function moveIndicator(btnEl) {
+  const indicator = document.getElementById('tab-indicator');
+  const inner     = document.getElementById('tabs-inner');
+  if (!indicator || !btnEl) return;
+  const ir = inner.getBoundingClientRect();
+  const br = btnEl.getBoundingClientRect();
+  indicator.style.left  = (br.left - ir.left) + 'px';
+  indicator.style.width = br.width + 'px';
+}
+
+function getBase() { return window.AXION_API_BASE || 'http://localhost:8000'; }
+function fetchAPI(path, opts = {}) {
+  return fetch(getBase().replace(/\/$/, '') + path, {
+    ...opts, headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) }
+  });
+}
+window.axionAPI = { fetch: fetchAPI };
+let chartInstance = null;
+
+function fmt(n) { return (n == null || isNaN(n)) ? '\u2014' : new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n); }
+function setAlert(id, msg, type) {
+  const el = document.getElementById(id); if (!el) return;
+  if (!msg) { el.className = 'alert'; el.textContent = ''; return; }
+  el.className = 'alert ' + type; el.textContent = msg;
+}
+
+const SF_FONT = "'SF Pro Display', 'Helvetica Neue', sans-serif";
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+  document.getElementById('tab-' + name).classList.add('active');
+  const btn = document.getElementById('tab-' + name + '-btn');
+  if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected','true'); moveIndicator(btn); }
+  if (name === 'quant' && chartInstance) requestAnimationFrame(() => requestAnimationFrame(() => chartInstance && chartInstance.resize()));
+}
+
+function regimeBadgeHTML(label) {
+  const cls = label==='Normal'?'regime-normal':label==='Elevated'?'regime-elevated':label==='Severe'?'regime-severe':'regime-none';
+  return `<div class="regime-badge ${cls}"><div class="dot"></div>${label||'Unknown'}</div>`;
+}
+function toneBarHTML(tone) {
+  const pct = Math.max(0, Math.min(100, ((tone+10)/20)*100));
+  const color = tone < -1 ? 'var(--red)' : tone > 1 ? 'var(--green)' : 'var(--amber)';
+  return `<div class="article-tone-bar"><div class="tone-track"><div class="tone-fill" style="width:${pct.toFixed(0)}%;background:${color};"></div></div><span class="tone-label">${tone.toFixed(2)}</span></div>`;
+}
+function toggleOrig(id) { const el = document.getElementById(id); if (el) el.classList.toggle('show'); }
+
+/* =========================================================
+   RENDER FUNCTIONS
+========================================================= */
+function renderOverview(ov, regime) {
+  if (!ov) return;
+  document.getElementById('ov-current').textContent = fmt(ov.current_value);
+  const chg = ov.latest_change_pct;
+  const chgEl = document.getElementById('ov-change');
+  if (chg != null) { chgEl.textContent = (chg>=0?'+':'')+chg.toFixed(1)+'% vs 8-wk forecast'; chgEl.className='kpi-delta '+(chg>0?'up':chg<0?'down':'neu'); }
+  document.getElementById('ov-sentiment').textContent  = ov.overall_sentiment || '\u2014';
+  document.getElementById('ov-confidence').textContent = ov.confidence_score != null ? 'Confidence: '+Math.round(ov.confidence_score*100)+'%' : '';
+  document.getElementById('ov-regime-badge').innerHTML = regimeBadgeHTML(ov.risk_regime||regime);
+  document.getElementById('ov-prediction').textContent = ov.overall_prediction || '\u2014';
+  document.getElementById('ov-lane').textContent = ov.lane || '\u2014';
+  if (ov.oil_price != null) {
+    document.getElementById('ov-oil-price').textContent = '$'+ov.oil_price.toFixed(2);
+    const tEl = document.getElementById('ov-oil-trend');
+    tEl.textContent = ov.oil_trend||'stable';
+    tEl.className = 'kpi-delta '+(ov.oil_trend==='rising'?'down':ov.oil_trend==='falling'?'up':'neu');
+  }
+  const conclusions = ov.key_conclusions || [];
+  document.getElementById('ov-conclusions').innerHTML = conclusions.length
+    ? conclusions.map(c=>`<div class="conclusion-item"><div class="conclusion-dot"></div><span>${c}</span></div>`).join('')
+    : '<div class="conclusion-item"><div class="conclusion-dot"></div><span style="color:var(--text-f);font-style:italic;">No conclusions available.</span></div>';
+}
+
+function renderQuant(data) {
+  try {
+    const fc = data.quant.forecast;
+    const hp = fc.historical_points||[], wf = fc.weekly_forecast||[];
+    const hLen = hp.length, fLen = wf.length;
+    const pad = (arr,b,a) => [...Array(b).fill(null),...arr,...Array(a).fill(null)];
+    const histValues = hp.map(p=>p.value);
+    const lastHist   = histValues.length ? histValues[histValues.length-1] : null;
+    const allLabels  = [...hp.map(p=>p.date),...wf.map(w=>w.week_end)];
+    document.getElementById('chart-empty').style.display = 'none';
+    const canvas = document.getElementById('forecast-chart');
+    canvas.style.display = 'block';
+    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+    chartInstance = new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: { labels: allLabels, datasets: [
+        { label:'p95',      data:pad([lastHist,...wf.map(w=>w.p95)],hLen-1,0),      borderColor:'rgba(79,124,255,0.3)', backgroundColor:'rgba(79,124,255,0.07)', borderWidth:1, pointRadius:0, fill:'+2', tension:0.3, spanGaps:true },
+        { label:'Expected', data:pad([lastHist,...wf.map(w=>w.expected)],hLen-1,0), borderColor:'#4f7cff', backgroundColor:'transparent', borderWidth:2, pointRadius:0, tension:0.3, spanGaps:true },
+        { label:'p50',      data:pad([lastHist,...wf.map(w=>w.p50)],hLen-1,0),      borderColor:'#34c78a', backgroundColor:'transparent', borderWidth:1.5, borderDash:[4,3], pointRadius:0, tension:0.3, spanGaps:true },
+        { label:'p05',      data:pad([lastHist,...wf.map(w=>w.p05)],hLen-1,0),      borderColor:'rgba(79,124,255,0.3)', backgroundColor:'transparent', borderWidth:1, pointRadius:0, tension:0.3, spanGaps:true },
+        { label:'Historical', data:pad(histValues,0,fLen), borderColor:'rgba(139,144,158,0.7)', backgroundColor:'transparent', borderWidth:2, pointRadius:3, pointBackgroundColor:'rgba(139,144,158,0.7)', tension:0.2, spanGaps:false },
+      ]},
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        interaction:{ mode:'index', intersect:false },
+        plugins:{
+          legend:{ position:'top', labels:{ color:'#8b909e', boxWidth:12, font:{ family:SF_FONT, size:11 }, padding:16 } },
+          tooltip:{ backgroundColor:'#1c2030', borderColor:'rgba(255,255,255,0.07)', borderWidth:1, titleColor:'#e8eaf0', bodyColor:'#8b909e', padding:10,
+            titleFont:{ family:SF_FONT, size:12 }, bodyFont:{ family:SF_FONT, size:11 },
+            filter:i=>i.parsed.y!==null, callbacks:{ label:c=>' '+c.dataset.label+': '+fmt(c.parsed.y) } }
+        },
+        scales:{
+          x:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#8b909e', font:{ size:11, family:SF_FONT }, maxRotation:0, maxTicksLimit:10 } },
+          y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#8b909e', font:{ size:11, family:SF_FONT }, callback:v=>fmt(v) } }
+        }
+      }
+    });
+    if (!document.getElementById('tab-quant').classList.contains('active')) {
+      document.getElementById('tab-quant-btn').addEventListener('click', () => chartInstance && chartInstance.resize(), { once:true });
+    }
+    document.getElementById('table-body').innerHTML = wf.map(w => {
+      const sig = w.p50 > fc.last_observed_value ? '<span class="tag tag-green">&uarr; Up</span>' : '<span class="tag tag-red">&darr; Down</span>';
+      return `<tr><td>${w.week_end}</td><td>${fmt(w.expected)}</td><td>${fmt(w.p05)}</td><td>${fmt(w.p50)}</td><td>${fmt(w.p95)}</td><td>${sig}</td></tr>`;
+    }).join('');
+  } catch(err) { setAlert('alert-quant','Chart render error: '+err.message,'error'); }
+}
+
+function renderNews(data) {
+  const nr = data.news?.risk || {};
+  const oilList = data.news?.oil_signals || [];
+  const cong    = data.news?.congestion_signals || [];
+  document.getElementById('news-regime-badge').innerHTML = regimeBadgeHTML(nr.risk_label);
+  const tabBadge = document.getElementById('risk-tab-badge');
+  if (nr.risk_label && nr.risk_label !== 'Normal') {
+    tabBadge.textContent = nr.risk_label; tabBadge.style.display='';
+    tabBadge.style.background = nr.risk_label==='Severe'?'var(--red)':'var(--amber)';
+    tabBadge.style.color = '#fff';
+  } else { tabBadge.style.display='none'; }
+  const score = nr.net_risk_score||0;
+  document.getElementById('news-score-pct').textContent = score.toFixed(1)+'/100';
+  const fill = document.getElementById('news-score-fill');
+  fill.style.width = Math.min(score,100)+'%';
+  fill.className = 'score-bar-fill '+(score<33?'fill-green':score<67?'fill-amber':'fill-red');
+  document.getElementById('news-sigma').textContent    = nr.sigma_multiplier!=null ? '\u00d7'+nr.sigma_multiplier.toFixed(2) : '\u2014';
+  document.getElementById('news-delta-mu').textContent = nr.delta_mu_daily!=null   ? (nr.delta_mu_daily>=0?'+':'')+nr.delta_mu_daily.toFixed(4) : '\u2014';
+  const vol = nr.article_volume||{};
+  document.getElementById('news-vol-ratio').textContent = vol.volume_vs_baseline!=null ? vol.volume_vs_baseline.toFixed(1)+'\u00d7' : '\u2014';
+  document.getElementById('vol-24h').textContent = vol.last_24h ?? '\u2014';
+  document.getElementById('vol-72h').textContent = vol.last_72h ?? '\u2014';
+  document.getElementById('vol-7d').textContent  = vol.last_7d  ?? '\u2014';
+  document.getElementById('news-panel-sub').textContent = 'GDELT \u00b7 '+(vol.last_7d||0)+' articles this week \u00b7 '+(nr.risk_label||'\u2014')+' regime';
+  if (oilList.length) {
+    const oil = oilList[0];
+    document.getElementById('oil-price-big').textContent = '$'+oil.price.toFixed(2);
+    document.getElementById('oil-benchmark').textContent = oil.benchmark+' Crude';
+    const tb = document.getElementById('oil-trend-badge');
+    tb.textContent = oil.trend; tb.className = 'oil-trend-badge trend-'+oil.trend;
+    if (oil.fetched_at) document.getElementById('oil-source').textContent = oil.source+'\u00b7 '+new Date(oil.fetched_at).toLocaleTimeString();
+  }
+  const congBody = document.getElementById('cong-body');
+  if (cong.length) {
+    document.getElementById('cong-sub').textContent = cong.length+' node(s) monitored for this lane';
+    congBody.innerHTML = cong.map(c=>{
+      const idx = (c.congestion_index*100).toFixed(0);
+      const trendTag = c.trend==='improving'?'<span class="tag tag-green">Improving</span>':c.trend==='worsening'?'<span class="tag tag-red">Worsening</span>':'<span class="tag tag-blue">Stable</span>';
+      return `<tr class="${c.trend==='worsening'?'cong-row-worsening':''}"><td>${c.node_name}</td><td>${c.node_type}</td><td>${idx}%</td><td>${trendTag}</td><td style="color:var(--text-f);font-size:0.75rem;">${c.note||''}</td></tr>`;
+    }).join('');
+  } else { congBody.innerHTML = '<tr><td colspan="5"><div class="empty" style="padding:30px 20px;"><p>No congestion signals available.</p></div></td></tr>'; }
+  const sentences = (nr.risk_summary||'No narrative generated.').match(/[^.!?]+[.!?]+/g)||[nr.risk_summary||''];
+  const paras = []; for (let i=0;i<sentences.length;i+=3) paras.push(sentences.slice(i,i+3).join(' '));
+  document.getElementById('news-narrative').innerHTML = paras.map(p=>`<p style="margin-bottom:0.8em;line-height:1.65;">${p.trim()}</p>`).join('');
+  const drivers = nr.top_drivers||[];
+  document.getElementById('news-drivers').innerHTML = drivers.length
+    ? drivers.map(d=>`<div class="driver-item"><div class="driver-dot"></div><span>${d}</span></div>`).join('')
+    : '<div class="driver-item"><div class="driver-dot"></div><span style="color:var(--text-f);font-style:italic;">No drivers identified.</span></div>';
+  const arts = nr.featured_articles||[];
+  document.getElementById('articles-sub').textContent = arts.length ? 'Top '+arts.length+' GDELT matches for this lane' : 'No articles retrieved';
+  const artsEl = document.getElementById('news-articles');
+  if (!arts.length) { artsEl.innerHTML = '<div class="empty" style="padding:40px 20px;"><p>No articles available for this lane.</p></div>'; }
+  else {
+    artsEl.innerHTML = arts.map((art,i)=>{
+      const isTranslated = art.language && art.language!=='en';
+      const themes = (art.themes||[]).map(t=>`<span class="tag tag-blue">${t}</span>`).join('');
+      const relevancePct = Math.round((art.shipping_relevance||0)*100);
+      const pubDate = art.published_at ? new Date(art.published_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+      const toggleId = 'orig-'+i;
+      return `<div class="article-card"><div class="article-header"><div class="article-title">${art.url?`<a href="${art.url}" target="_blank" rel="noopener noreferrer">${art.title_english||art.title_original}</a>`:(art.title_english||art.title_original)}</div><span class="tag ${relevancePct>=80?'tag-red':relevancePct>=60?'tag-amber':'tag-blue'}" title="Shipping relevance">${relevancePct}% rel.</span></div><div class="article-meta">${art.source?`<span>${art.source}</span><span class="article-meta-sep">&middot;</span>`:''} ${pubDate?`<span>${pubDate}</span><span class="article-meta-sep">&middot;</span>`:''}<span>Risk contribution: ${(art.risk_contribution||0).toFixed(1)}</span>${isTranslated?`<span class="article-meta-sep">&middot;</span><button class="original-title-toggle" onclick="toggleOrig('${toggleId}')">Show original</button>`:''}</div>${isTranslated?`<div class="original-title" id="${toggleId}">${art.title_original}</div>`:''} ${themes?`<div class="article-themes">${themes}</div>`:''} ${toneBarHTML(art.tone||0)} ${art.summary_english?`<div><p class="article-section-label">Summary</p><p class="article-text">${art.summary_english}</p></div>`:''} ${art.why_it_matters?`<div><p class="article-section-label">Why it matters</p><p class="article-text">${art.why_it_matters}</p></div>`:''}</div>`;
+    }).join('');
+  }
+  const themes = nr.theme_breakdown||[];
+  document.getElementById('theme-body').innerHTML = themes.length
+    ? themes.map(t=>`<tr><td>${t.theme}</td><td>${t.article_count}</td><td style="font-variant-numeric:tabular-nums;">${t.avg_tone!=null?t.avg_tone.toFixed(2):'\u2014'}</td><td><span class="tag ${t.risk_contribution>20?'tag-red':t.risk_contribution>10?'tag-amber':'tag-blue'}">${t.risk_contribution.toFixed(1)}</span></td></tr>`).join('')
+    : '<tr><td colspan="4"><div class="empty" style="padding:30px 20px;"><p>No theme data.</p></div></td></tr>';
+}
+
+/* =========================================================
+   RUN
+========================================================= */
+async function runDashboard() {
+  const lane = document.getElementById('inp-lane').value.trim();
+  if (!lane) { setAlert('alert-sidebar','Please select a lane first.','error'); return; }
+  setAlert('alert-sidebar','',''); setAlert('alert-overview','',''); setAlert('alert-quant','','');
+  const horizon  = parseInt(document.getElementById('inp-horizon').value)  || 8;
+  const paths    = parseInt(document.getElementById('inp-paths').value)    || 5000;
+  const lookback = parseInt(document.getElementById('inp-lookback').value) || 365;
+  document.getElementById('btn-run').disabled = true;
+  Progress.start();
+  skeletonShow();
+  try {
+    const resp = await fetchAPI('/dashboard', { method:'POST', body:JSON.stringify({ lane, horizon_weeks:horizon, num_paths:paths, lookback_days:lookback }) });
+    if (!resp.ok) { const err = await resp.json().catch(()=>({ detail:resp.statusText })); throw new Error(err.detail||resp.statusText); }
+    const data = await resp.json();
+    renderOverview(data.overview, data.news?.risk?.risk_label);
+    renderQuant(data);
+    renderNews(data);
+  } catch(err) {
+    setAlert('alert-overview','Error: '+err.message,'error');
+    setAlert('alert-quant',   'Error: '+err.message,'error');
+  } finally {
+    document.getElementById('btn-run').disabled = false;
+    Progress.finish();
+    skeletonHide();
+  }
+}
+
+/* =========================================================
+   INIT
+========================================================= */
+requestAnimationFrame(() => {
+  const activeBtn = document.querySelector('.tab-btn.active');
+  if (activeBtn) moveIndicator(activeBtn);
+});
+window.addEventListener('resize', () => {
+  const activeBtn = document.querySelector('.tab-btn.active');
+  if (activeBtn) moveIndicator(activeBtn);
+});
 </script>
 </body>
 </html>
