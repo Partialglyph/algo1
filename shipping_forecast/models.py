@@ -170,6 +170,31 @@ class ClearanceCost(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Oil forecast  (ECB WP1735 combination model)
+# ---------------------------------------------------------------------------
+
+class OilForecastPoint(BaseModel):
+    week_end: date
+    futures: float            # raw futures baseline
+    risk_adjusted: float      # Pagano-Pisani bias-corrected futures
+    bvar: float               # Minnesota-prior BVAR path
+    combination: float        # equal-weighted mean across models
+    p10: float                # 10th percentile of model spread
+    p90: float                # 90th percentile of model spread
+
+
+class OilForecastBlock(BaseModel):
+    generated_at: datetime
+    horizon_weeks: int
+    current_price: float
+    current_trend: Literal["rising", "falling", "stable"]
+    weekly_forecast: List[OilForecastPoint] = Field(default_factory=list)
+    annualized_volatility: float
+    regime_note: str = ""
+    models_used: List[str] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
 # Dashboard bundles
 # ---------------------------------------------------------------------------
 
@@ -218,6 +243,7 @@ class DashboardResponse(BaseModel):
     quant: QuantBundle
     news: NewsBundle
     costs: CostBundle
+    oil_forecast: Optional[OilForecastBlock] = None   # Brent crude combination forecast
     generated_at: datetime
 
 

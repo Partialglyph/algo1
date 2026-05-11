@@ -37,6 +37,7 @@ from .models import (
     QuantBundle,
     ThemeBreakdown,
 )
+from .oil_forecast_service import BrentForecaster
 from .oil_service import fetch_oil_signal
 from .risk_overlay import compute_overlay
 from .summarizer import (
@@ -49,7 +50,7 @@ from .translation_service import ensure_english_title
 
 log = logging.getLogger(__name__)
 
-app = FastAPI(title="Shipping Price Forecast API", version="2.0.0")
+app = FastAPI(title="Shipping Price Forecast API", version="2.1.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -73,6 +74,7 @@ def _build_provider():
 provider = _build_provider()
 service = ForecastService(provider=provider)
 _gdelt = GDELTEventProvider()
+_oil_forecaster = BrentForecaster(horizon_weeks=8)
 
 
 @app.get("/lanes", response_model=LaneListResponse)
@@ -104,7 +106,7 @@ async def forecast(req: ForecastRequest) -> ForecastResponse:
 async def dashboard(req: ForecastRequest) -> DashboardResponse:
     """
     Four-tab dashboard endpoint.
-    Returns: overview, quant, news, costs — all pre-computed, frontend-ready.
+    Returns: overview, quant, news, costs, oil_forecast — all pre-computed.
     """
     try:
         # --- Parallel fetch: forecast + events + oil ---
@@ -118,11 +120,16 @@ async def dashboard(req: ForecastRequest) -> DashboardResponse:
             fetch_oil_signal(),
         )
 
-        # fetch_oil_signal now returns (OilSignal, history_points)
         oil_signal, oil_history = oil_result
 
+        # --- Brent crude combination forecast (sequential: needs oil_history) ---
+        oil_forecast = await _oil_forecaster.forecast(
+            history=oil_history,
+            current_price=oil_signal.price,
+            current_trend=oil_signal.trend,
+        )
+
         fc: ForecastBlock = forecast_resp.forecast
-        nr: NewsRiskBlock = forecast_resp.news_risk
 
         # Recompute features from freshly fetched event feed
         features = build_features(event_feed)
@@ -215,7 +222,7 @@ async def dashboard(req: ForecastRequest) -> DashboardResponse:
             prediction = "Mild upside bias in the forecast horizon."
         elif pct_chg > 1:
             sentiment = "Slightly Bullish"
-            prediction = "Slight upward bias — not strongly directional."
+            prediction = "Slight upward bias -- not strongly directional."
         elif pct_chg < -10:
             sentiment = "Very Bearish"
             prediction = "Strong downside risk in rates over the forecast horizon."
@@ -226,16 +233,27 @@ async def dashboard(req: ForecastRequest) -> DashboardResponse:
             sentiment = "Neutral"
             prediction = "Largely neutral to sideways outlook."
 
+        # Include oil forecast 8-week outlook in key conclusions
+        oil_8w_combo = (
+            oil_forecast.weekly_forecast[-1].combination
+            if oil_forecast.weekly_forecast else oil_signal.price
+        )
+        oil_pct = (
+            (oil_8w_combo - oil_signal.price) / oil_signal.price * 100.0
+            if oil_signal.price > 0 else 0.0
+        )
+
         key_conclusions: list[str] = [
             f"Current freight index: {last_val:,.0f}",
             f"8-week median forecast: {p50_8w:,.0f} ({pct_chg:+.1f}%)",
             f"Annualised volatility: {round(fc.annualized_volatility * 100, 1)}%",
             f"News risk regime: {regime} (score {score_100:.0f}/100)",
-            f"Brent crude: ${oil_signal.price:.2f}/bbl ({oil_signal.trend})",
+            f"Brent crude spot: ${oil_signal.price:.2f}/bbl ({oil_signal.trend})",
+            f"Brent 8-week forecast: ${oil_8w_combo:.2f}/bbl ({oil_pct:+.1f}%) [{', '.join(oil_forecast.models_used)}]",
         ]
         if score_100 >= 50:
             key_conclusions.append(
-                f"Risk elevated — {len([a for a in featured if a.risk_contribution > 0])} "
+                f"Risk elevated -- {len([a for a in featured if a.risk_contribution > 0])} "
                 f"articles flagged as operationally relevant"
             )
 
@@ -272,7 +290,8 @@ async def dashboard(req: ForecastRequest) -> DashboardResponse:
             event_summary=(
                 f"{regime} risk environment. "
                 f"{features.count_72h} articles matched in 72 h. "
-                f"Oil: ${oil_signal.price:.2f}/bbl ({oil_signal.trend}). "
+                f"Oil spot: ${oil_signal.price:.2f}/bbl ({oil_signal.trend}). "
+                f"Oil 8-week combined forecast: ${oil_8w_combo:.2f}/bbl ({oil_pct:+.1f}%). "
                 f"Congestion at {congestion[0].node_name if congestion else 'key nodes'}: "
                 f"{congestion[0].trend if congestion else 'data unavailable'}."
             ),
@@ -286,6 +305,7 @@ async def dashboard(req: ForecastRequest) -> DashboardResponse:
             quant=quant,
             news=news,
             costs=costs,
+            oil_forecast=oil_forecast,
             generated_at=datetime.now(timezone.utc),
         )
 
