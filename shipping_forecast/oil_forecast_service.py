@@ -247,11 +247,10 @@ class BrentForecaster:
         if current_price <= 0:
             raise ValueError("current_price must be positive")
 
-        # Fetch TCU in parallel with building the futures array
-        futures_arr, tcu = await asyncio.gather(
-            asyncio.coroutine(lambda: self._futures_model(current_price))(),
-            self._fetch_tcu(),
-        )
+        # _futures_model is pure numpy — call it directly (no await needed).
+        # Only _fetch_tcu requires an actual async network call.
+        futures_arr = self._futures_model(current_price)
+        tcu = await self._fetch_tcu()
 
         models: list[np.ndarray] = [futures_arr]
         used: list[str] = ["futures"]
@@ -283,7 +282,7 @@ class BrentForecaster:
             else:
                 ann_vol = 0.30
 
-        # Regime note based on futures curve structure
+        # Regime note based on forecast direction vs spot
         combo_8w = float(combo[-1])
         spot = float(current_price)
         pct = (combo_8w - spot) / spot if spot > 0 else 0.0
