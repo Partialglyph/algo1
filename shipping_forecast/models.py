@@ -218,6 +218,7 @@ class QuantBundle(BaseModel):
     volatility_multiplier: float
     drift_adjustment: float
     live_status: Literal["stable", "volatile", "news-affected"] = "stable"
+    oil_forecast: Optional[OilForecastBlock] = None  # Brent crude combination forecast
 
 
 class NewsBundle(BaseModel):
@@ -243,7 +244,6 @@ class DashboardResponse(BaseModel):
     quant: QuantBundle
     news: NewsBundle
     costs: CostBundle
-    oil_forecast: Optional[OilForecastBlock] = None   # Brent crude combination forecast
     generated_at: datetime
 
 
