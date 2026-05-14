@@ -171,6 +171,29 @@
       margin-bottom: 3px;
     }
 
+    /* ── Data source info icons ── */
+    .data-src-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 13px; height: 13px;
+      border-radius: 50%;
+      border: 1px solid currentColor;
+      font-size: 0.58rem; font-weight: 700; font-style: normal;
+      line-height: 1;
+      margin-left: 5px;
+      cursor: default;
+      vertical-align: middle;
+      opacity: 0.5;
+      transition: opacity 0.15s;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .data-src-icon:hover { opacity: 1; }
+    .src-live  { color: #34c759; }
+    .src-fixed { color: #ff9f0a; }
+    .src-model { color: #64d2ff; }
+
     /* ── Custom context menu ── */
     #ctx-menu {
       position: fixed;
@@ -601,21 +624,21 @@
         <!-- KPI strip -->
         <div class="kpi-row">
           <div class="kpi-card exportable" data-export-label="Current Index">
-            <div class="kpi-label">Current Index</div>
+            <div class="kpi-label">Current Index<i class="data-src-icon src-live" data-tooltip-title="Live — data.xlsx" data-tooltip="Freight rate index pulled from the historical Excel dataset (data.xlsx) via the backend API on every forecast run.">i</i></div>
             <div class="kpi-value" id="ov-current">&mdash;</div>
             <div class="kpi-delta neu" id="ov-change"></div>
           </div>
           <div class="kpi-card exportable" data-export-label="Sentiment">
-            <div class="kpi-label">Sentiment</div>
+            <div class="kpi-label">Sentiment<i class="data-src-icon src-fixed" data-tooltip-title="Fixed logic" data-tooltip="Sentiment label is derived from hardcoded % change thresholds (e.g. &gt;10% → Very Bullish). The underlying forecast values are live.">i</i></div>
             <div class="kpi-value" style="font-size:1rem;" id="ov-sentiment">&mdash;</div>
             <div class="kpi-delta neu" id="ov-confidence"></div>
           </div>
           <div class="kpi-card exportable" data-export-label="Risk Regime">
-            <div class="kpi-label">Risk Regime</div>
+            <div class="kpi-label">Risk Regime<i class="data-src-icon src-live" data-tooltip-title="Live — GDELT" data-tooltip="Risk regime computed from GDELT global event data, 72-hour window, using lane-specific keywords.">i</i></div>
             <div id="ov-regime-badge" style="margin-top:6px;"></div>
           </div>
           <div class="kpi-card exportable" data-export-label="Brent Crude">
-            <div class="kpi-label">Brent Crude</div>
+            <div class="kpi-label">Brent Crude<i class="data-src-icon src-live" data-tooltip-title="Live — yfinance" data-tooltip="Brent crude spot price fetched from yfinance (BZ=F CME futures). Falls back to an $85 stub if the API is unavailable.">i</i></div>
             <div class="kpi-value" id="ov-oil-price">&mdash;</div>
             <div class="kpi-delta" id="ov-oil-trend"></div>
           </div>
@@ -663,7 +686,7 @@
         <div class="panel exportable" data-export-label="Forecast Chart">
           <div class="panel-head">
             <div>
-              <div class="panel-title">Price History &amp; Forecast</div>
+              <div class="panel-title">Price History &amp; Forecast<i class="data-src-icon src-live" data-tooltip-title="Live — Monte Carlo" data-tooltip="Simulation uses historical freight rates from data.xlsx plus live news-risk and oil overlays, computed on each forecast run.">i</i></div>
               <div class="panel-sub">Monte Carlo simulation &middot; p05 / p50 / p95 bands</div>
             </div>
           </div>
@@ -678,17 +701,21 @@
           </div>
         </div>
 
-        <div class="panel exportable" data-export-label="Brent Crude Forecast" id="oil-forecast-panel" style="display:none;">
+        <div class="panel exportable" data-export-label="Brent Crude Forecast" id="oil-forecast-panel">
           <div class="panel-head">
             <div>
-              <div class="panel-title">Brent Crude Forecast</div>
+              <div class="panel-title">Brent Crude Forecast<i class="data-src-icon src-live" data-tooltip-title="Live — yfinance" data-tooltip="8-week forecast built from 90 days of live yfinance (BZ=F) price history using a multi-model combination.">i</i></div>
               <div class="panel-sub" id="oil-chart-sub">Multi-model combination &middot; p10 / p90 band</div>
             </div>
             <div id="oil-trend-quant-badge" class="oil-trend-badge trend-stable" style="margin-left:auto;"></div>
           </div>
           <div class="panel-body">
             <div class="chart-area" id="oil-chart-area">
-              <canvas id="oil-forecast-chart"></canvas>
+              <div class="empty" id="oil-chart-empty" style="position:absolute;inset:0;z-index:1;background:transparent;">
+                <div class="empty-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+                <p>Choose a lane and click Generate</p>
+              </div>
+              <canvas id="oil-forecast-chart" style="display:none;"></canvas>
             </div>
             <div style="display:flex; gap:24px; flex-wrap:wrap; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.06);">
               <div class="risk-meta-item"><span class="risk-meta-label">Current Price</span><span class="risk-meta-value" id="oil-fc-price">&mdash;</span></div>
@@ -725,7 +752,7 @@
           <div class="panel exportable" data-export-label="Event Risk &amp; Regime" id="news-overview-panel">
             <div class="panel-head">
               <div>
-                <div class="panel-title">Event Risk &amp; Regime</div>
+                <div class="panel-title">Event Risk &amp; Regime<i class="data-src-icon src-live" data-tooltip-title="Live — GDELT" data-tooltip="Net risk score from GDELT global event database, 72-hour window, lane-specific keyword filter.">i</i></div>
                 <div class="panel-sub" id="news-panel-sub">GDELT news signal &middot; run a forecast to load</div>
               </div>
               <div id="news-regime-badge"></div>
@@ -749,7 +776,7 @@
           <div class="panel exportable" data-export-label="Oil Signal">
             <div class="panel-head">
               <div>
-                <div class="panel-title">Oil Signal</div>
+                <div class="panel-title">Oil Signal<i class="data-src-icon src-live" data-tooltip-title="Live — yfinance" data-tooltip="Brent crude spot price and trend fetched live via yfinance (BZ=F) when the page loads.">i</i></div>
                 <div class="panel-sub">Brent crude spot price</div>
               </div>
             </div>
@@ -768,7 +795,7 @@
 
         <!-- Row 2: Article volume tiles -->
         <div class="panel exportable" data-export-label="Article Volume">
-          <div class="panel-head"><div class="panel-title">Article Volume</div></div>
+          <div class="panel-head"><div class="panel-title">Article Volume<i class="data-src-icon src-live" data-tooltip-title="Live — GDELT" data-tooltip="Article counts queried live from GDELT for lane-specific keywords across 24h / 72h / 7d windows.">i</i></div></div>
           <div class="panel-body">
             <div class="stat-tiles">
               <div class="stat-tile"><div class="stat-tile-num" id="vol-24h">&mdash;</div><div class="stat-tile-label">Last 24 h</div></div>
@@ -781,7 +808,7 @@
         <!-- Row 3: Narrative + Key Drivers side by side -->
         <div class="panel-row">
           <div class="panel exportable" data-export-label="Risk Narrative">
-            <div class="panel-head"><div class="panel-title">Risk Narrative</div></div>
+            <div class="panel-head"><div class="panel-title">Risk Narrative<i class="data-src-icon src-live" data-tooltip-title="Live — AI / GDELT" data-tooltip="Narrative generated by an LLM summarising GDELT articles retrieved live for this lane.">i</i></div></div>
             <div class="panel-body">
               <p class="risk-narrative" id="news-narrative">Run a forecast to generate the risk narrative for this lane.</p>
             </div>
@@ -790,7 +817,7 @@
           <div class="panel exportable" data-export-label="Key Drivers">
             <div class="panel-head">
               <div>
-                <div class="panel-title">Key Drivers</div>
+                <div class="panel-title">Key Drivers<i class="data-src-icon src-live" data-tooltip-title="Live — GDELT" data-tooltip="Primary risk factors extracted from GDELT event themes and tone scores for the current lane.">i</i></div>
                 <div class="panel-sub">Primary factors behind net risk score</div>
               </div>
             </div>
@@ -805,7 +832,7 @@
         <!-- Row 4: Port congestion -->
         <div class="panel exportable" data-export-label="Port Congestion">
           <div class="panel-head">
-            <div class="panel-title">Port &amp; Chokepoint Congestion</div>
+            <div class="panel-title">Port &amp; Chokepoint Congestion<i class="data-src-icon src-model" data-tooltip-title="Modelled" data-tooltip="Congestion index is derived from the net risk score — it is not a live port operations feed.">i</i></div>
             <div class="panel-sub" id="cong-sub">Key nodes for this lane</div>
           </div>
           <div class="panel-body" style="padding:0;">
@@ -822,7 +849,7 @@
         <div class="panel exportable" data-export-label="Featured Articles">
           <div class="panel-head">
             <div>
-              <div class="panel-title">Featured Articles</div>
+              <div class="panel-title">Featured Articles<i class="data-src-icon src-live" data-tooltip-title="Live — GDELT" data-tooltip="Top articles matching lane-specific keywords, fetched live from the GDELT global event database.">i</i></div>
               <div class="panel-sub" id="articles-sub">Top GDELT matches for this lane</div>
             </div>
           </div>
@@ -839,7 +866,7 @@
         <!-- Row 6: Theme breakdown -->
         <div class="panel exportable" data-export-label="Theme Breakdown">
           <div class="panel-head">
-            <div class="panel-title">Theme Breakdown</div>
+            <div class="panel-title">Theme Breakdown<i class="data-src-icon src-live" data-tooltip-title="Live — GDELT" data-tooltip="Risk contribution by coverage cluster, computed from GDELT article themes for this lane.">i</i></div>
             <div class="panel-sub">Risk contribution by coverage cluster</div>
           </div>
           <div class="panel-body" style="padding:0;">
@@ -1182,7 +1209,7 @@ function renderOverview(ov, regime) {
   const chgEl = document.getElementById('ov-change');
   if (chg != null) { chgEl.textContent = (chg>=0?'+':'')+chg.toFixed(1)+'% vs 8-wk forecast'; chgEl.className='kpi-delta '+(chg>0?'up':chg<0?'down':'neu'); }
   document.getElementById('ov-sentiment').textContent  = ov.overall_sentiment || '\u2014';
-  document.getElementById('ov-confidence').textContent = ov.confidence_score != null ? 'Confidence: '+Math.round(ov.confidence_score*100)+'%' : '';
+  document.getElementById('ov-confidence').innerHTML = ov.confidence_score != null ? 'Confidence: '+Math.round(ov.confidence_score*100)+'%<i class="data-src-icon src-fixed" data-tooltip-title="Hardcoded — 80%" data-tooltip="Confidence is a static placeholder (0.80) set in api.py. Model calibration is in progress.">i</i>' : '';
   document.getElementById('ov-regime-badge').innerHTML = regimeBadgeHTML(ov.risk_regime||regime);
   document.getElementById('ov-prediction').textContent = ov.overall_prediction || '\u2014';
   document.getElementById('ov-lane').textContent = ov.lane || '\u2014';
@@ -1249,9 +1276,15 @@ function renderQuant(data) {
 
 function renderOilChart(of) {
   try {
-    const panel = document.getElementById('oil-forecast-panel');
-    if (!of || !of.weekly_forecast || !of.weekly_forecast.length) { panel.style.display='none'; return; }
-    panel.style.display = '';
+    const oilEmpty  = document.getElementById('oil-chart-empty');
+    const oilCanvas = document.getElementById('oil-forecast-chart');
+    if (!of || !of.weekly_forecast || !of.weekly_forecast.length) {
+      oilEmpty.style.display  = '';
+      oilCanvas.style.display = 'none';
+      return;
+    }
+    oilEmpty.style.display  = 'none';
+    oilCanvas.style.display = '';
 
     // Meta strip
     document.getElementById('oil-fc-price').textContent  = '$' + of.current_price.toFixed(2);
