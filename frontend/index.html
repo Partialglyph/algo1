@@ -678,6 +678,27 @@
           </div>
         </div>
 
+        <div class="panel exportable" data-export-label="Brent Crude Forecast" id="oil-forecast-panel" style="display:none;">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Brent Crude Forecast</div>
+              <div class="panel-sub" id="oil-chart-sub">Multi-model combination &middot; p10 / p90 band</div>
+            </div>
+            <div id="oil-trend-quant-badge" class="oil-trend-badge trend-stable" style="margin-left:auto;"></div>
+          </div>
+          <div class="panel-body">
+            <div class="chart-area" id="oil-chart-area">
+              <canvas id="oil-forecast-chart"></canvas>
+            </div>
+            <div style="display:flex; gap:24px; flex-wrap:wrap; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.06);">
+              <div class="risk-meta-item"><span class="risk-meta-label">Current Price</span><span class="risk-meta-value" id="oil-fc-price">&mdash;</span></div>
+              <div class="risk-meta-item"><span class="risk-meta-label">Ann. Volatility</span><span class="risk-meta-value" id="oil-fc-vol">&mdash;</span></div>
+              <div class="risk-meta-item"><span class="risk-meta-label">Models</span><span class="risk-meta-value" id="oil-fc-models">&mdash;</span></div>
+              <div style="flex:1; min-width:180px;"><span class="risk-meta-label" id="oil-fc-regime" style="font-size:0.68rem; color:var(--text-f);"></span></div>
+            </div>
+          </div>
+        </div>
+
         <div class="panel exportable" data-export-label="Weekly Breakdown">
           <div class="panel-head">
             <div class="panel-title">Weekly Breakdown</div>
@@ -1115,6 +1136,7 @@ function fetchAPI(path, opts = {}) {
 }
 window.axionAPI = { fetch: fetchAPI };
 let chartInstance = null;
+let oilChartInstance = null;
 
 function fmt(n) { return (n == null || isNaN(n)) ? '\u2014' : new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n); }
 function setAlert(id, msg, type) {
@@ -1131,7 +1153,12 @@ function switchTab(name) {
   document.getElementById('tab-' + name).classList.add('active');
   const btn = document.getElementById('tab-' + name + '-btn');
   if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected','true'); moveIndicator(btn); }
-  if (name === 'quant' && chartInstance) requestAnimationFrame(() => requestAnimationFrame(() => chartInstance && chartInstance.resize()));
+  if (name === 'quant') {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (chartInstance) chartInstance.resize();
+      if (oilChartInstance) oilChartInstance.resize();
+    }));
+  }
 }
 
 function regimeBadgeHTML(label) {
@@ -1215,7 +1242,72 @@ function renderQuant(data) {
       const sig = w.p50 > fc.last_observed_value ? '<span class="tag tag-green">&uarr; Up</span>' : '<span class="tag tag-red">&darr; Down</span>';
       return `<tr><td>${w.week_end}</td><td>${fmt(w.expected)}</td><td>${fmt(w.p05)}</td><td>${fmt(w.p50)}</td><td>${fmt(w.p95)}</td><td>${sig}</td></tr>`;
     }).join('');
+    // Oil forecast chart
+    if (data.quant.oil_forecast) renderOilChart(data.quant.oil_forecast);
   } catch(err) { setAlert('alert-quant','Chart render error: '+err.message,'error'); }
+}
+
+function renderOilChart(of) {
+  try {
+    const panel = document.getElementById('oil-forecast-panel');
+    if (!of || !of.weekly_forecast || !of.weekly_forecast.length) { panel.style.display='none'; return; }
+    panel.style.display = '';
+
+    // Meta strip
+    document.getElementById('oil-fc-price').textContent  = '$' + of.current_price.toFixed(2);
+    document.getElementById('oil-fc-vol').textContent    = (of.annualized_volatility * 100).toFixed(1) + '%';
+    document.getElementById('oil-fc-models').textContent = (of.models_used || []).join(', ') || '—';
+    document.getElementById('oil-fc-regime').textContent = of.regime_note || '';
+    const badge = document.getElementById('oil-trend-quant-badge');
+    badge.textContent  = of.current_trend;
+    badge.className    = 'oil-trend-badge trend-' + of.current_trend;
+
+    const wf     = of.weekly_forecast;
+    const labels = wf.map(p => p.week_end);
+    const combo  = wf.map(p => p.combination);
+    const fut    = wf.map(p => p.futures);
+    const bvar   = wf.map(p => p.bvar);
+    const radj   = wf.map(p => p.risk_adjusted);
+    const p10    = wf.map(p => p.p10);
+    const p90    = wf.map(p => p.p90);
+
+    // Prepend current price as week-0 anchor
+    labels.unshift('Now');
+    combo.unshift(of.current_price); fut.unshift(of.current_price);
+    bvar.unshift(of.current_price);  radj.unshift(of.current_price);
+    p10.unshift(of.current_price);   p90.unshift(of.current_price);
+
+    const canvas = document.getElementById('oil-forecast-chart');
+    if (oilChartInstance) { oilChartInstance.destroy(); oilChartInstance = null; }
+    oilChartInstance = new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: { labels, datasets: [
+        { label:'p90 band',    data:p90,  borderColor:'rgba(251,191,36,0.25)', backgroundColor:'rgba(251,191,36,0.08)', borderWidth:1, pointRadius:0, fill:'+3', tension:0.3 },
+        { label:'Combination', data:combo,borderColor:'#fbbf24', backgroundColor:'transparent', borderWidth:2.5, pointRadius:3, pointBackgroundColor:'#fbbf24', tension:0.3 },
+        { label:'Futures',     data:fut,  borderColor:'rgba(79,124,255,0.7)', backgroundColor:'transparent', borderWidth:1.5, borderDash:[5,4], pointRadius:0, tension:0.3 },
+        { label:'BVAR',        data:bvar, borderColor:'rgba(52,199,138,0.7)', backgroundColor:'transparent', borderWidth:1.5, borderDash:[3,3], pointRadius:0, tension:0.3 },
+        { label:'Risk-Adj.',   data:radj, borderColor:'rgba(239,68,68,0.6)',  backgroundColor:'transparent', borderWidth:1.5, borderDash:[2,4], pointRadius:0, tension:0.3 },
+        { label:'p10 band',    data:p10,  borderColor:'rgba(251,191,36,0.25)', backgroundColor:'transparent', borderWidth:1, pointRadius:0, tension:0.3 },
+      ]},
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        interaction:{ mode:'index', intersect:false },
+        plugins:{
+          legend:{ position:'top', labels:{ color:'#8b909e', boxWidth:12, font:{ family:SF_FONT, size:11 }, padding:16,
+            filter: item => item.text !== 'p10 band' } },
+          tooltip:{ backgroundColor:'#1c2030', borderColor:'rgba(255,255,255,0.07)', borderWidth:1,
+            titleColor:'#e8eaf0', bodyColor:'#8b909e', padding:10,
+            titleFont:{ family:SF_FONT, size:12 }, bodyFont:{ family:SF_FONT, size:11 },
+            filter: i => i.dataset.label !== 'p10 band',
+            callbacks:{ label: c => ' ' + c.dataset.label + ': $' + c.parsed.y.toFixed(2) } }
+        },
+        scales:{
+          x:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#8b909e', font:{ size:11, family:SF_FONT }, maxRotation:0 } },
+          y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#8b909e', font:{ size:11, family:SF_FONT }, callback: v => '$'+v.toFixed(0) } }
+        }
+      }
+    });
+  } catch(err) { console.warn('Oil chart render error:', err); }
 }
 
 function renderNews(data) {
