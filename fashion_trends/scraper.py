@@ -1,35 +1,34 @@
 """
 Fashion Trends Scraper
 ======================
-Playwright headless scraper. Targets are defined in sources.py:
-  - retail   : Zara, ASOS, SSENSE
-  - media    : Vogue, Hypebae, Who What Wear
-  - dropship : Trendsi, Spocket, CJ, FondMart, Tasha, Bloom, Banggood, LightInTheBox, Eprolo
+Lightweight scraper using requests + BeautifulSoup (no browser required).
+Works reliably in GitHub Actions without Playwright or Chromium.
 
-Keywords are loaded from dictionary.json (all four lists merged for DB storage;
-analysis splits them back out by type).
+Source groups:
+  media    — RSS feeds from Vogue, Hypebae, Who What Wear (no blocking)
+  retail   — requests + BeautifulSoup for Zara, ASOS, SSENSE
+  dropship — requests + BeautifulSoup for 9 supplier catalogs
 
 Usage:
     python -m fashion_trends.scraper
 """
 
-import asyncio
 import json
 import logging
 import random
 import sqlite3
+import time
 from datetime import date
 from pathlib import Path
 
-from playwright.async_api import async_playwright, Page
+import requests
+from bs4 import BeautifulSoup
 
 try:
-    from playwright_stealth import stealth_async
-    HAS_STEALTH = True
+    import feedparser
+    HAS_FEEDPARSER = True
 except ImportError:
-    HAS_STEALTH = False
-
-from .sources import ALL_TARGETS
+    HAS_FEEDPARSER = False
 
 # ─── Paths ────────────────────────────────────────────────────────────────────
 ROOT      = Path(__file__).parent.parent
@@ -44,19 +43,139 @@ logging.basicConfig(
 )
 log = logging.getLogger("scraper")
 
-# ─── User-Agent Pool ──────────────────────────────────────────────────────────
+# ─── Request Headers ──────────────────────────────────────────────────────────
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Safari/605.1.15",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0",
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+]
+
+def _headers() -> dict:
+    return {
+        "User-Agent": random.choice(USER_AGENTS),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+        "Cache-Control": "no-cache",
+    }
+
+# ─── RSS Feed Targets (media group) ──────────────────────────────────────────
+RSS_TARGETS = [
+    {
+        "site": "vogue",
+        "group": "media",
+        "url": "https://www.vogue.com/feed/rss",
+    },
+    {
+        "site": "whowhatwear",
+        "group": "media",
+        "url": "https://www.whowhatwear.com/feeds/all.rss",
+    },
+    {
+        "site": "harpersbazaar",
+        "group": "media",
+        "url": "https://www.harpersbazaar.com/feed/",
+    },
+    {
+        "site": "elle",
+        "group": "media",
+        "url": "https://www.elle.com/feed/",
+    },
+    {
+        "site": "refinery29",
+        "group": "media",
+        "url": "https://www.refinery29.com/en-us/rss.xml",
+    },
+]
+
+# ─── HTML Scrape Targets (retail + dropship) ──────────────────────────────────
+HTML_TARGETS = [
+    # ── Retail ────────────────────────────────────────────────────────────────
+    {
+        "site": "asos",
+        "group": "retail",
+        "url": "https://www.asos.com/women/new-in/new-in-clothing/cat/?cid=2623&sort=freshness",
+        "tags": ["h3", "a", "img"],
+        "attrs": ["alt", "title", "aria-label"],
+    },
+    {
+        "site": "zara",
+        "group": "retail",
+        "url": "https://www.zara.com/us/en/woman-new-in-l1180.html",
+        "tags": ["h2", "h3", "span", "img"],
+        "attrs": ["alt", "title"],
+    },
+    {
+        "site": "ssense",
+        "group": "retail",
+        "url": "https://www.ssense.com/en-us/women/new-arrivals",
+        "tags": ["h3", "p", "img"],
+        "attrs": ["alt"],
+    },
+    # ── Dropship ──────────────────────────────────────────────────────────────
+    {
+        "site": "trendsi",
+        "group": "dropship",
+        "url": "https://www.trendsi.com/collections/new-arrivals",
+        "tags": ["h2", "h3", "a", "img"],
+        "attrs": ["alt", "title"],
+    },
+    {
+        "site": "fondmart",
+        "group": "dropship",
+        "url": "https://www.fondmart.com/new-arrivals/",
+        "tags": ["h2", "h3", "a", "span", "img"],
+        "attrs": ["alt", "title"],
+    },
+    {
+        "site": "tasha",
+        "group": "dropship",
+        "url": "https://www.tashawholesale.com/new-arrivals",
+        "tags": ["h2", "h3", "a", "img"],
+        "attrs": ["alt", "title"],
+    },
+    {
+        "site": "bloom",
+        "group": "dropship",
+        "url": "https://bloomdropship.com/collections/new-arrivals",
+        "tags": ["h2", "h3", "a", "img"],
+        "attrs": ["alt", "title"],
+    },
+    {
+        "site": "banggood",
+        "group": "dropship",
+        "url": "https://www.banggood.com/Wholesale-Women-s-Clothing-c-11.html",
+        "tags": ["h3", "a", "img"],
+        "attrs": ["alt", "title"],
+    },
+    {
+        "site": "lightinthebox",
+        "group": "dropship",
+        "url": "https://www.lightinthebox.com/c/women-clothing_0208/?sortBy=newsarrivals",
+        "tags": ["h3", "a", "img"],
+        "attrs": ["alt", "title"],
+    },
+    {
+        "site": "eprolo",
+        "group": "dropship",
+        "url": "https://eprolo.com/product-category/clothing/",
+        "tags": ["h2", "h3", "a", "img"],
+        "attrs": ["alt", "title"],
+    },
+    {
+        "site": "cjdropshipping",
+        "group": "dropship",
+        "url": "https://cjdropshipping.com/list/?categoryId=1&sortType=0",
+        "tags": ["h3", "a", "img"],
+        "attrs": ["alt", "title"],
+    },
 ]
 
 
-# ─── All tracked terms (merged) ───────────────────────────────────────────────
+# ─── Keyword Loading ──────────────────────────────────────────────────────────
 def load_all_keywords(dict_path: Path) -> list[str]:
-    """Return deduplicated union of all keyword lists from dictionary.json."""
     d = json.loads(dict_path.read_text())
     seen: set[str] = set()
     out: list[str] = []
@@ -97,114 +216,112 @@ def init_db(db_path: Path) -> sqlite3.Connection:
     return conn
 
 
-# ─── Page Text Extraction ─────────────────────────────────────────────────────
-async def extract_text(page: Page, target: dict) -> str:
-    """Scroll to trigger lazy-loads then extract text from configured selectors."""
-    for _ in range(target.get("scroll_passes", 2)):
-        await page.evaluate("window.scrollBy(0, window.innerHeight * 1.5)")
-        await page.wait_for_timeout(random.randint(600, 1200))
-
-    texts: list[str] = []
-
-    for sel in target["selectors"]:
-        try:
-            elements = await page.query_selector_all(sel)
-            for el in elements:
-                if "img" in sel or sel.endswith("[alt]"):
-                    val = (await el.get_attribute("alt")) or ""
-                else:
-                    val = (await el.inner_text()) or ""
-                texts.append(val.strip())
-        except Exception:
-            pass
-
-    # For media targets: also grab body paragraph text for richer language
-    if target.get("body_text"):
-        try:
-            paras = await page.query_selector_all("p")
-            for p in paras[:80]:   # cap to first 80 paragraphs
-                val = (await p.inner_text()) or ""
-                if len(val) > 20:  # skip navigation noise
-                    texts.append(val.strip())
-        except Exception:
-            pass
-
-    return " ".join(texts).lower()
+def write_counts(conn: sqlite3.Connection, today: str, site: str, group: str,
+                 counts: dict[str, int]) -> int:
+    written = 0
+    for kw, cnt in counts.items():
+        conn.execute(
+            """INSERT INTO daily_counts (date, keyword, count, site_source, source_group)
+               VALUES (?, ?, ?, ?, ?)
+               ON CONFLICT(date, keyword, site_source)
+               DO UPDATE SET count = excluded.count""",
+            (today, kw, cnt, site, group),
+        )
+        written += 1
+    conn.commit()
+    return written
 
 
-# ─── Keyword Counter ──────────────────────────────────────────────────────────
+# ─── Text Counting ────────────────────────────────────────────────────────────
 def count_keywords(text: str, keywords: list[str]) -> dict[str, int]:
-    return {kw: text.count(kw.lower()) for kw in keywords}
+    t = text.lower()
+    return {kw: t.count(kw.lower()) for kw in keywords}
 
 
-# ─── Per-site Scrape ──────────────────────────────────────────────────────────
-async def scrape_target(browser, target: dict, keywords: list[str]) -> dict[str, int]:
-    context = await browser.new_context(
-        user_agent=random.choice(USER_AGENTS),
-        viewport={"width": 1280, "height": 900},
-        locale="en-US",
-    )
-    page = await context.new_page()
-
-    if HAS_STEALTH:
-        await stealth_async(page)
-
-    counts: dict[str, int] = {}
+# ─── RSS Scraper ──────────────────────────────────────────────────────────────
+def scrape_rss(target: dict, keywords: list[str]) -> dict[str, int]:
+    if not HAS_FEEDPARSER:
+        log.warning("feedparser not installed — skipping RSS targets")
+        return {}
     try:
-        log.info("  → [%s] %s ...", target["group"], target["site"])
-        await page.goto(target["url"], wait_until="domcontentloaded", timeout=30_000)
-        await page.wait_for_timeout(random.randint(1500, 3000))
-        text = await extract_text(page, target)
-        counts = count_keywords(text, keywords)
+        feed = feedparser.parse(target["url"])
+        texts = []
+        for entry in feed.entries[:60]:
+            texts.append(getattr(entry, "title", "") or "")
+            texts.append(getattr(entry, "summary", "") or "")
+            content = getattr(entry, "content", [])
+            if content:
+                texts.append(content[0].get("value", "") or "")
+        combined = " ".join(texts)
+        counts = count_keywords(combined, keywords)
         total = sum(counts.values())
-        log.info("  ✓ %s — %d keyword hits across %d chars of text", target["site"], total, len(text))
+        log.info("  ✓ %s (RSS) — %d keyword hits, %d entries", target["site"], total, len(feed.entries))
+        return counts
+    except Exception as exc:
+        log.warning("  ✗ %s (RSS) failed: %s", target["site"], exc)
+        return {}
+
+
+# ─── HTML Scraper ─────────────────────────────────────────────────────────────
+def scrape_html(target: dict, keywords: list[str], session: requests.Session) -> dict[str, int]:
+    try:
+        resp = session.get(target["url"], headers=_headers(), timeout=20, allow_redirects=True)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "html.parser")
+
+        texts = []
+        # Tag text content
+        for tag in target.get("tags", ["h3", "a", "img"]):
+            for el in soup.find_all(tag):
+                texts.append(el.get_text(" ", strip=True))
+                # Also grab specified attributes (alt, title, aria-label)
+                for attr in target.get("attrs", ["alt"]):
+                    val = el.get(attr, "")
+                    if val:
+                        texts.append(val)
+
+        combined = " ".join(texts)
+        counts = count_keywords(combined, keywords)
+        total = sum(counts.values())
+        log.info("  ✓ %s — %d keyword hits across %d chars", target["site"], total, len(combined))
+        return counts
+    except requests.HTTPError as exc:
+        log.warning("  ✗ %s HTTP %s — skipping", target["site"], exc.response.status_code)
+        return {}
     except Exception as exc:
         log.warning("  ✗ %s failed: %s", target["site"], exc)
-    finally:
-        await context.close()
-
-    return counts
+        return {}
 
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
-async def main() -> None:
+def main() -> None:
     keywords = load_all_keywords(DICT_PATH)
     conn     = init_db(DB_PATH)
     today    = date.today().isoformat()
 
     log.info(
-        "Scrape starting — date=%s  keywords=%d  targets=%d",
-        today, len(keywords), len(ALL_TARGETS),
+        "Scrape starting — date=%s  keywords=%d  rss=%d  html=%d",
+        today, len(keywords), len(RSS_TARGETS), len(HTML_TARGETS),
     )
-    if HAS_STEALTH:
-        log.info("playwright-stealth active")
-    else:
-        log.warning("playwright-stealth not installed — running without stealth mode")
 
     total_rows = 0
+    session = requests.Session()
 
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+    # ── RSS feeds (media group) ───────────────────────────────────────────────
+    for target in RSS_TARGETS:
+        log.info("  → [media/RSS] %s", target["site"])
+        counts = scrape_rss(target, keywords)
+        if counts:
+            total_rows += write_counts(conn, today, target["site"], target["group"], counts)
+        time.sleep(random.uniform(0.5, 1.5))
 
-        for target in ALL_TARGETS:
-            counts = await scrape_target(browser, target, keywords)
-
-            if counts:
-                for kw, cnt in counts.items():
-                    conn.execute(
-                        """INSERT INTO daily_counts (date, keyword, count, site_source, source_group)
-                           VALUES (?, ?, ?, ?, ?)
-                           ON CONFLICT(date, keyword, site_source)
-                           DO UPDATE SET count = excluded.count""",
-                        (today, kw, cnt, target["site"], target["group"]),
-                    )
-                total_rows += len(counts)
-                conn.commit()
-
-            # Polite delay between sites
-            await asyncio.sleep(random.uniform(2.0, 5.0))
-
-        await browser.close()
+    # ── HTML scraping (retail + dropship) ────────────────────────────────────
+    for target in HTML_TARGETS:
+        log.info("  → [%s/HTML] %s", target["group"], target["site"])
+        counts = scrape_html(target, keywords, session)
+        if counts:
+            total_rows += write_counts(conn, today, target["site"], target["group"], counts)
+        time.sleep(random.uniform(1.0, 3.0))
 
     conn.close()
     log.info("Scrape complete — %d rows written for %s", total_rows, today)
@@ -217,4 +334,4 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

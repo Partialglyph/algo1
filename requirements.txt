@@ -7,3 +7,9 @@ httpx
 pydantic
 deepL
 yfinance
+
+# Fashion trends scraper
+requests
+beautifulsoup4
+feedparser
+lxml

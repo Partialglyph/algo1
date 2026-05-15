@@ -2,16 +2,14 @@ name: Fashion Trends Scraper
 
 on:
   schedule:
-    # Run daily at midnight UTC
-    - cron: '0 0 * * *'
-  # Allow manual trigger for testing
-  workflow_dispatch:
+    - cron: '0 0 * * *'   # midnight UTC daily
+  workflow_dispatch:        # manual trigger for testing
 
 jobs:
   scrape-and-analyze:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # required to commit trends.json back to repo
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -24,27 +22,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Cache pip packages
+      - name: Cache pip
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-playwright-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-playwright-
+          key: ${{ runner.os }}-pip-trends-v2
+          restore-keys: ${{ runner.os }}-pip-trends-
 
-      - name: Install Python dependencies
-        run: |
-          pip install playwright playwright-stealth
-
-      - name: Install Chromium browser
-        run: |
-          playwright install chromium --with-deps
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 feedparser lxml
 
       - name: Run scraper
-        id: scrape
         run: python -m fashion_trends.scraper
-        # If scraper raises SystemExit (0 results from all sites),
-        # this step fails and the job stops — trends.json is NOT committed.
+        # Exits with code 1 if all sites return 0 results — blocks commit
 
       - name: Run analyzer
         run: python -m fashion_trends.analyze
@@ -52,18 +42,17 @@ jobs:
       - name: Validate output
         run: |
           python -c "
-          import json, sys
+          import json
           with open('trends.json') as f:
               d = json.load(f)
-          assert 'keywords' in d, 'missing keywords'
-          assert 'summary' in d, 'missing summary'
-          assert len(d['keywords']) > 0, 'empty keywords list'
-          print(f'[OK] trends.json valid — {len(d[\"keywords\"])} keywords, '
-                f'{d[\"summary\"][\"rising_count\"]} rising, '
-                f'{d[\"summary\"][\"fading_count\"]} fading')
+          assert 'macro_trends'   in d, 'missing macro_trends'
+          assert 'competitor_map' in d, 'missing competitor_map'
+          assert 'materials'      in d, 'missing materials'
+          s = d['summary']
+          print(f'[OK] trends.json valid — macro rising={s[\"macro_rising\"]} fading={s[\"macro_fading\"]} | saturated={s[\"saturated_niches\"]} | materials rising={s[\"material_rising\"]}')
           "
 
-      - name: Commit updated trends.json
+      - name: Commit updated files
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
