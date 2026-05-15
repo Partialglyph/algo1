@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import os
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
+from pathlib import Path
 
 import numpy as np
 from fastapi import FastAPI, HTTPException
@@ -355,6 +357,27 @@ async def _run_dashboard(req: ForecastRequest) -> DashboardResponse:
         costs=costs,
         generated_at=datetime.now(timezone.utc),
     )
+
+
+_TRENDS_PATH = Path(__file__).parent.parent / "trends.json"
+
+
+@app.get("/trends")
+async def get_trends():
+    """
+    Serve pre-computed fashion/retail trend data from trends.json.
+    Updated daily by the GitHub Actions scrape workflow.
+    """
+    if not _TRENDS_PATH.exists():
+        raise HTTPException(
+            status_code=503,
+            detail="Trend data not yet generated. Check back after the daily scrape.",
+        )
+    try:
+        return json.loads(_TRENDS_PATH.read_text())
+    except Exception as exc:
+        log.exception("Failed to read trends.json")
+        raise HTTPException(status_code=500, detail="Trend data read error.") from exc
 
 
 @app.post("/dashboard", response_model=DashboardResponse)
