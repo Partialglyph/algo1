@@ -18,10 +18,10 @@
     @font-face { font-family: 'SF Pro Display'; src: url('fonts/SFPRODISPLAYULTRALIGHTITALIC.OTF') format('opentype'); font-weight: 200; font-style: italic; }
 
     :root {
-      --bg:        #0a0a0a;
-      --surface:   #111111;
-      --surface-2: #181818;
-      --surface-3: #1e1e1e;
+      --bg:        #111113;
+      --surface:   #1c1c1e;
+      --surface-2: #222224;
+      --surface-3: #2a2a2c;
       --border:    rgba(255,255,255,0.07);
       --border-2:  rgba(255,255,255,0.12);
       --text:      #e8eaf0;
@@ -34,11 +34,12 @@
       --amber:     #f5a623;
       --purple:    #a78bfa;
       --font: 'SF Pro Display', 'Helvetica Neue', sans-serif;
-      --r-sm: 8px; --r-md: 12px; --r-lg: 16px;
+      --r-sm: 10px; --r-md: 14px; --r-lg: 20px;
       --t: 80ms ease;
-      --card-bg: linear-gradient(160deg, #181818 0%, #111111 100%);
-      --card-border: rgba(255,255,255,0.065);
-      --card-shine: linear-gradient(180deg, rgba(255,255,255,0.028) 0%, transparent 30%);
+      --card-bg: #1c1c1e;
+      --card-item: #2a2a2c;
+      --card-border: rgba(255,255,255,0.0);
+      --card-shine: none;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { -webkit-font-smoothing: antialiased; font-size: 16px; }
@@ -49,10 +50,18 @@
     a:hover { text-decoration: underline; }
 
     .app { display: grid; min-height: 100dvh; }
-    main { display: grid; grid-template-columns: 240px 1fr; height: 100dvh; overflow: hidden; }
+    main { display: flex; height: 100dvh; overflow: hidden; }
 
     /* ── Sidebar ── */
-    .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 24px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 28px; }
+    .sidebar { background: var(--surface); border-right: 1px solid var(--border); width: 240px; min-width: 0; flex-shrink: 0; overflow: hidden; display: flex; flex-direction: column; transition: width 220ms cubic-bezier(0.4,0,0.2,1); }
+    .sidebar.collapsed { width: 52px; }
+    .sidebar-body { padding: 0 16px 24px; display: flex; flex-direction: column; gap: 28px; min-width: 208px; opacity: 1; transition: opacity 150ms ease; overflow-y: auto; flex: 1; }
+    .sidebar.collapsed .sidebar-body { opacity: 0; pointer-events: none; }
+    .sb-toggle { display: flex; justify-content: flex-end; align-items: center; padding: 10px 12px 6px; background: none; border: none; color: var(--text-f); transition: color var(--t); flex-shrink: 0; }
+    .sb-toggle:hover { color: var(--text-m); }
+    .sidebar.collapsed .sb-toggle { justify-content: center; }
+    .sb-toggle-icon { transition: transform 220ms cubic-bezier(0.4,0,0.2,1); }
+    .sidebar.collapsed .sb-toggle-icon { transform: rotate(180deg); }
     .sidebar-section-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-f); margin-bottom: 10px; }
     .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
     label { font-size: 0.75rem; font-weight: 500; color: var(--text-m); }
@@ -190,9 +199,9 @@
       flex-shrink: 0;
     }
     .data-src-icon:hover { opacity: 1; }
-    .src-live  { color: #34c759; }
-    .src-fixed { color: #ff9f0a; }
-    .src-model { color: #64d2ff; }
+    .src-live  { color: #34c759; filter: drop-shadow(0 0 4px rgba(52,199,89,0.55)); }
+    .src-fixed { color: #ff9f0a; filter: drop-shadow(0 0 4px rgba(255,159,10,0.50)); }
+    .src-model { color: #64d2ff; filter: drop-shadow(0 0 4px rgba(100,210,255,0.50)); }
 
     /* ── Custom context menu ── */
     #ctx-menu {
@@ -275,7 +284,7 @@
     .dd-item.selected .dd-check { opacity: 1; }
 
     /* ── Tabs ── */
-    .content { overflow-y: auto; display: flex; flex-direction: column; }
+    .content { flex: 1; min-width: 0; overflow-y: auto; display: flex; flex-direction: column; }
     .tabs-bar {
       display: flex; align-items: center; padding: 10px 16px 0;
       position: sticky; top: 0; z-index: 5;
@@ -301,6 +310,52 @@
     .tab-panel { display: none; padding: 16px; flex-direction: column; gap: 12px; }
     .tab-panel.active { display: flex; animation: panelIn 120ms ease both; }
     @keyframes panelIn { from { opacity: 0; } to { opacity: 1; } }
+    #tab-overview { padding: 0; gap: 0; }
+
+    /* ── Hero (overview) ── */
+    .hero-wrap {
+      position: relative; width: 100%; overflow: hidden;
+      min-height: calc(100dvh - 46px);
+      background: #07060e;
+      display: flex; align-items: center;
+    }
+    #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .hero-wrap::after {
+      content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: radial-gradient(ellipse 55% 75% at 28% 52%, rgba(7,6,14,1.0) 0%, rgba(7,6,14,0.92) 30%, rgba(7,6,14,0.6) 55%, transparent 75%);
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column;
+      padding: clamp(40px, 8vw, 100px);
+      max-width: 680px;
+    }
+    .hero-eyebrow {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--accent);
+      margin: 0 0 18px;
+    }
+    .hero-headline {
+      font-family: var(--font); font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+      font-weight: 300; line-height: 1.1; color: #fff;
+      margin: 0 0 22px; letter-spacing: -0.025em;
+    }
+    .hero-sub {
+      font-size: 1rem; font-weight: 400;
+      color: rgba(232,234,240,0.55); line-height: 1.7;
+      margin: 0 0 38px; max-width: 460px;
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.16);
+      color: var(--text); padding: 11px 22px;
+      border-radius: 99px; font-size: 0.85rem; font-family: var(--font);
+      cursor: pointer; width: fit-content;
+      transition: background 120ms ease, border-color 120ms ease;
+      backdrop-filter: blur(8px);
+    }
+    .hero-cta:hover { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.30); }
 
     /* ── Section label (smaller, uppercase, like Apple Watch widget labels) ── */
     .section-label {
@@ -312,49 +367,36 @@
     /* ── Card surface (shared by panels and kpi cards) ── */
     .card-surface {
       background: var(--card-bg);
-      border: 1px solid var(--card-border);
       border-radius: var(--r-lg);
       position: relative;
       overflow: hidden;
-    }
-    .card-surface::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: var(--card-shine);
-      border-radius: inherit;
-      pointer-events: none;
     }
 
     /* ── KPI cards ── */
     .kpi-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
     .kpi-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
+      background: var(--card-item);
       border-radius: var(--r-lg);
       padding: 14px 16px;
       position: relative;
       overflow: hidden;
     }
-    .kpi-card::before { content: ''; position: absolute; inset: 0; background: var(--card-shine); border-radius: inherit; pointer-events: none; }
     .kpi-label { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-f); margin-bottom: 8px; font-family: var(--font); }
     .kpi-value { font-size: clamp(1.1rem,2vw,1.55rem); font-weight: 400; letter-spacing: -0.025em; color: var(--text); font-variant-numeric: tabular-nums; font-family: var(--font); }
     .kpi-delta { font-size: 0.7rem; font-weight: 500; margin-top: 4px; font-family: var(--font); }
-    .kpi-delta.up { color: var(--green); } .kpi-delta.down { color: var(--red); } .kpi-delta.neu { color: var(--text-m); }
+    .kpi-delta.up { color: var(--green); text-shadow: 0 0 7px rgba(52,199,138,0.5); } .kpi-delta.down { color: var(--red); text-shadow: 0 0 7px rgba(224,92,92,0.5); } .kpi-delta.neu { color: var(--text-m); }
 
     /* ── Panel ── */
     .panel {
       background: var(--card-bg);
-      border: 1px solid var(--card-border);
       border-radius: var(--r-lg);
       position: relative;
       overflow: hidden;
     }
-    .panel::before { content: ''; position: absolute; inset: 0; background: var(--card-shine); border-radius: inherit; pointer-events: none; }
     .panel-head {
       display: flex; align-items: center; justify-content: space-between;
       padding: 13px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.045);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
     .panel-title { font-size: 0.78rem; font-weight: 600; color: var(--text); letter-spacing: 0.005em; font-family: var(--font); }
     .panel-sub { font-size: 0.67rem; color: var(--text-f); margin-top: 2px; font-family: var(--font); }
@@ -392,9 +434,9 @@
 
     .regime-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.01em; width: fit-content; font-family: var(--font); }
     .regime-badge .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-    .regime-normal   { background: rgba(52,199,138,0.12); color: var(--green); } .regime-normal   .dot { background: var(--green); }
-    .regime-elevated { background: rgba(245,166,35,0.12);  color: var(--amber); } .regime-elevated .dot { background: var(--amber); }
-    .regime-severe   { background: rgba(224,92,92,0.12);   color: var(--red);   } .regime-severe   .dot { background: var(--red);   }
+    .regime-normal   { background: rgba(52,199,138,0.12); color: var(--green); } .regime-normal   .dot { background: var(--green); box-shadow: 0 0 6px rgba(52,199,138,0.75); }
+    .regime-elevated { background: rgba(245,166,35,0.12);  color: var(--amber); } .regime-elevated .dot { background: var(--amber); box-shadow: 0 0 6px rgba(245,166,35,0.70); }
+    .regime-severe   { background: rgba(224,92,92,0.12);   color: var(--red);   } .regime-severe   .dot { background: var(--red);   box-shadow: 0 0 6px rgba(224,92,92,0.75); }
     .regime-none     { background: rgba(139,144,158,0.12); color: var(--text-m);} .regime-none     .dot { background: var(--text-f);}
 
     /* ── Risk score bars ── */
@@ -415,8 +457,7 @@
     /* ── Stat tiles (vol, etc.) ── */
     .stat-tiles { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
     .stat-tile {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.045);
+      background: var(--card-item);
       border-radius: var(--r-md);
       padding: 11px 13px;
     }
@@ -426,7 +467,7 @@
     /* ── Narrative / drivers ── */
     .risk-narrative { font-size: 0.8rem; color: var(--text-m); line-height: 1.7; font-family: var(--font); }
     .drivers-list { display: flex; flex-direction: column; gap: 6px; }
-    .driver-item { display: flex; align-items: flex-start; gap: 9px; font-size: 0.77rem; color: var(--text-m); line-height: 1.5; padding: 8px 12px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.04); border-radius: var(--r-sm); font-family: var(--font); }
+    .driver-item { display: flex; align-items: flex-start; gap: 9px; font-size: 0.77rem; color: var(--text-m); line-height: 1.5; padding: 8px 12px; background: var(--card-item); border-radius: var(--r-sm); font-family: var(--font); }
     .driver-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 6px; }
 
     /* ── Oil card ── */
@@ -442,8 +483,7 @@
     /* ── Articles ── */
     .articles-list { display: flex; flex-direction: column; gap: 10px; }
     .article-card {
-      background: rgba(255,255,255,0.025);
-      border: 1px solid rgba(255,255,255,0.04);
+      background: var(--card-item);
       border-radius: var(--r-md);
       padding: 14px 16px;
       display: flex; flex-direction: column; gap: 8px;
@@ -471,7 +511,7 @@
     .outlook-cell-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-f); font-family: var(--font); }
     .outlook-cell-value { font-size: 0.82rem; font-weight: 400; color: var(--text-m); line-height: 1.55; font-family: var(--font); }
     .conclusions-list { display: flex; flex-direction: column; gap: 5px; }
-    .conclusion-item { display: flex; align-items: flex-start; gap: 9px; font-size: 0.77rem; color: var(--text-m); padding: 7px 11px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.04); border-radius: var(--r-sm); line-height: 1.5; font-family: var(--font); }
+    .conclusion-item { display: flex; align-items: flex-start; gap: 9px; font-size: 0.77rem; color: var(--text-m); padding: 7px 11px; background: var(--card-item); border-radius: var(--r-sm); line-height: 1.5; font-family: var(--font); }
     .conclusion-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 6px; }
 
     /* ── Congestion row ── */
@@ -590,8 +630,11 @@
 
 <div class="app">
   <main>
-    <aside class="sidebar">
-      <div>
+    <aside class="sidebar collapsed" id="sidebar">
+      <button class="sb-toggle" id="sb-toggle-btn" type="button" aria-label="Toggle sidebar">
+        <svg class="sb-toggle-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16" aria-hidden="true"><polyline points="10 4 6 8 10 12"/></svg>
+      </button>
+      <div class="sidebar-body">
         <p class="sidebar-section-label">Configuration</p>
 
         <div class="field">
@@ -674,63 +717,13 @@
       </div>
 
       <!-- ═══════════════════════════════════════════
-           OVERVIEW
+           OVERVIEW — HERO
       ════════════════════════════════════════════ -->
       <div class="tab-panel active" id="tab-overview">
-        <div class="alert" id="alert-overview"></div>
-
-        <!-- KPI strip -->
-        <div class="kpi-row">
-          <div class="kpi-card exportable" data-export-label="Current Index">
-            <div class="kpi-label">Current Index<i class="data-src-icon src-live" data-tooltip-title="Live — data.xlsx" data-tooltip="Freight rate index pulled from the historical Excel dataset (data.xlsx) via the backend API on every forecast run.">i</i></div>
-            <div class="kpi-value" id="ov-current">&mdash;</div>
-            <div class="kpi-delta neu" id="ov-change"></div>
-          </div>
-          <div class="kpi-card exportable" data-export-label="Sentiment">
-            <div class="kpi-label">Sentiment<i class="data-src-icon src-fixed" data-tooltip-title="Fixed logic" data-tooltip="Sentiment label is derived from hardcoded % change thresholds (e.g. &gt;10% → Very Bullish). The underlying forecast values are live.">i</i></div>
-            <div class="kpi-value" style="font-size:1rem;" id="ov-sentiment">&mdash;</div>
-            <div class="kpi-delta neu" id="ov-confidence"></div>
-          </div>
-          <div class="kpi-card exportable" data-export-label="Risk Regime">
-            <div class="kpi-label">Risk Regime<i class="data-src-icon src-live" data-tooltip-title="Live — GDELT" data-tooltip="Risk regime computed from GDELT global event data, 72-hour window, using lane-specific keywords.">i</i></div>
-            <div id="ov-regime-badge" style="margin-top:6px;"></div>
-          </div>
-          <div class="kpi-card exportable" data-export-label="Brent Crude">
-            <div class="kpi-label">Brent Crude<i class="data-src-icon src-live" data-tooltip-title="Live — yfinance" data-tooltip="Brent crude spot price fetched from yfinance (BZ=F CME futures). Falls back to an $85 stub if the API is unavailable.">i</i></div>
-            <div class="kpi-value" id="ov-oil-price">&mdash;</div>
-            <div class="kpi-delta" id="ov-oil-trend"></div>
-          </div>
-        </div>
-
-        <!-- Outlook + conclusions side by side -->
-        <div class="panel-row">
-          <div class="panel exportable" data-export-label="Outlook">
-            <div class="panel-head">
-              <div class="panel-title">Outlook</div>
-            </div>
-            <div class="panel-body">
-              <div class="outlook-row">
-                <div class="outlook-cell">
-                  <div class="outlook-cell-label">Prediction</div>
-                  <div class="outlook-cell-value" id="ov-prediction">Run a forecast to see the outlook.</div>
-                </div>
-                <div class="outlook-cell">
-                  <div class="outlook-cell-label">Lane</div>
-                  <div class="outlook-cell-value" id="ov-lane" style="color:var(--text-f);">Select a lane and run.</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="panel exportable" data-export-label="Key Conclusions">
-            <div class="panel-head">
-              <div class="panel-title">Key Conclusions</div>
-            </div>
-            <div class="panel-body">
-              <div class="conclusions-list" id="ov-conclusions">
-                <div class="conclusion-item"><div class="conclusion-dot"></div><span style="color:var(--text-f); font-style:italic;">No data yet.</span></div>
-              </div>
-            </div>
+        <div class="hero-wrap">
+          <canvas id="hero-canvas"></canvas>
+          <div class="hero-content">
+            <h1 class="hero-headline">Your edge in a<br>competitive market.</h1>
           </div>
         </div>
       </div>
@@ -1391,6 +1384,7 @@ function switchTab(name) {
       if (trMatChart)   trMatChart.resize();
     }));
   }
+  if (name === 'overview') startHeroCanvas(); else stopHeroCanvas();
 }
 
 function regimeBadgeHTML(label) {
@@ -1409,6 +1403,7 @@ function toggleOrig(id) { const el = document.getElementById(id); if (el) el.cla
 ========================================================= */
 function renderOverview(ov, regime) {
   if (!ov) return;
+  if (!document.getElementById('ov-current')) return; // hero mode replaces this panel
   document.getElementById('ov-current').textContent = fmt(ov.current_value);
   const chg = ov.latest_change_pct;
   const chgEl = document.getElementById('ov-change');
@@ -2166,6 +2161,103 @@ function buildSearchResultHTML(d) {
 function escHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+/* =========================================================
+   HERO CANVAS — animated dot grid
+========================================================= */
+let _heroRAF = null;
+
+function sizeHeroCanvas() {
+  const canvas = document.getElementById('hero-canvas');
+  if (!canvas) return;
+  const wrap = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  const w = wrap.clientWidth || window.innerWidth;
+  const h = wrap.clientHeight || window.innerHeight;
+  canvas.width  = Math.round(w * dpr);
+  canvas.height = Math.round(h * dpr);
+  canvas.style.width  = w + 'px';
+  canvas.style.height = h + 'px';
+}
+
+function startHeroCanvas() {
+  if (_heroRAF) return;
+  sizeHeroCanvas();
+  const canvas = document.getElementById('hero-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const spacing = 22 * dpr;
+  const g1 = { r: 79,  g: 124, b: 255 };
+  const g2 = { r: 167, g: 139, b: 250 };
+
+  function frame() {
+    if (document.visibilityState === 'hidden') { _heroRAF = requestAnimationFrame(frame); return; }
+    const W = canvas.width, H = canvas.height;
+    const t  = Date.now() / 1000;
+    const cx = W / 2, cy = H / 2;
+    const g1x = cx + 0.32 * W * Math.sin(t * 0.11);
+    const g1y = cy + 0.26 * H * Math.cos(t * 0.09);
+    const g2x = cx + 0.28 * W * Math.cos(t * 0.07);
+    const g2y = cy + 0.34 * H * Math.sin(t * 0.13);
+    const sigma2 = Math.pow(Math.min(W, H) * 0.28, 2);
+
+    ctx.clearRect(0, 0, W, H);
+
+    const cols = Math.ceil(W / spacing) + 2;
+    const rows = Math.ceil(H / spacing) + 2;
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const x = (col - 0.5) * spacing;
+        const y = (row - 0.5) * spacing;
+        const d1sq = (x - g1x) * (x - g1x) + (y - g1y) * (y - g1y);
+        const d2sq = (x - g2x) * (x - g2x) + (y - g2y) * (y - g2y);
+        const i1 = Math.exp(-d1sq / (2 * sigma2));
+        const i2 = Math.exp(-d2sq / (2 * sigma2));
+        const intensity = Math.min(1, i1 + i2);
+        if (intensity < 0.012) continue;
+        const tot = i1 + i2 + 1e-6;
+        const cr = Math.round((i1 * g1.r + i2 * g2.r) / tot);
+        const cg = Math.round((i1 * g1.g + i2 * g2.g) / tot);
+        const cb = Math.round((i1 * g1.b + i2 * g2.b) / tot);
+        const distFromCenter = Math.hypot(x - cx, y - cy);
+        const fringe = Math.pow(distFromCenter / Math.hypot(cx, cy), 1.8);
+        const alpha  = 0.07 + intensity * 0.84;
+        const radius = (0.9 + intensity * 2.6 + fringe * 1.4) * dpr;
+        ctx.shadowBlur  = (intensity * 20 + fringe * 16) * dpr;
+        ctx.shadowColor = `rgba(${cr},${cg},${cb},${(intensity * 0.75).toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 6.2832);
+        ctx.fillStyle = `rgba(${cr},${cg},${cb},${alpha.toFixed(3)})`;
+        ctx.fill();
+      }
+    }
+    _heroRAF = requestAnimationFrame(frame);
+  }
+  _heroRAF = requestAnimationFrame(frame);
+}
+
+function stopHeroCanvas() {
+  if (_heroRAF) { cancelAnimationFrame(_heroRAF); _heroRAF = null; }
+}
+
+/* =========================================================
+   SIDEBAR TOGGLE
+========================================================= */
+document.getElementById('sb-toggle-btn').addEventListener('click', function () {
+  const sb = document.getElementById('sidebar');
+  sb.classList.toggle('collapsed');
+  if (document.getElementById('tab-overview').classList.contains('active')) {
+    setTimeout(sizeHeroCanvas, 240);
+  }
+});
+
+window.addEventListener('resize', function () {
+  if (_heroRAF) sizeHeroCanvas();
+});
+
+/* ── Init hero on load ── */
+requestAnimationFrame(startHeroCanvas);
 </script>
 </body>
 </html>
