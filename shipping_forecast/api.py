@@ -359,7 +359,147 @@ async def _run_dashboard(req: ForecastRequest) -> DashboardResponse:
     )
 
 
-_TRENDS_PATH = Path(__file__).parent.parent / "trends.json"
+import sqlite3
+from datetime import date as _date
+from concurrent.futures import ThreadPoolExecutor
+
+_TRENDS_PATH    = Path(__file__).parent.parent / "trends.json"
+_DB_PATH        = Path(__file__).parent.parent / "trends.db"
+_CUSTOM_PATH    = Path(__file__).parent.parent / "fashion_trends" / "custom_keywords.json"
+_DICT_PATH      = Path(__file__).parent.parent / "fashion_trends" / "dictionary.json"
+_search_executor = ThreadPoolExecutor(max_workers=2)
+
+
+def _get_db() -> sqlite3.Connection:
+    """Open a short-lived DB connection (thread-safe, per-request)."""
+    return sqlite3.connect(_DB_PATH, check_same_thread=False)
+
+
+def _base_keywords() -> set[str]:
+    """Return the set of terms already in dictionary.json (lowercase)."""
+    try:
+        d = json.loads(_DICT_PATH.read_text())
+        return {kw.lower() for lst in d.values() for kw in lst}
+    except Exception:
+        return set()
+
+
+def _scrape_term_rss_sync(term: str) -> None:
+    """
+    Synchronous RSS-only scrape for a single term.
+    Runs in a thread pool so it doesn't block the event loop.
+    """
+    try:
+        import feedparser  # type: ignore
+    except ImportError:
+        log.warning("feedparser not installed — search scrape skipped")
+        return
+
+    RSS_FEEDS = [
+        ("vogue",        "media", "https://www.vogue.com/feed/rss"),
+        ("whowhatwear",  "media", "https://www.whowhatwear.com/feeds/all.rss"),
+        ("harpersbazaar","media", "https://www.harpersbazaar.com/feed/"),
+        ("elle",         "media", "https://www.elle.com/feed/"),
+        ("refinery29",   "media", "https://www.refinery29.com/en-us/rss.xml"),
+    ]
+
+    today = _date.today().isoformat()
+    conn  = _get_db()
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS daily_counts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL, keyword TEXT NOT NULL,
+            count INTEGER NOT NULL DEFAULT 0,
+            site_source TEXT NOT NULL, source_group TEXT NOT NULL DEFAULT 'retail',
+            UNIQUE(date, keyword, site_source)
+        )
+    """)
+
+    for site, group, url in RSS_FEEDS:
+        try:
+            feed  = feedparser.parse(url)
+            texts = []
+            for entry in feed.entries[:60]:
+                texts.append(getattr(entry, "title",   "") or "")
+                texts.append(getattr(entry, "summary", "") or "")
+                for c in getattr(entry, "content", []):
+                    texts.append(c.get("value", "") or "")
+            combined = " ".join(texts).lower()
+            cnt = combined.count(term.lower())
+            conn.execute(
+                """INSERT INTO daily_counts (date, keyword, count, site_source, source_group)
+                   VALUES (?,?,?,?,?)
+                   ON CONFLICT(date, keyword, site_source) DO UPDATE SET count=excluded.count""",
+                (today, term, cnt, site, group),
+            )
+            conn.commit()
+        except Exception as exc:
+            log.warning("search RSS %s failed: %s", site, exc)
+
+    conn.close()
+
+    # Persist to custom_keywords.json for future nightly scrapes
+    try:
+        existing: list[str] = json.loads(_CUSTOM_PATH.read_text()) if _CUSTOM_PATH.exists() else []
+        if term.lower() not in [k.lower() for k in existing]:
+            existing.append(term)
+            _CUSTOM_PATH.write_text(json.dumps(existing, indent=2))
+    except Exception as exc:
+        log.warning("Could not update custom_keywords.json: %s", exc)
+
+
+def _build_search_result(term: str, found_in_cache: bool) -> dict:
+    today     = _date.today().isoformat()
+    seven_ago = str(_date.fromordinal(_date.today().toordinal() - 7))
+    conn      = _get_db()
+
+    rows = conn.execute(
+        "SELECT site_source, source_group, count FROM daily_counts WHERE date=? AND keyword=?",
+        (today, term),
+    ).fetchall()
+
+    today_count      = sum(r[2] for r in rows)
+    source_breakdown = {r[0]: r[2] for r in rows if r[2] > 0}
+
+    # 7-day average
+    hist = conn.execute(
+        """SELECT SUM(count) FROM daily_counts
+           WHERE date>=? AND date<? AND keyword=? GROUP BY date""",
+        (seven_ago, today, term),
+    ).fetchall()
+    totals = [r[0] for r in hist if r[0]]
+    avg_7d = round(sum(totals) / len(totals), 1) if totals else float(today_count)
+
+    # Velocity
+    trend_pct = round(((today_count - avg_7d) / avg_7d) * 100, 1) if avg_7d else 0.0
+
+    # Flag
+    flag = "Rising" if trend_pct > 15 else "Fading" if trend_pct < -15 else "Staple"
+
+    # Sparkline
+    spark_rows = conn.execute(
+        """SELECT date, SUM(count) FROM daily_counts
+           WHERE date>=? AND keyword=? GROUP BY date ORDER BY date""",
+        (seven_ago, term),
+    ).fetchall()
+    sparkline = [r[1] for r in spark_rows]
+    while len(sparkline) < 7:
+        sparkline.insert(0, 0)
+
+    conn.close()
+
+    return {
+        "term":            term,
+        "scrape_date":     today,
+        "found_in_cache":  found_in_cache,
+        "today_count":     today_count,
+        "avg_7d":          avg_7d,
+        "trend_pct":       trend_pct,
+        "flag":            flag,
+        "sparkline":       sparkline[-7:],
+        "source_breakdown": source_breakdown,
+        "is_custom":       term.lower() not in _base_keywords(),
+    }
 
 
 @app.get("/trends")
@@ -378,6 +518,45 @@ async def get_trends():
     except Exception as exc:
         log.exception("Failed to read trends.json")
         raise HTTPException(status_code=500, detail="Trend data read error.") from exc
+
+
+@app.get("/trends/search")
+async def search_trend(q: str):
+    """
+    Search for any fashion keyword.
+    Phase 1: return from today's DB cache instantly if available.
+    Phase 2: run a lightweight RSS-only scrape (~3-5s) if not cached.
+    Persists new terms to custom_keywords.json for future daily tracking.
+    """
+    term = q.strip().lower()
+    if not term:
+        raise HTTPException(status_code=400, detail="q parameter is required")
+
+    today = _date.today().isoformat()
+
+    # Phase 1: check cache
+    if _DB_PATH.exists():
+        conn = _get_db()
+        cached = conn.execute(
+            "SELECT COUNT(*) FROM daily_counts WHERE date=? AND keyword=?",
+            (today, term),
+        ).fetchone()[0]
+        conn.close()
+    else:
+        cached = 0
+
+    found_in_cache = cached > 0
+
+    if not found_in_cache:
+        # Phase 2: RSS scrape in thread pool (non-blocking)
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(_search_executor, _scrape_term_rss_sync, term)
+
+    try:
+        return _build_search_result(term, found_in_cache)
+    except Exception as exc:
+        log.exception("search_trend build result failed")
+        raise HTTPException(status_code=500, detail="Search result error.") from exc
 
 
 @app.post("/dashboard", response_model=DashboardResponse)

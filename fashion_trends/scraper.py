@@ -175,6 +175,8 @@ HTML_TARGETS = [
 
 
 # ─── Keyword Loading ──────────────────────────────────────────────────────────
+CUSTOM_PATH = Path(__file__).parent / "custom_keywords.json"
+
 def load_all_keywords(dict_path: Path) -> list[str]:
     d = json.loads(dict_path.read_text())
     seen: set[str] = set()
@@ -184,6 +186,16 @@ def load_all_keywords(dict_path: Path) -> list[str]:
             if kw.lower() not in seen:
                 seen.add(kw.lower())
                 out.append(kw)
+    # Merge user-submitted custom keywords
+    if CUSTOM_PATH.exists():
+        try:
+            custom = json.loads(CUSTOM_PATH.read_text())
+            for kw in custom:
+                if kw.lower() not in seen:
+                    seen.add(kw.lower())
+                    out.append(kw)
+        except Exception:
+            pass
     return out
 
 
