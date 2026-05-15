@@ -394,6 +394,7 @@
 
     /* ── KPI cards ── */
     .kpi-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+    .kpi-row-5 { grid-template-columns: repeat(5, minmax(0,1fr)); }
     .kpi-card {
       background: var(--card-item);
       border-radius: var(--r-lg);
@@ -974,7 +975,7 @@
         </div>
 
         <!-- KPI strip -->
-        <div class="kpi-row">
+        <div class="kpi-row kpi-row-5">
           <div class="kpi-card">
             <div class="kpi-label">Macro Rising</div>
             <div class="kpi-value" id="tr-macro-rising" style="color:var(--green);">—</div>
@@ -1708,10 +1709,11 @@ function renderTrends(data) {
   if (!data) return;
   // KPI strip
   const s = data.summary || {};
-  document.getElementById('tr-macro-rising').textContent = s.macro_rising  ?? '—';
-  document.getElementById('tr-macro-fading').textContent = s.macro_fading  ?? '—';
-  document.getElementById('tr-saturated').textContent    = s.saturated_niches ?? '—';
-  document.getElementById('tr-mat-rising').textContent   = s.material_rising ?? '—';
+  const _kpi = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v ?? '—'; };
+  _kpi('tr-macro-rising', s.macro_rising);
+  _kpi('tr-macro-fading', s.macro_fading);
+  _kpi('tr-saturated',    s.saturated_niches);
+  _kpi('tr-mat-rising',   s.material_rising);
   const upd = document.getElementById('tr-updated');
   if (upd) upd.textContent = data.scrape_date || '—';
 
@@ -1825,7 +1827,7 @@ function renderMacroTrends(items) {
       </div>
       <canvas id="${spId}" width="64" height="28" style="display:block;"></canvas>
       <div style="text-align:right;">
-        <span class="tr-flag tr-flag-${kw.flag.toLowerCase()}">${kw.flag}</span>
+        <span class="tr-flag tr-flag-${(kw.flag||'staple').toLowerCase()}">${kw.flag||'Staple'}</span>
         <div class="${pctCls}" style="margin-top:4px;">${arrow} ${sign}${pct.toFixed(1)}%</div>
         <div class="tr-vol">${kw.today_count} mentions</div>
       </div>
@@ -2060,7 +2062,7 @@ function renderMaterials(items) {
       </div>
       <canvas id="${spId}" width="64" height="28" style="display:block;"></canvas>
       <div style="text-align:right;">
-        <span class="tr-flag tr-flag-${m.flag.toLowerCase()}">${m.flag}</span>
+        <span class="tr-flag tr-flag-${(m.flag||'staple').toLowerCase()}">${m.flag||'Staple'}</span>
         <div class="${pctCls}" style="margin-top:4px;">${arrow} ${sign}${pct.toFixed(1)}%</div>
         <div class="tr-vol">${m.today_count} mentions</div>
       </div>

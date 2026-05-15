@@ -29,14 +29,30 @@ OUT_PATH  = ROOT / "trends.json"
 RISING_THRESHOLD = 15.0
 FADING_THRESHOLD = -15.0
 
-SATURATED_THRESHOLD = 6   # site_count >= 6  → Saturated
-GROWING_THRESHOLD   = 3   # site_count 3–5   → Growing
-                           # site_count < 3   → Niche
+# Lowered from 6/3 — meaningful against real scraped data volumes
+SATURATED_THRESHOLD = 4   # site_count >= 4  → Saturated
+GROWING_THRESHOLD   = 2   # site_count 2–3   → Growing
+                           # site_count < 2   → Niche
 
-PREMIUM_WORDS = {"premium", "luxury", "cashmere", "high quality"}
-BUDGET_WORDS  = {"budget", "cheap", "affordable", "low quality"}
+# Hard-coded material price tier — replaces broken co-occurrence query
+MATERIAL_PRICE_TIER: dict[str, str] = {
+    # premium
+    "cashmere": "premium", "silk": "premium", "velvet": "premium",
+    "satin": "premium", "leather": "premium", "suede": "premium",
+    "wool": "premium", "tweed": "premium", "organza": "premium",
+    "tulle": "premium", "chiffon": "premium",
+    # mid
+    "linen": "mid", "cotton": "mid", "denim": "mid", "knit": "mid",
+    "modal": "mid", "tencel": "mid", "lyocell": "mid", "bamboo": "mid",
+    "jersey": "mid", "fleece": "mid", "sherpa": "mid",
+    "faux leather": "mid", "rayon": "mid", "viscose": "mid",
+    # budget
+    "polyester": "budget", "nylon": "budget", "spandex": "budget",
+    "elastane": "budget", "mesh": "budget", "acrylic": "budget",
+}
+PRICE_SCORE = {"premium": 2, "mid": 1, "budget": 0}
 
-# ─── Logging ──────────────────────────────────────────────────────────────────
+# Logging ─────────────────────────────────────────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -69,9 +85,14 @@ def purge_old_rows(conn: sqlite3.Connection) -> None:
 
 # ─── Shared Helpers ───────────────────────────────────────────────────────────
 def _velocity(today_count: int, avg_7d: float) -> float:
-    if avg_7d == 0:
-        return 0.0
-    return round(((today_count - avg_7d) / avg_7d) * 100, 1)
+    """
+    Velocity = % change vs 7-day average.
+    When there is no prior history (avg_7d == 0), we treat a non-zero today
+    as a positive signal: use a baseline of 1 so brand-new keywords always
+    read as rising rather than flatlined at 0%.
+    """
+    baseline = avg_7d if avg_7d > 0 else 1.0
+    return round(((today_count - baseline) / baseline) * 100, 1)
 
 
 def _flag(trend_pct: float) -> str:
@@ -120,11 +141,21 @@ def _avg_7d(conn: sqlite3.Connection, keyword: str, today: str, seven_ago: str,
 
 # ─── Panel 1: Macro Trends ────────────────────────────────────────────────────
 def build_macro_trends(conn: sqlite3.Connection, trend_keywords: list[str],
-                       amplifiers: list[str], today: str, seven_ago: str) -> list[dict]:
+                       today: str, seven_ago: str) -> list[dict]:
     results = []
 
+    # Pre-fetch all today's retail+media counts so we can normalise sentiment
+    all_counts = conn.execute(
+        """SELECT keyword, SUM(count) FROM daily_counts
+           WHERE date = ? AND source_group IN ('retail','media')
+           GROUP BY keyword""",
+        (today,),
+    ).fetchall()
+    # max mention count today — used to derive a relative sentiment score
+    max_count = max((r[1] for r in all_counts), default=1) or 1
+    count_map = {r[0]: r[1] for r in all_counts}
+
     for kw in trend_keywords:
-        # Counts from retail + media only
         rows = conn.execute(
             """SELECT site_source, source_group, count FROM daily_counts
                WHERE date = ? AND keyword = ? AND source_group IN ('retail','media')""",
@@ -135,27 +166,16 @@ def build_macro_trends(conn: sqlite3.Connection, trend_keywords: list[str],
         retail_count = sum(r[2] for r in rows if r[1] == "retail")
         media_count  = sum(r[2] for r in rows if r[1] == "media")
 
-        avg = _avg_7d(conn, kw, today, seven_ago, groups=["retail", "media"])
-        if avg == 0:
-            avg = float(today_count)
+        # Skip keywords with zero mentions — they add nothing to charts
+        if today_count == 0:
+            continue
 
+        avg = _avg_7d(conn, kw, today, seven_ago, groups=["retail", "media"])
         trend_pct = _velocity(today_count, avg)
 
-        # Sentiment score: amplifier co-occurrences stored as their own keyword rows
-        amp_total = 0
-        for amp in amplifiers:
-            amp_rows = conn.execute(
-                """SELECT SUM(count) FROM daily_counts
-                   WHERE date = ? AND keyword = ? AND source_group IN ('retail','media')""",
-                (today, amp),
-            ).fetchone()
-            amp_total += (amp_rows[0] or 0)
-
-        # Sentiment score = ratio of amplifier hits to trend keyword hits (capped at 1.0)
-        if today_count > 0:
-            sentiment_score = round(min(amp_total / (today_count * len(amplifiers)), 1.0), 3)
-        else:
-            sentiment_score = 0.0
+        # Sentiment: relative mention volume (this keyword vs top keyword today)
+        # Produces a meaningful 0–1 spread rather than a binary ratio
+        sentiment_score = round(min(today_count / max_count, 1.0), 3)
 
         composite = round(sentiment_score * abs(trend_pct), 2)
 
@@ -171,8 +191,8 @@ def build_macro_trends(conn: sqlite3.Connection, trend_keywords: list[str],
             "source_breakdown": {"retail": retail_count, "media": media_count},
         })
 
-    # Sort by composite score (sentiment × velocity) descending
-    results.sort(key=lambda x: x["composite_score"], reverse=True)
+    # Sort by composite score descending, fall back to today_count
+    results.sort(key=lambda x: (x["composite_score"], x["today_count"]), reverse=True)
     return results
 
 
@@ -189,14 +209,15 @@ def build_competitor_map(conn: sqlite3.Connection, trend_keywords: list[str],
             (today, kw),
         ).fetchall()
 
-        site_breakdown = {r[0]: r[1] for r in rows if r[1] > 0}
-        site_count     = len(site_breakdown)
+        site_breakdown   = {r[0]: r[1] for r in rows if r[1] > 0}
+        site_count       = len(site_breakdown)
         saturation_score = sum(site_breakdown.values())
 
-        avg = _avg_7d(conn, kw, today, seven_ago, groups=["dropship"])
-        if avg == 0:
-            avg = float(saturation_score)
+        # Skip keywords with zero dropship presence
+        if saturation_score == 0:
+            continue
 
+        avg = _avg_7d(conn, kw, today, seven_ago, groups=["dropship"])
         trend_pct = _velocity(saturation_score, avg)
 
         if site_count >= SATURATED_THRESHOLD:
@@ -218,7 +239,6 @@ def build_competitor_map(conn: sqlite3.Connection, trend_keywords: list[str],
             "site_breakdown": site_breakdown,
         })
 
-    # Sort by saturation_score descending (most saturated first)
     results.sort(key=lambda x: x["saturation_score"], reverse=True)
     return results
 
@@ -228,10 +248,10 @@ def build_materials(conn: sqlite3.Connection, material_keywords: list[str],
                     material_qualifiers: list[str], today: str, seven_ago: str) -> list[dict]:
     results = []
 
-    premium_qualifiers = [q for q in material_qualifiers if q.lower() in PREMIUM_WORDS]
-    budget_qualifiers  = [q for q in material_qualifiers if q.lower() in BUDGET_WORDS]
-    quality_signals    = [q for q in material_qualifiers
-                          if q.lower() not in PREMIUM_WORDS and q.lower() not in BUDGET_WORDS]
+    # Quality signals: qualifiers that are neither premium nor budget indicators
+    TIER_WORDS = {"premium", "luxury", "budget", "cheap", "affordable",
+                  "high quality", "low quality", "cashmere"}
+    quality_signals = [q for q in material_qualifiers if q.lower() not in TIER_WORDS]
 
     for mat in material_keywords:
         rows = conn.execute(
@@ -241,42 +261,21 @@ def build_materials(conn: sqlite3.Connection, material_keywords: list[str],
             (today, mat),
         ).fetchall()
 
-        today_count  = sum(r[1] for r in rows)
+        today_count   = sum(r[1] for r in rows)
         src_breakdown = {r[0]: r[1] for r in rows}
 
-        avg = _avg_7d(conn, mat, today, seven_ago)
-        if avg == 0:
-            avg = float(today_count)
+        # Skip materials with no mentions
+        if today_count == 0:
+            continue
 
+        avg = _avg_7d(conn, mat, today, seven_ago)
         trend_pct = _velocity(today_count, avg)
 
-        # Price tier: count premium vs budget qualifier co-occurrences
-        prem_hits   = sum(
-            (conn.execute(
-                "SELECT SUM(count) FROM daily_counts WHERE date=? AND keyword=?",
-                (today, q)
-            ).fetchone()[0] or 0)
-            for q in premium_qualifiers
-        )
-        budget_hits = sum(
-            (conn.execute(
-                "SELECT SUM(count) FROM daily_counts WHERE date=? AND keyword=?",
-                (today, q)
-            ).fetchone()[0] or 0)
-            for q in budget_qualifiers
-        )
+        # Price tier from hard-coded lookup — much more reliable than co-occurrence
+        price_tier  = MATERIAL_PRICE_TIER.get(mat.lower(), "mid")
+        price_score = PRICE_SCORE[price_tier]
 
-        if prem_hits > budget_hits * 1.5:
-            price_tier = "premium"
-            price_score = 2
-        elif budget_hits > prem_hits * 1.5:
-            price_tier = "budget"
-            price_score = 0
-        else:
-            price_tier = "mid"
-            price_score = 1
-
-        # Top quality signals: qualifiers with most co-occurrences today
+        # Top quality signals: pick qualifier words with most mentions today
         qual_counts = []
         for q in quality_signals:
             cnt = conn.execute(
@@ -301,7 +300,6 @@ def build_materials(conn: sqlite3.Connection, material_keywords: list[str],
             "source_breakdown": src_breakdown,
         })
 
-    # Sort by trend_pct descending
     results.sort(key=lambda x: x["trend_pct"], reverse=True)
     return results
 
@@ -312,10 +310,9 @@ def main() -> None:
         log.error("trends.db not found at %s — run scraper.py first", DB_PATH)
         raise SystemExit(1)
 
-    d             = load_dict(DICT_PATH)
-    trend_kws     = d["trend_keywords"]
-    amplifiers    = d["sentiment_amplifiers"]
-    material_kws  = d["material_keywords"]
+    d              = load_dict(DICT_PATH)
+    trend_kws      = d["trend_keywords"]
+    material_kws   = d["material_keywords"]
     mat_qualifiers = d["material_qualifiers"]
 
     conn      = sqlite3.connect(DB_PATH)
@@ -325,7 +322,7 @@ def main() -> None:
     purge_old_rows(conn)
 
     log.info("Building macro trends (%d keywords)...", len(trend_kws))
-    macro = build_macro_trends(conn, trend_kws, amplifiers, today, seven_ago)
+    macro = build_macro_trends(conn, trend_kws, today, seven_ago)
 
     log.info("Building competitor map (%d keywords)...", len(trend_kws))
     competitor = build_competitor_map(conn, trend_kws, today, seven_ago)
@@ -335,20 +332,19 @@ def main() -> None:
 
     conn.close()
 
-    # Summary
-    macro_rising   = sum(1 for m in macro      if m["flag"] == "Rising")
-    macro_fading   = sum(1 for m in macro      if m["flag"] == "Fading")
-    saturated      = sum(1 for c in competitor if c["flag"] == "Saturated")
-    mat_rising     = sum(1 for m in materials  if m["flag"] == "Rising")
+    macro_rising = sum(1 for m in macro      if m["flag"] == "Rising")
+    macro_fading = sum(1 for m in macro      if m["flag"] == "Fading")
+    saturated    = sum(1 for c in competitor if c["flag"] == "Saturated")
+    mat_rising   = sum(1 for m in materials  if m["flag"] == "Rising")
 
     output = {
         "generated_at": f"{today}T00:00:00Z",
         "scrape_date":  today,
         "summary": {
-            "macro_rising":    macro_rising,
-            "macro_fading":    macro_fading,
+            "macro_rising":     macro_rising,
+            "macro_fading":     macro_fading,
             "saturated_niches": saturated,
-            "material_rising": mat_rising,
+            "material_rising":  mat_rising,
         },
         "macro_trends":   macro,
         "competitor_map": competitor,
