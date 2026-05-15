@@ -316,13 +316,33 @@
     .hero-wrap {
       position: relative; width: 100%; overflow: hidden;
       min-height: calc(100dvh - 46px);
-      background: #07060e;
+      background-color: #06040b;
+      /* tiny base dots — low opacity field across the whole panel */
+      background-image: radial-gradient(circle, rgba(158,76,4,0.22) 0.7px, transparent 0.7px);
+      background-size: 21px 21px;
       display: flex; align-items: center;
     }
-    #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    /* large dots revealed only in specific depth zones — no glow, pure size variation */
+    .hero-wrap::before {
+      content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background-image: radial-gradient(circle, rgba(184,94,5,0.88) 2.3px, transparent 2.3px);
+      background-size: 21px 21px;
+      mask-image:
+        radial-gradient(ellipse 38% 50% at 82% 12%, black 0%, transparent 54%),
+        radial-gradient(ellipse 26% 36% at 58% 90%, black 0%, transparent 50%),
+        radial-gradient(ellipse 18% 26% at 94% 58%, black 0%, transparent 44%);
+      mask-composite: add;
+      -webkit-mask-image:
+        radial-gradient(ellipse 38% 50% at 82% 12%, black 0%, transparent 54%),
+        radial-gradient(ellipse 26% 36% at 58% 90%, black 0%, transparent 50%),
+        radial-gradient(ellipse 18% 26% at 94% 58%, black 0%, transparent 44%);
+      -webkit-mask-composite: source-over;
+    }
     .hero-wrap::after {
       content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-      background: radial-gradient(ellipse 55% 75% at 28% 52%, rgba(7,6,14,1.0) 0%, rgba(7,6,14,0.92) 30%, rgba(7,6,14,0.6) 55%, transparent 75%);
+      background:
+        radial-gradient(ellipse 48% 68% at 22% 54%, rgba(6,4,11,1.0) 0%, rgba(6,4,11,0.96) 32%, rgba(6,4,11,0.65) 58%, transparent 78%),
+        linear-gradient(to top, rgba(6,4,11,0.55) 0%, transparent 28%);
     }
     .hero-content {
       position: relative; z-index: 2;
@@ -721,7 +741,6 @@
       ════════════════════════════════════════════ -->
       <div class="tab-panel active" id="tab-overview">
         <div class="hero-wrap">
-          <canvas id="hero-canvas"></canvas>
           <div class="hero-content">
             <h1 class="hero-headline">Your edge in a<br>competitive market.</h1>
           </div>
@@ -1384,7 +1403,6 @@ function switchTab(name) {
       if (trMatChart)   trMatChart.resize();
     }));
   }
-  if (name === 'overview') startHeroCanvas(); else stopHeroCanvas();
 }
 
 function regimeBadgeHTML(label) {
@@ -2163,101 +2181,11 @@ function escHtml(str) {
 }
 
 /* =========================================================
-   HERO CANVAS — animated dot grid
-========================================================= */
-let _heroRAF = null;
-
-function sizeHeroCanvas() {
-  const canvas = document.getElementById('hero-canvas');
-  if (!canvas) return;
-  const wrap = canvas.parentElement;
-  const dpr = window.devicePixelRatio || 1;
-  const w = wrap.clientWidth || window.innerWidth;
-  const h = wrap.clientHeight || window.innerHeight;
-  canvas.width  = Math.round(w * dpr);
-  canvas.height = Math.round(h * dpr);
-  canvas.style.width  = w + 'px';
-  canvas.style.height = h + 'px';
-}
-
-function startHeroCanvas() {
-  if (_heroRAF) return;
-  sizeHeroCanvas();
-  const canvas = document.getElementById('hero-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  const spacing = 22 * dpr;
-  const g1 = { r: 79,  g: 124, b: 255 };
-  const g2 = { r: 167, g: 139, b: 250 };
-
-  function frame() {
-    if (document.visibilityState === 'hidden') { _heroRAF = requestAnimationFrame(frame); return; }
-    const W = canvas.width, H = canvas.height;
-    const t  = Date.now() / 1000;
-    const cx = W / 2, cy = H / 2;
-    const g1x = cx + 0.32 * W * Math.sin(t * 0.11);
-    const g1y = cy + 0.26 * H * Math.cos(t * 0.09);
-    const g2x = cx + 0.28 * W * Math.cos(t * 0.07);
-    const g2y = cy + 0.34 * H * Math.sin(t * 0.13);
-    const sigma2 = Math.pow(Math.min(W, H) * 0.28, 2);
-
-    ctx.clearRect(0, 0, W, H);
-
-    const cols = Math.ceil(W / spacing) + 2;
-    const rows = Math.ceil(H / spacing) + 2;
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const x = (col - 0.5) * spacing;
-        const y = (row - 0.5) * spacing;
-        const d1sq = (x - g1x) * (x - g1x) + (y - g1y) * (y - g1y);
-        const d2sq = (x - g2x) * (x - g2x) + (y - g2y) * (y - g2y);
-        const i1 = Math.exp(-d1sq / (2 * sigma2));
-        const i2 = Math.exp(-d2sq / (2 * sigma2));
-        const intensity = Math.min(1, i1 + i2);
-        if (intensity < 0.012) continue;
-        const tot = i1 + i2 + 1e-6;
-        const cr = Math.round((i1 * g1.r + i2 * g2.r) / tot);
-        const cg = Math.round((i1 * g1.g + i2 * g2.g) / tot);
-        const cb = Math.round((i1 * g1.b + i2 * g2.b) / tot);
-        const distFromCenter = Math.hypot(x - cx, y - cy);
-        const fringe = Math.pow(distFromCenter / Math.hypot(cx, cy), 1.8);
-        const alpha  = 0.07 + intensity * 0.84;
-        const radius = (0.9 + intensity * 2.6 + fringe * 1.4) * dpr;
-        ctx.shadowBlur  = (intensity * 20 + fringe * 16) * dpr;
-        ctx.shadowColor = `rgba(${cr},${cg},${cb},${(intensity * 0.75).toFixed(3)})`;
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, 6.2832);
-        ctx.fillStyle = `rgba(${cr},${cg},${cb},${alpha.toFixed(3)})`;
-        ctx.fill();
-      }
-    }
-    _heroRAF = requestAnimationFrame(frame);
-  }
-  _heroRAF = requestAnimationFrame(frame);
-}
-
-function stopHeroCanvas() {
-  if (_heroRAF) { cancelAnimationFrame(_heroRAF); _heroRAF = null; }
-}
-
-/* =========================================================
    SIDEBAR TOGGLE
 ========================================================= */
 document.getElementById('sb-toggle-btn').addEventListener('click', function () {
-  const sb = document.getElementById('sidebar');
-  sb.classList.toggle('collapsed');
-  if (document.getElementById('tab-overview').classList.contains('active')) {
-    setTimeout(sizeHeroCanvas, 240);
-  }
+  document.getElementById('sidebar').classList.toggle('collapsed');
 });
-
-window.addEventListener('resize', function () {
-  if (_heroRAF) sizeHeroCanvas();
-});
-
-/* ── Init hero on load ── */
-requestAnimationFrame(startHeroCanvas);
 </script>
 </body>
 </html>
