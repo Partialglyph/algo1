@@ -506,6 +506,7 @@
       margin-right: 4px; vertical-align: middle;
     }
     .tr-src-retail   { background: rgba(82,130,255,0.18); color: #6b9fff; }
+    .tr-src-media    { background: rgba(160,110,255,0.18); color: #b085ff; }
     .tr-src-dropship { background: rgba(251,189,77,0.18); color: var(--amber); }
 
     .tr-filter-btn {
@@ -945,80 +946,112 @@
         <!-- KPI strip -->
         <div class="kpi-row">
           <div class="kpi-card">
-            <div class="kpi-label">Rising This Week</div>
-            <div class="kpi-value" id="tr-rising" style="color:var(--green);">—</div>
-            <div class="kpi-sub">keywords gaining momentum</div>
+            <div class="kpi-label">Macro Rising</div>
+            <div class="kpi-value" id="tr-macro-rising" style="color:var(--green);">—</div>
+            <div class="kpi-sub">cultural momentum keywords</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-label">Fading Out</div>
-            <div class="kpi-value" id="tr-fading" style="color:var(--red);">—</div>
-            <div class="kpi-sub">keywords declining</div>
+            <div class="kpi-label">Macro Fading</div>
+            <div class="kpi-value" id="tr-macro-fading" style="color:var(--red);">—</div>
+            <div class="kpi-sub">declining in stores &amp; media</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-label">Stable Staples</div>
-            <div class="kpi-value" id="tr-staples">—</div>
-            <div class="kpi-sub">consistent baseline demand</div>
+            <div class="kpi-label">Saturated Niches</div>
+            <div class="kpi-value" id="tr-saturated" style="color:var(--amber);">—</div>
+            <div class="kpi-sub">flooded by 6+ suppliers</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Materials Rising</div>
+            <div class="kpi-value" id="tr-mat-rising" style="color:var(--green);">—</div>
+            <div class="kpi-sub">fabrics gaining traction</div>
           </div>
           <div class="kpi-card" style="border-left:1px solid var(--border);padding-left:16px;">
-            <div class="kpi-label">Sources</div>
-            <div style="font-size:0.72rem;color:var(--text-m);margin-top:4px;line-height:1.6;">
-              <span class="tr-src-pill tr-src-retail">Retail</span> Zara · ASOS · SSENSE<br>
-              <span class="tr-src-pill tr-src-dropship">Dropship</span> Trendsi · Spocket · CJ · FondMart + 5 more
-            </div>
-            <div id="tr-updated" style="font-size:0.65rem;color:var(--text-f);margin-top:6px;"></div>
+            <div class="kpi-label">Last Scraped</div>
+            <div id="tr-updated" style="font-size:0.8rem;color:var(--text-m);margin-top:6px;font-weight:600;">—</div>
+            <div style="font-size:0.65rem;color:var(--text-f);margin-top:4px;">Daily at midnight UTC</div>
           </div>
         </div>
 
-        <!-- Velocity Map (bubble chart) -->
-        <div class="panel exportable" data-export-label="Trend Velocity Map">
+        <!-- ── Panel 1: Macro Trend Movements ─────────────────────────── -->
+        <div class="panel exportable" data-export-label="Macro Trend Movements">
           <div class="panel-head">
             <div>
-              <div class="panel-title">Trend Velocity Map
-                <i class="data-src-icon src-live" data-tooltip-title="Live — Web Scrape" data-tooltip="Scraped daily from retail stores and dropship suppliers. X = today's mention volume, Y = 7-day velocity (%), bubble size = 7-day rolling avg.">i</i>
+              <div class="panel-title">
+                Macro Trend Movements
+                <i class="data-src-icon src-live" data-tooltip-title="Live — Retail + Media" data-tooltip="Scraped daily from Zara, ASOS, SSENSE plus Vogue, Hypebae, Who What Wear. Bar width = sentiment-weighted momentum. Color = velocity direction.">i</i>
               </div>
-              <div class="panel-sub">X = Volume today &middot; Y = Velocity (7-day %) &middot; Bubble size = 7-day avg &middot; Green = Rising · Red = Fading · Gray = Staple</div>
+              <div class="panel-sub"><span class="tr-src-pill tr-src-retail">Retail</span> Zara · ASOS · SSENSE &nbsp;+&nbsp; <span class="tr-src-pill tr-src-media">Media</span> Vogue · Hypebae · Who What Wear</div>
+            </div>
+            <div style="display:flex;gap:6px;margin-left:auto;">
+              <button class="tr-filter-btn active" id="tr-m-all"    onclick="filterMacro('all')">All</button>
+              <button class="tr-filter-btn"         id="tr-m-rising" onclick="filterMacro('Rising')">↑ Rising</button>
+              <button class="tr-filter-btn"         id="tr-m-fading" onclick="filterMacro('Fading')">↓ Fading</button>
+              <button class="tr-filter-btn"         id="tr-m-staple" onclick="filterMacro('Staple')">→ Staple</button>
             </div>
           </div>
           <div class="panel-body">
-            <div class="chart-area" id="tr-bubble-area" style="position:relative;">
-              <div class="empty" id="tr-bubble-empty">
-                <div class="empty-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-                <p>Trend data refreshes daily via automated scrape</p>
+            <div class="chart-area" id="tr-macro-chart-area" style="position:relative;min-height:280px;">
+              <div class="empty" id="tr-macro-empty"><div class="empty-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><p>Trend data refreshes daily</p></div>
+              <canvas id="tr-macro-canvas" style="display:none;"></canvas>
+            </div>
+          </div>
+          <div class="panel-body" style="padding:0;border-top:1px solid var(--border);">
+            <div id="tr-macro-list"></div>
+          </div>
+        </div>
+
+        <!-- ── Panel 2: Competitor Saturation Map ─────────────────────── -->
+        <div class="panel exportable" data-export-label="Competitor Saturation Map">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">
+                Competitor Saturation Map
+                <i class="data-src-icon src-live" data-tooltip-title="Live — Dropship Suppliers" data-tooltip="X = how many of 9 suppliers carry this keyword. Y = 7-day velocity. Bubble size = total listing volume. Red = market flooded, Green = gap opportunity.">i</i>
               </div>
-              <canvas id="tr-bubble-canvas" style="display:none;"></canvas>
+              <div class="panel-sub"><span class="tr-src-pill tr-src-dropship">Dropship</span> Trendsi · Spocket · CJ · FondMart · Tasha · Bloom · Banggood · LightInTheBox · Eprolo</div>
             </div>
+            <div style="display:flex;gap:6px;margin-left:auto;">
+              <button class="tr-filter-btn active" id="tr-c-all"       onclick="filterCompetitor('all')">All</button>
+              <button class="tr-filter-btn"         id="tr-c-saturated" onclick="filterCompetitor('Saturated')" style="color:var(--red);">Saturated</button>
+              <button class="tr-filter-btn"         id="tr-c-growing"   onclick="filterCompetitor('Growing')" style="color:var(--amber);">Growing</button>
+              <button class="tr-filter-btn"         id="tr-c-niche"     onclick="filterCompetitor('Niche')" style="color:var(--green);">Niche</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="chart-area" id="tr-comp-chart-area" style="position:relative;min-height:280px;">
+              <div class="empty" id="tr-comp-empty"><div class="empty-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><p>Trend data refreshes daily</p></div>
+              <canvas id="tr-comp-canvas" style="display:none;"></canvas>
+            </div>
+          </div>
+          <div class="panel-body" style="padding:0;border-top:1px solid var(--border);">
+            <div id="tr-comp-table"></div>
           </div>
         </div>
 
-        <!-- Retail Signal -->
-        <div class="panel">
+        <!-- ── Panel 3: Materials Intelligence ───────────────────────── -->
+        <div class="panel exportable" data-export-label="Materials Intelligence">
           <div class="panel-head">
             <div>
-              <div class="panel-title"><span class="tr-src-pill tr-src-retail">Retail</span> Consumer Demand Signal</div>
-              <div class="panel-sub">Zara · ASOS · SSENSE — what consumers are actively browsing</div>
+              <div class="panel-title">
+                Materials Intelligence
+                <i class="data-src-icon src-live" data-tooltip-title="Live — All Sources" data-tooltip="X axis = price tier (budget → premium) derived from co-occurring qualifiers. Y = 7-day velocity. Point size = mention volume. Helps identify which fabrics are trending at which price point.">i</i>
+              </div>
+              <div class="panel-sub">All sources &nbsp;·&nbsp; X = Price tier (Budget → Premium) &nbsp;·&nbsp; Y = Velocity (%) &nbsp;·&nbsp; Size = Volume</div>
             </div>
-            <div style="display:flex;gap:6px;margin-left:auto;" id="tr-filter-bar">
-              <button class="tr-filter-btn active" id="tr-f-all" onclick="filterTrends('all')">All</button>
-              <button class="tr-filter-btn" id="tr-f-rising" onclick="filterTrends('Rising')">↑ Rising</button>
-              <button class="tr-filter-btn" id="tr-f-fading" onclick="filterTrends('Fading')">↓ Fading</button>
-              <button class="tr-filter-btn" id="tr-f-staple" onclick="filterTrends('Staple')">→ Staple</button>
-            </div>
-          </div>
-          <div class="panel-body" style="padding:0;">
-            <div id="tr-retail-list"></div>
-          </div>
-        </div>
-
-        <!-- Dropship Supplier Signal -->
-        <div class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="panel-title"><span class="tr-src-pill tr-src-dropship">Dropship</span> Supplier Stock Signal</div>
-              <div class="panel-sub">Trendsi · Spocket · CJ · Modalyst · FondMart · Tasha · Bloom · Banggood · LightInTheBox · Eprolo</div>
+            <div style="display:flex;gap:6px;margin-left:auto;">
+              <button class="tr-filter-btn active" id="tr-mat-all"    onclick="filterMaterials('all')">All</button>
+              <button class="tr-filter-btn"         id="tr-mat-rising" onclick="filterMaterials('Rising')">↑ Rising</button>
+              <button class="tr-filter-btn"         id="tr-mat-fading" onclick="filterMaterials('Fading')">↓ Fading</button>
             </div>
           </div>
-          <div class="panel-body" style="padding:0;">
-            <div id="tr-dropship-list"></div>
+          <div class="panel-body">
+            <div class="chart-area" id="tr-mat-chart-area" style="position:relative;min-height:260px;">
+              <div class="empty" id="tr-mat-empty"><div class="empty-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><p>Trend data refreshes daily</p></div>
+              <canvas id="tr-mat-canvas" style="display:none;"></canvas>
+            </div>
+          </div>
+          <div class="panel-body" style="padding:0;border-top:1px solid var(--border);">
+            <div id="tr-mat-list"></div>
           </div>
         </div>
 
@@ -1309,9 +1342,7 @@ function fetchAPI(path, opts = {}) {
 window.axionAPI = { fetch: fetchAPI };
 let chartInstance = null;
 let oilChartInstance = null;
-let trendsBubbleChart = null;
 let _trendsData = null;
-let _trendsFilter = 'all';
 
 function fmt(n) { return (n == null || isNaN(n)) ? '\u2014' : new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n); }
 function setAlert(id, msg, type) {
@@ -1337,7 +1368,9 @@ function switchTab(name) {
   if (name === 'trends') {
     loadTrends();
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      if (trendsBubbleChart) trendsBubbleChart.resize();
+      if (trMacroChart) trMacroChart.resize();
+      if (trCompChart)  trCompChart.resize();
+      if (trMatChart)   trMatChart.resize();
     }));
   }
 }
@@ -1608,9 +1641,26 @@ window.addEventListener('resize', () => {
 });
 
 /* =========================================================
-   TRENDS TAB
+   TRENDS TAB — Three Intelligence Panels
 ========================================================= */
 
+let trMacroChart = null;
+let trCompChart  = null;
+let trMatChart   = null;
+let _macroFilter = 'all';
+let _compFilter  = 'all';
+let _matFilter   = 'all';
+
+// ── Shared chart defaults ────────────────────────────────
+const TR_TOOLTIP = {
+  backgroundColor: '#1c2030', borderColor: 'rgba(255,255,255,0.07)', borderWidth: 1,
+  titleColor: '#e8eaf0', bodyColor: '#8b909e', padding: 10,
+  titleFont: { family: SF_FONT, size: 12 }, bodyFont: { family: SF_FONT, size: 11 },
+};
+const TR_GRID = 'rgba(255,255,255,0.04)';
+const TR_TICK = { color: '#8b909e', font: { size: 10, family: SF_FONT } };
+
+// ── Load & entry point ───────────────────────────────────
 async function loadTrends() {
   if (_trendsData) { renderTrends(_trendsData); return; }
   try {
@@ -1620,131 +1670,32 @@ async function loadTrends() {
     renderTrends(_trendsData);
   } catch (e) {
     console.warn('[Trends] load failed:', e);
-    // Placeholder stays visible
   }
 }
 
 function renderTrends(data) {
-  if (!data || !data.keywords || !data.keywords.length) return;
-
+  if (!data) return;
   // KPI strip
-  document.getElementById('tr-rising').textContent  = data.summary.rising_count;
-  document.getElementById('tr-fading').textContent  = data.summary.fading_count;
-  document.getElementById('tr-staples').textContent = data.summary.staple_count;
+  const s = data.summary || {};
+  document.getElementById('tr-macro-rising').textContent = s.macro_rising  ?? '—';
+  document.getElementById('tr-macro-fading').textContent = s.macro_fading  ?? '—';
+  document.getElementById('tr-saturated').textContent    = s.saturated_niches ?? '—';
+  document.getElementById('tr-mat-rising').textContent   = s.material_rising ?? '—';
   const upd = document.getElementById('tr-updated');
-  if (upd) upd.textContent = 'Last scraped ' + data.scrape_date;
+  if (upd) upd.textContent = data.scrape_date || '—';
 
-  renderTrendsBubble(data.keywords);
-  renderTrendCards(data.keywords, _trendsFilter);
+  renderMacroTrends(data.macro_trends || []);
+  renderCompetitorMap(data.competitor_map || []);
+  renderMaterials(data.materials || []);
 }
 
-function renderTrendsBubble(keywords) {
-  const empty  = document.getElementById('tr-bubble-empty');
-  const canvas = document.getElementById('tr-bubble-canvas');
-  if (!empty || !canvas) return;
-  empty.style.display  = 'none';
-  canvas.style.display = 'block';
-
-  const colorMap  = { Rising: 'rgba(52,199,138,0.72)', Fading: 'rgba(224,92,92,0.72)', Staple: 'rgba(139,144,158,0.38)' };
-  const borderMap = { Rising: '#34c78a', Fading: '#e05c5c', Staple: '#8b909e' };
-
-  const groups = { Rising: [], Fading: [], Staple: [] };
-  keywords.forEach(kw => {
-    groups[kw.flag].push({
-      x: kw.today_count,
-      y: kw.trend_pct,
-      r: Math.max(4, Math.min(30, Math.sqrt(Math.max(kw.avg_7d, 1)) * 2.0)),
-      label: kw.keyword,
-      vol: kw.today_count,
-      pct: kw.trend_pct,
-    });
-  });
-
-  const datasets = ['Rising','Fading','Staple'].map(flag => ({
-    label: flag,
-    data: groups[flag],
-    backgroundColor: colorMap[flag],
-    borderColor: borderMap[flag],
-    borderWidth: 1,
-  }));
-
-  if (trendsBubbleChart) { trendsBubbleChart.destroy(); trendsBubbleChart = null; }
-  trendsBubbleChart = new Chart(canvas.getContext('2d'), {
-    type: 'bubble',
-    data: { datasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'nearest', intersect: true },
-      plugins: {
-        legend: { position: 'top', labels: { color: '#8b909e', boxWidth: 10, font: { family: SF_FONT, size: 11 }, padding: 14 } },
-        tooltip: {
-          backgroundColor: '#1c2030', borderColor: 'rgba(255,255,255,0.07)', borderWidth: 1,
-          titleColor: '#e8eaf0', bodyColor: '#8b909e', padding: 10,
-          titleFont: { family: SF_FONT, size: 12 }, bodyFont: { family: SF_FONT, size: 11 },
-          callbacks: {
-            title: items => items[0]?.raw?.label || '',
-            label: item => {
-              const d = item.raw;
-              const sign = d.pct >= 0 ? '+' : '';
-              return [' Volume: ' + d.vol + ' mentions', ' Velocity: ' + sign + d.pct.toFixed(1) + '%'];
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          title: { display: true, text: 'Volume (mentions today)', color: '#8b909e', font: { family: SF_FONT, size: 11 } },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: '#8b909e', font: { size: 10, family: SF_FONT } }
-        },
-        y: {
-          title: { display: true, text: '7-Day Velocity (%)', color: '#8b909e', font: { family: SF_FONT, size: 11 } },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: '#8b909e', font: { size: 10, family: SF_FONT }, callback: v => (v > 0 ? '+' : '') + v + '%' }
-        }
-      }
-    }
-  });
-}
-
-function buildTrendCardHTML(kw) {
-  const pct    = kw.trend_pct;
-  const sign   = pct >= 0 ? '+' : '';
-  const arrow  = kw.flag === 'Rising' ? '↑' : kw.flag === 'Fading' ? '↓' : '→';
-  const pctCls = kw.flag === 'Rising' ? 'tr-pct-up' : kw.flag === 'Fading' ? 'tr-pct-down' : 'tr-pct-neu';
-  const flgCls = 'tr-flag tr-flag-' + kw.flag.toLowerCase();
-  const sparkId = 'sp-' + kw.keyword.replace(/[\s/]+/g, '-');
-
-  const pills = Object.entries(kw.site_breakdown || {})
-    .filter(([,v]) => v > 0)
-    .sort(([,a],[,b]) => b - a)
-    .slice(0, 5)
-    .map(([site, cnt]) => `<span class="tr-site-pill">${site} <b>${cnt}</b></span>`)
-    .join('');
-
-  return `
-    <div class="tr-card">
-      <div>
-        <div class="tr-card-kw">${kw.keyword}</div>
-        <div class="tr-card-pills">${pills}</div>
-      </div>
-      <canvas class="tr-spark" id="${sparkId}" width="64" height="28" style="display:block;"></canvas>
-      <div style="text-align:right;">
-        <span class="${flgCls}">${kw.flag}</span>
-        <div class="${pctCls}" style="margin-top:4px;">${arrow} ${sign}${pct.toFixed(1)}%</div>
-        <div class="tr-vol">${kw.today_count} mentions</div>
-      </div>
-    </div>`;
-}
-
+// ── Shared sparkline ─────────────────────────────────────
 function drawSparkline(id, sparkline, flag) {
   const c = document.getElementById(id);
   if (!c || !sparkline || !sparkline.length) return;
   const ctx = c.getContext('2d');
   const pts = sparkline;
-  const max = Math.max(...pts, 1);
-  const min = Math.min(...pts, 0);
+  const max = Math.max(...pts, 1), min = Math.min(...pts, 0);
   const range = max - min || 1;
   const w = c.width, h = c.height, pad = 2;
   ctx.clearRect(0, 0, w, h);
@@ -1755,43 +1706,346 @@ function drawSparkline(id, sparkline, flag) {
     i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
   ctx.strokeStyle = flag === 'Rising' ? '#34c78a' : flag === 'Fading' ? '#e05c5c' : '#8b909e';
-  ctx.lineWidth = 1.5;
-  ctx.lineJoin = 'round';
-  ctx.stroke();
+  ctx.lineWidth = 1.5; ctx.lineJoin = 'round'; ctx.stroke();
 }
 
-function renderTrendCards(keywords, filter) {
-  const retailSites   = new Set(['zara','asos','ssense']);
-  const filtered = filter === 'all' ? keywords : keywords.filter(k => k.flag === filter);
+// ════════════════════════════════════════════════════════
+// PANEL 1 — Macro Trend Movements (horizontal bar chart)
+// ════════════════════════════════════════════════════════
+function renderMacroTrends(items) {
+  const filtered = _macroFilter === 'all' ? items : items.filter(k => k.flag === _macroFilter);
+  const top = filtered.slice(0, 15);
 
-  const retailKws   = filtered.filter(kw => (kw.retail_count  || 0) > 0 || Object.keys(kw.site_breakdown||{}).some(s => retailSites.has(s)));
-  const dropshipKws = filtered.filter(kw => (kw.dropship_count || 0) > 0 || Object.keys(kw.site_breakdown||{}).some(s => !retailSites.has(s)));
+  const empty  = document.getElementById('tr-macro-empty');
+  const canvas = document.getElementById('tr-macro-canvas');
+  if (!empty || !canvas) return;
 
-  function renderList(containerId, kws) {
-    const el = document.getElementById(containerId);
-    if (!el) return;
-    if (!kws.length) {
-      el.innerHTML = '<div style="padding:24px 16px;text-align:center;color:var(--text-f);font-size:0.8rem;">No keywords match this filter.</div>';
-      return;
+  if (!top.length) { empty.style.display = ''; canvas.style.display = 'none'; }
+  else             { empty.style.display = 'none'; canvas.style.display = 'block'; }
+
+  const labels = top.map(k => k.keyword);
+  const values = top.map(k => Math.round((k.sentiment_score || 0) * Math.abs(k.today_count)));
+  const colors = top.map(k =>
+    k.flag === 'Rising' ? 'rgba(52,199,138,0.75)' :
+    k.flag === 'Fading' ? 'rgba(224,92,92,0.75)' : 'rgba(139,144,158,0.45)'
+  );
+
+  if (trMacroChart) { trMacroChart.destroy(); trMacroChart = null; }
+  trMacroChart = new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Sentiment-Weighted Momentum',
+        data: values,
+        backgroundColor: colors,
+        borderRadius: 4,
+        barThickness: 16,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          ...TR_TOOLTIP,
+          callbacks: {
+            title: items => items[0]?.label || '',
+            label: item => {
+              const d = top[item.dataIndex];
+              const sign = d.trend_pct >= 0 ? '+' : '';
+              return [
+                ' Momentum score: ' + item.raw,
+                ' Velocity: ' + sign + d.trend_pct.toFixed(1) + '%',
+                ' Sentiment: ' + (d.sentiment_score * 100).toFixed(0) + '%',
+                ' Retail: ' + (d.source_breakdown?.retail || 0) + '  Media: ' + (d.source_breakdown?.media || 0),
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: TR_GRID }, ticks: TR_TICK, title: { display: true, text: 'Sentiment-Weighted Momentum', color: '#8b909e', font: { family: SF_FONT, size: 10 } } },
+        y: { grid: { color: TR_GRID }, ticks: { color: '#8b909e', font: { size: 10, family: SF_FONT } } }
+      }
     }
-    el.innerHTML = kws.map(buildTrendCardHTML).join('');
-    kws.forEach(kw => {
-      const sparkId = 'sp-' + kw.keyword.replace(/[\s/]+/g, '-');
-      drawSparkline(sparkId, kw.sparkline, kw.flag);
-    });
-  }
+  });
 
-  renderList('tr-retail-list',   retailKws);
-  renderList('tr-dropship-list', dropshipKws);
+  // Cards below chart
+  const list = document.getElementById('tr-macro-list');
+  if (!list) return;
+  list.innerHTML = filtered.map(kw => {
+    const pct = kw.trend_pct;
+    const sign = pct >= 0 ? '+' : '';
+    const arrow = kw.flag === 'Rising' ? '↑' : kw.flag === 'Fading' ? '↓' : '→';
+    const pctCls = kw.flag === 'Rising' ? 'tr-pct-up' : kw.flag === 'Fading' ? 'tr-pct-down' : 'tr-pct-neu';
+    const sentPct = Math.round((kw.sentiment_score || 0) * 100);
+    const spId = 'sp-m-' + kw.keyword.replace(/[\s/]+/g, '-');
+    return `<div class="tr-card">
+      <div>
+        <div class="tr-card-kw">${kw.keyword}</div>
+        <div class="tr-card-pills">
+          <span class="tr-site-pill"><span class="tr-src-pill tr-src-retail" style="margin:0;">R</span> ${kw.source_breakdown?.retail || 0}</span>
+          <span class="tr-site-pill"><span class="tr-src-pill tr-src-media" style="margin:0;">M</span> ${kw.source_breakdown?.media || 0}</span>
+          <span class="tr-site-pill">🔥 ${sentPct}% sentiment</span>
+        </div>
+      </div>
+      <canvas id="${spId}" width="64" height="28" style="display:block;"></canvas>
+      <div style="text-align:right;">
+        <span class="tr-flag tr-flag-${kw.flag.toLowerCase()}">${kw.flag}</span>
+        <div class="${pctCls}" style="margin-top:4px;">${arrow} ${sign}${pct.toFixed(1)}%</div>
+        <div class="tr-vol">${kw.today_count} mentions</div>
+      </div>
+    </div>`;
+  }).join('');
+  filtered.forEach(kw => drawSparkline('sp-m-' + kw.keyword.replace(/[\s/]+/g,'-'), kw.sparkline, kw.flag));
 }
 
-function filterTrends(flag) {
-  _trendsFilter = flag;
-  document.querySelectorAll('.tr-filter-btn').forEach(b => b.classList.remove('active'));
-  const map = { all: 'tr-f-all', Rising: 'tr-f-rising', Fading: 'tr-f-fading', Staple: 'tr-f-staple' };
-  const btn = document.getElementById(map[flag]);
-  if (btn) btn.classList.add('active');
-  if (_trendsData) renderTrendCards(_trendsData.keywords, flag);
+function filterMacro(flag) {
+  _macroFilter = flag;
+  ['tr-m-all','tr-m-rising','tr-m-fading','tr-m-staple'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.classList.remove('active');
+  });
+  const map = { all:'tr-m-all', Rising:'tr-m-rising', Fading:'tr-m-fading', Staple:'tr-m-staple' };
+  const b = document.getElementById(map[flag]); if (b) b.classList.add('active');
+  if (_trendsData) renderMacroTrends(_trendsData.macro_trends || []);
+}
+
+// ════════════════════════════════════════════════════════
+// PANEL 2 — Competitor Saturation Map (bubble chart)
+// ════════════════════════════════════════════════════════
+function renderCompetitorMap(items) {
+  const filtered = _compFilter === 'all' ? items : items.filter(k => k.flag === _compFilter);
+
+  const empty  = document.getElementById('tr-comp-empty');
+  const canvas = document.getElementById('tr-comp-canvas');
+  if (!empty || !canvas) return;
+
+  if (!filtered.length) { empty.style.display = ''; canvas.style.display = 'none'; }
+  else                  { empty.style.display = 'none'; canvas.style.display = 'block'; }
+
+  const colorMap  = { Saturated: 'rgba(224,92,92,0.72)', Growing: 'rgba(251,189,77,0.72)', Niche: 'rgba(52,199,138,0.72)' };
+  const borderMap = { Saturated: '#e05c5c', Growing: '#fbbd4d', Niche: '#34c78a' };
+
+  const groups = { Saturated: [], Growing: [], Niche: [] };
+  filtered.forEach(kw => {
+    groups[kw.flag]?.push({
+      x: kw.site_count,
+      y: kw.trend_pct,
+      r: Math.max(4, Math.min(28, Math.sqrt(Math.max(kw.saturation_score, 1)) * 1.8)),
+      label: kw.keyword,
+      sites: kw.site_count,
+      total: kw.total_suppliers,
+      pct: kw.trend_pct,
+    });
+  });
+
+  if (trCompChart) { trCompChart.destroy(); trCompChart = null; }
+  trCompChart = new Chart(canvas.getContext('2d'), {
+    type: 'bubble',
+    data: {
+      datasets: ['Saturated','Growing','Niche'].map(flag => ({
+        label: flag,
+        data: groups[flag],
+        backgroundColor: colorMap[flag],
+        borderColor: borderMap[flag],
+        borderWidth: 1,
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'nearest', intersect: true },
+      plugins: {
+        legend: { position: 'top', labels: { color: '#8b909e', boxWidth: 10, font: { family: SF_FONT, size: 11 }, padding: 14 } },
+        tooltip: {
+          ...TR_TOOLTIP,
+          callbacks: {
+            title: items => items[0]?.raw?.label || '',
+            label: item => {
+              const d = item.raw;
+              const sign = d.pct >= 0 ? '+' : '';
+              return [` Suppliers: ${d.sites}/${d.total}`, ` Velocity: ${sign}${d.pct.toFixed(1)}%`];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          min: 0, max: 10,
+          title: { display: true, text: '← Niche  |  Saturated →  (suppliers carrying it)', color: '#8b909e', font: { family: SF_FONT, size: 10 } },
+          grid: { color: TR_GRID }, ticks: TR_TICK
+        },
+        y: {
+          title: { display: true, text: '7-Day Velocity (%)', color: '#8b909e', font: { family: SF_FONT, size: 10 } },
+          grid: { color: TR_GRID },
+          ticks: { ...TR_TICK, callback: v => (v > 0 ? '+' : '') + v + '%' }
+        }
+      }
+    }
+  });
+
+  // Table below chart
+  const table = document.getElementById('tr-comp-table');
+  if (!table) return;
+  table.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border);color:var(--text-f);">
+          <th style="padding:8px 16px;text-align:left;font-weight:500;">Keyword</th>
+          <th style="padding:8px;text-align:center;font-weight:500;">Suppliers</th>
+          <th style="padding:8px;text-align:right;font-weight:500;">Velocity</th>
+          <th style="padding:8px 16px 8px 8px;text-align:right;font-weight:500;">Signal</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered.map(kw => {
+          const sign = kw.trend_pct >= 0 ? '+' : '';
+          const pctCls = kw.flag === 'Niche' ? 'tr-pct-up' : kw.trend_pct < 0 ? 'tr-pct-down' : 'tr-pct-neu';
+          const flgCls = kw.flag === 'Saturated' ? 'tr-flag-fading' : kw.flag === 'Growing' ? 'tr-flag-staple' : 'tr-flag-rising';
+          const pills = Object.entries(kw.site_breakdown||{}).filter(([,v])=>v>0)
+            .sort(([,a],[,b])=>b-a).slice(0,4)
+            .map(([s,c])=>`<span class="tr-site-pill">${s}</span>`).join('');
+          return `<tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 16px;">
+              <div style="font-weight:600;color:var(--text);">${kw.keyword}</div>
+              <div class="tr-card-pills" style="margin-top:3px;">${pills}</div>
+            </td>
+            <td style="padding:9px 8px;text-align:center;color:var(--text-m);">${kw.site_count}/${kw.total_suppliers}</td>
+            <td style="padding:9px 8px;text-align:right;" class="${pctCls}">${sign}${kw.trend_pct.toFixed(1)}%</td>
+            <td style="padding:9px 16px 9px 8px;text-align:right;"><span class="tr-flag ${flgCls}">${kw.flag}</span></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+function filterCompetitor(flag) {
+  _compFilter = flag;
+  ['tr-c-all','tr-c-saturated','tr-c-growing','tr-c-niche'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.classList.remove('active');
+  });
+  const map = { all:'tr-c-all', Saturated:'tr-c-saturated', Growing:'tr-c-growing', Niche:'tr-c-niche' };
+  const b = document.getElementById(map[flag]); if (b) b.classList.add('active');
+  if (_trendsData) renderCompetitorMap(_trendsData.competitor_map || []);
+}
+
+// ════════════════════════════════════════════════════════
+// PANEL 3 — Materials Intelligence (scatter chart)
+// ════════════════════════════════════════════════════════
+function renderMaterials(items) {
+  const filtered = _matFilter === 'all' ? items : items.filter(k => k.flag === _matFilter);
+
+  const empty  = document.getElementById('tr-mat-empty');
+  const canvas = document.getElementById('tr-mat-canvas');
+  if (!empty || !canvas) return;
+
+  if (!filtered.length) { empty.style.display = ''; canvas.style.display = 'none'; }
+  else                  { empty.style.display = 'none'; canvas.style.display = 'block'; }
+
+  const colorMap = { Rising: 'rgba(52,199,138,0.8)', Fading: 'rgba(224,92,92,0.8)', Staple: 'rgba(139,144,158,0.5)' };
+  const borderMap = { Rising: '#34c78a', Fading: '#e05c5c', Staple: '#8b909e' };
+
+  const groups = { Rising: [], Fading: [], Staple: [] };
+  filtered.forEach(m => {
+    groups[m.flag]?.push({
+      x: m.price_score ?? 1,
+      y: m.trend_pct,
+      r: Math.max(5, Math.min(25, Math.sqrt(Math.max(m.today_count, 1)) * 1.5)),
+      label: m.material,
+      tier: m.price_tier,
+      signals: m.quality_signals || [],
+      pct: m.trend_pct,
+      vol: m.today_count,
+    });
+  });
+
+  if (trMatChart) { trMatChart.destroy(); trMatChart = null; }
+  trMatChart = new Chart(canvas.getContext('2d'), {
+    type: 'bubble',
+    data: {
+      datasets: ['Rising','Fading','Staple'].map(flag => ({
+        label: flag,
+        data: groups[flag],
+        backgroundColor: colorMap[flag],
+        borderColor: borderMap[flag],
+        borderWidth: 1,
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { color: '#8b909e', boxWidth: 10, font: { family: SF_FONT, size: 11 }, padding: 14 } },
+        tooltip: {
+          ...TR_TOOLTIP,
+          callbacks: {
+            title: items => items[0]?.raw?.label || '',
+            label: item => {
+              const d = item.raw;
+              const sign = d.pct >= 0 ? '+' : '';
+              const sigs = d.signals.length ? d.signals.slice(0,2).join(', ') : '—';
+              return [
+                ` Price tier: ${d.tier}`,
+                ` Velocity: ${sign}${d.pct.toFixed(1)}%`,
+                ` Volume: ${d.vol} mentions`,
+                ` Qualities: ${sigs}`,
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          min: -0.5, max: 2.5,
+          title: { display: true, text: '← Budget  |  Mid  |  Premium →', color: '#8b909e', font: { family: SF_FONT, size: 10 } },
+          grid: { color: TR_GRID },
+          ticks: { ...TR_TICK, callback: v => ['Budget','','Mid','','Premium'][Math.round(v * 2)] || '' }
+        },
+        y: {
+          title: { display: true, text: '← Fading  |  Velocity (%)  |  Rising →', color: '#8b909e', font: { family: SF_FONT, size: 10 } },
+          grid: { color: TR_GRID },
+          ticks: { ...TR_TICK, callback: v => (v > 0 ? '+' : '') + v + '%' }
+        }
+      }
+    }
+  });
+
+  // Material cards below chart
+  const list = document.getElementById('tr-mat-list');
+  if (!list) return;
+  list.innerHTML = filtered.map(m => {
+    const pct = m.trend_pct;
+    const sign = pct >= 0 ? '+' : '';
+    const arrow = m.flag === 'Rising' ? '↑' : m.flag === 'Fading' ? '↓' : '→';
+    const pctCls = m.flag === 'Rising' ? 'tr-pct-up' : m.flag === 'Fading' ? 'tr-pct-down' : 'tr-pct-neu';
+    const tierColor = m.price_tier === 'premium' ? '#b085ff' : m.price_tier === 'budget' ? 'var(--amber)' : 'var(--text-m)';
+    const spId = 'sp-mat-' + m.material.replace(/[\s/]+/g, '-');
+    const signals = (m.quality_signals || []).map(s => `<span class="tr-site-pill">${s}</span>`).join('');
+    return `<div class="tr-card">
+      <div>
+        <div class="tr-card-kw">${m.material} <span style="font-size:0.65rem;font-weight:500;color:${tierColor};margin-left:4px;">${m.price_tier}</span></div>
+        <div class="tr-card-pills">${signals}</div>
+      </div>
+      <canvas id="${spId}" width="64" height="28" style="display:block;"></canvas>
+      <div style="text-align:right;">
+        <span class="tr-flag tr-flag-${m.flag.toLowerCase()}">${m.flag}</span>
+        <div class="${pctCls}" style="margin-top:4px;">${arrow} ${sign}${pct.toFixed(1)}%</div>
+        <div class="tr-vol">${m.today_count} mentions</div>
+      </div>
+    </div>`;
+  }).join('');
+  filtered.forEach(m => drawSparkline('sp-mat-' + m.material.replace(/[\s/]+/g,'-'), m.sparkline, m.flag));
+}
+
+function filterMaterials(flag) {
+  _matFilter = flag;
+  ['tr-mat-all','tr-mat-rising','tr-mat-fading'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.classList.remove('active');
+  });
+  const map = { all:'tr-mat-all', Rising:'tr-mat-rising', Fading:'tr-mat-fading' };
+  const b = document.getElementById(map[flag]); if (b) b.classList.add('active');
+  if (_trendsData) renderMaterials(_trendsData.materials || []);
 }
 </script>
 </body>
