@@ -16,6 +16,18 @@
     @font-face { font-family: 'SF Pro Display'; src: url('fonts/SFPRODISPLAYBLACKITALIC.OTF') format('opentype'); font-weight: 900; font-style: italic; }
     @font-face { font-family: 'SF Pro Display'; src: url('fonts/SFPRODISPLAYHEAVYITALIC.OTF') format('opentype'); font-weight: 800; font-style: italic; }
     @font-face { font-family: 'SF Pro Display'; src: url('fonts/SFPRODISPLAYULTRALIGHTITALIC.OTF') format('opentype'); font-weight: 200; font-style: italic; }
+    @font-face { font-family: 'Tiempos Headline'; src: url('fonts/test-tiempos-headline-light.woff2') format('woff2'); font-weight: 300; font-style: normal; }
+    @font-face { font-family: 'Tiempos Headline'; src: url('fonts/test-tiempos-headline-light-italic.woff2') format('woff2'); font-weight: 300; font-style: italic; }
+    @font-face { font-family: 'Tiempos Headline'; src: url('fonts/test-tiempos-headline-regular.woff2') format('woff2'); font-weight: 400; font-style: normal; }
+    @font-face { font-family: 'Tiempos Headline'; src: url('fonts/test-tiempos-headline-regular-italic.woff2') format('woff2'); font-weight: 400; font-style: italic; }
+    @font-face { font-family: 'Tiempos Headline'; src: url('fonts/test-tiempos-headline-medium.woff2') format('woff2'); font-weight: 500; font-style: normal; }
+    @font-face { font-family: 'Tiempos Headline'; src: url('fonts/test-tiempos-headline-medium-italic.woff2') format('woff2'); font-weight: 500; font-style: italic; }
+    @font-face { font-family: 'Tiempos Headline'; src: url('fonts/test-tiempos-headline-semibold.woff2') format('woff2'); font-weight: 600; font-style: normal; }
+    @font-face { font-family: 'Tiempos Headline'; src: url('fonts/test-tiempos-headline-semibold-italic.woff2') format('woff2'); font-weight: 600; font-style: italic; }
+    @font-face { font-family: 'Tiempos Headline'; src: url('fonts/test-tiempos-headline-bold.woff2') format('woff2'); font-weight: 700; font-style: normal; }
+    @font-face { font-family: 'Tiempos Headline'; src: url('fonts/test-tiempos-headline-bold-italic.woff2') format('woff2'); font-weight: 700; font-style: italic; }
+    @font-face { font-family: 'Tiempos Headline'; src: url('fonts/test-tiempos-headline-black.woff2') format('woff2'); font-weight: 900; font-style: normal; }
+    @font-face { font-family: 'Tiempos Headline'; src: url('fonts/test-tiempos-headline-black-italic.woff2') format('woff2'); font-weight: 900; font-style: italic; }
 
     :root {
       --bg:        #111113;
@@ -367,7 +379,7 @@
     .bento-hdr { display: flex; justify-content: space-between; align-items: flex-end; flex-shrink: 0; }
     .bento-hdr-left { display: flex; flex-direction: column; gap: 10px; }
     .bento-eyebrow { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.38); }
-    .bento-headline { font-size: clamp(1.5rem, 2.8vw, 2.6rem); font-weight: 300; color: #fff; line-height: 1.1; letter-spacing: -0.022em; }
+    .bento-headline { font-family: 'Tiempos Headline', var(--font); font-size: clamp(1.8rem, 3.2vw, 3rem); font-weight: 300; color: #fff; line-height: 1.1; letter-spacing: -0.022em; }
     .bento-back {
       display: flex; align-items: center; gap: 7px;
       color: rgba(255,255,255,0.28); font-size: 0.65rem; letter-spacing: 0.12em;
@@ -439,7 +451,7 @@
       margin: 0 0 18px;
     }
     .hero-headline {
-      font-family: var(--font); font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+      font-family: 'Tiempos Headline', var(--font); font-size: clamp(2.6rem, 5.2vw, 4.2rem);
       font-weight: 300; line-height: 1.1; color: #fff;
       margin: 0 0 22px; letter-spacing: -0.025em;
     }
