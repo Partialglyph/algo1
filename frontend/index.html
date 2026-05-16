@@ -2243,13 +2243,21 @@ function escHtml(str) {
     return best;
   }
   function closestLane(fromReg, toReg) {
-    const exact = LANES.findIndex(l => l.id === fromReg + '-' + toReg);
-    if (exact !== -1) return exact;
+    // 1. Exact direction
+    let idx = LANES.findIndex(l => l.id === fromReg + '-' + toReg);
+    if (idx !== -1) return idx;
+    // 2. Reverse direction (lane exists but user clicked origin/dest the other way)
+    idx = LANES.findIndex(l => l.id === toReg + '-' + fromReg);
+    if (idx !== -1) return idx;
+    // 3. Fallback: smallest combined distance, considering both orientations
     let best = 0, bestD = Infinity;
     LANES.forEach((l, i) => {
       const [f, t] = l.id.split('-');
       const fR = REGIONS[f], tR = REGIONS[t]; if (!fR || !tR) return;
-      const d = distSq(REGIONS[fromReg], fR) + distSq(REGIONS[toReg], tR);
+      const d = Math.min(
+        distSq(REGIONS[fromReg], fR) + distSq(REGIONS[toReg], tR),
+        distSq(REGIONS[toReg],   fR) + distSq(REGIONS[fromReg], tR)
+      );
       if (d < bestD) { bestD = d; best = i; }
     });
     return best;
@@ -2267,7 +2275,7 @@ function escHtml(str) {
 
   /* Canvas state */
   let cvs = null, ctx = null, landMask = null, mapReady = false;
-  const GRID = 6, DOT = 2;          // dot grid spacing and dot size (px)
+  const GRID = 11, DOT = 4;         // dot grid spacing and dot size (px)
   let originPt = null, destPt = null, pendingIdx = -1;
 
   function project(lat, lng, W, H) {
