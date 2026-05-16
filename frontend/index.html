@@ -659,8 +659,17 @@
       background: rgba(245,166,35,0.03);
     }
     .lane-modal-hint strong { color: var(--amber); font-weight: 600; }
-    .lane-modal-map { flex: 1; min-height: 0; display: block; }
-    #lane-map-canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
+    .lane-modal-map {
+      flex: 1; min-height: 0; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      background: #09090b;
+    }
+    #lane-map-canvas {
+      display: block;
+      aspect-ratio: 2 / 1;
+      max-width: 100%; max-height: 100%;
+      cursor: crosshair;
+    }
     .lane-modal-footer {
       display: flex; align-items: center; justify-content: space-between;
       padding: 12px 18px; border-top: 1px solid rgba(255,255,255,0.06);
@@ -2270,72 +2279,92 @@ function escHtml(str) {
   const labelEl    = document.getElementById('lane-map-label');
 
   /* Canvas / map state */
-  const CELL = 18;                      // pixel grid cell size (px)
+  const CELL = 14;                 // grid cell size in canvas px
   let cvs = null, ctx = null;
-  let landPath = null, mapReady = false;
+  let landMask = null, maskW = 0, maskH = 0, mapReady = false;
   let originPt = null, destPt = null, pendingIdx = -1;
 
   function project(lat, lng, W, H) {
     return [((lng + 180) / 360) * W, ((90 - lat) / 180) * H];
   }
-  function unproject(x, y, W, H) {
-    return { lat: 90 - (y / H) * 180, lng: (x / W) * 360 - 180 };
+  function unproject(cx, cy) {
+    return { lat: 90 - (cy / cvs.height) * 180, lng: (cx / cvs.width) * 360 - 180 };
   }
-  function snapCell(x, y) {
-    /* snap raw canvas coords to the nearest cell centre */
-    const cx = Math.floor(x / CELL) * CELL + CELL / 2;
-    const cy = Math.floor(y / CELL) * CELL + CELL / 2;
-    return { cx, cy, ...unproject(cx, cy, cvs.width, cvs.height) };
+  function snapCell(rawX, rawY) {
+    const col = Math.floor(rawX / CELL);
+    const row = Math.floor(rawY / CELL);
+    const cx  = col * CELL + CELL / 2;
+    const cy  = row * CELL + CELL / 2;
+    return { cx, cy, col, row, ...unproject(cx, cy) };
   }
-
-  function buildLandPath(features) {
-    const p = new Path2D();
-    features.forEach(({ geometry: g }) => {
-      if (!g) return;
-      const polys = g.type === 'MultiPolygon' ? g.coordinates
-                  : g.type === 'Polygon'      ? [g.coordinates] : [];
-      polys.forEach(poly => poly.forEach(ring => {
-        ring.forEach(([lng, lat], i) => {
-          const [x, y] = project(lat, lng, cvs.width, cvs.height);
-          i === 0 ? p.moveTo(x, y) : p.lineTo(x, y);
-        });
-        p.closePath();
-      }));
-    });
-    return p;
+  function isLand(cx, cy) {
+    if (!landMask) return false;
+    const px = Math.min(Math.round(cx), maskW - 1);
+    const py = Math.min(Math.round(cy), maskH - 1);
+    return landMask[(py * maskW + px) * 4] > 128;
   }
 
   async function loadMap() {
     const world = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json').then(r => r.json());
     const land  = topojson.feature(world, world.objects.land);
-    landPath    = buildLandPath(land.features);
-    mapReady    = true;
+
+    /* rasterise land onto an offscreen canvas at exact canvas resolution */
+    const off  = document.createElement('canvas');
+    off.width  = cvs.width;
+    off.height = cvs.height;
+    maskW = cvs.width; maskH = cvs.height;
+    const octx = off.getContext('2d');
+
+    const path = new Path2D();
+    land.features.forEach(({ geometry: g }) => {
+      if (!g) return;
+      const polys = g.type === 'MultiPolygon' ? g.coordinates
+                  : g.type === 'Polygon'      ? [g.coordinates] : [];
+      polys.forEach(poly => poly.forEach(ring => {
+        ring.forEach(([lng, lat], i) => {
+          const [x, y] = project(lat, lng, maskW, maskH);
+          i === 0 ? path.moveTo(x, y) : path.lineTo(x, y);
+        });
+        path.closePath();
+      }));
+    });
+
+    octx.fillStyle = '#fff';
+    octx.fill(path, 'evenodd');          /* evenodd avoids antimeridian inversion */
+    landMask  = octx.getImageData(0, 0, maskW, maskH).data;
+    mapReady  = true;
     drawMap();
   }
 
-  /* ── drawing ─────────────────────────────────────── */
+  /* ── drawing ─────────────────────────────────────────────── */
 
-  function drawCell(cx, cy, color, glowRadius) {
-    const S = CELL - 2, x = cx - S / 2, y = cy - S / 2;
+  function drawSelectedCell(cx, cy, color) {
+    const col = Math.floor(cx / CELL), row = Math.floor(cy / CELL);
+    const px  = col * CELL + 1,        py  = row * CELL + 1;
+    const S   = CELL - 2;
     ctx.save();
-    ctx.shadowColor  = color;
-    ctx.shadowBlur   = glowRadius;
-    ctx.fillStyle    = color;
-    ctx.fillRect(x, y, S, S);
+    ctx.shadowColor = color; ctx.shadowBlur = CELL * 2.5;
+    ctx.fillStyle   = color;
+    ctx.fillRect(px, py, S, S);
+    /* second pass — brighter core */
+    ctx.shadowBlur  = CELL * 0.8;
+    ctx.fillStyle   = '#fff';
+    ctx.globalAlpha = 0.35;
+    ctx.fillRect(px + S * 0.2, py + S * 0.2, S * 0.6, S * 0.6);
     ctx.restore();
   }
 
   function drawArc(ax, ay, bx, by) {
     ctx.save();
-    ctx.beginPath();
-    ctx.setLineDash([4, 6]);
-    ctx.strokeStyle = 'rgba(245,166,35,0.4)';
+    ctx.setLineDash([4, 7]);
+    ctx.strokeStyle = 'rgba(245,166,35,0.45)';
     ctx.lineWidth   = 1.5;
+    ctx.beginPath();
     const steps = 80;
     for (let i = 0; i <= steps; i++) {
       const t  = i / steps;
       const mx = ax + (bx - ax) * t;
-      const my = ay + (by - ay) * t - Math.sin(t * Math.PI) * 36;
+      const my = ay + (by - ay) * t - Math.sin(t * Math.PI) * cvs.height * 0.12;
       i === 0 ? ctx.moveTo(mx, my) : ctx.lineTo(mx, my);
     }
     ctx.stroke();
@@ -2346,16 +2375,17 @@ function escHtml(str) {
     ctx.save();
     ctx.font      = '600 10px "SF Pro Display", sans-serif';
     ctx.textAlign = 'center';
-    const PX = 8, PY = 4, TH = 10, R = 4;
+    const PX = 7, PY = 3, TH = 10, R = 3;
     for (const [id, r] of Object.entries(REGIONS)) {
       const [x, y] = project(r.lat, r.lng, cvs.width, cvs.height);
       const lbl = REGION_LABELS[id];
       const tw  = ctx.measureText(lbl).width;
-      const bx  = x - tw / 2 - PX, by = y - TH - PY + 4;
-      ctx.fillStyle = 'rgba(6,5,8,0.88)';
-      ctx.beginPath(); ctx.roundRect(bx, by, tw + PX * 2, TH + PY * 2, R); ctx.fill();
-      ctx.fillStyle = 'rgba(245,166,35,0.8)';
-      ctx.fillText(lbl, x, y + 4);
+      ctx.fillStyle = 'rgba(6,5,8,0.9)';
+      ctx.beginPath();
+      ctx.roundRect(x - tw / 2 - PX, y - TH - PY + 2, tw + PX * 2, TH + PY * 2, R);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(245,166,35,0.85)';
+      ctx.fillText(lbl, x, y + 2);
     }
     ctx.restore();
   }
@@ -2363,47 +2393,41 @@ function escHtml(str) {
   function drawMap() {
     if (!cvs) return;
     const W = cvs.width, H = cvs.height;
-    ctx.clearRect(0, 0, W, H);
-
-    /* background */
     ctx.fillStyle = '#09090b';
     ctx.fillRect(0, 0, W, H);
 
     if (!mapReady) {
       ctx.fillStyle = 'rgba(245,166,35,0.2)';
-      ctx.font = '13px "SF Pro Display", sans-serif';
+      ctx.font = '12px "SF Pro Display", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('Loading…', W / 2, H / 2);
       ctx.textAlign = 'left';
       return;
     }
 
-    /* solid gray land fill */
-    ctx.fillStyle = '#2e2e33';
-    ctx.fill(landPath);
-
-    /* pixel grid overlay — dark lines cut the fill into cells */
-    ctx.strokeStyle = 'rgba(9,9,11,0.75)';
-    ctx.lineWidth   = 1;
-    for (let x = 0; x < W; x += CELL) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-    }
-    for (let y = 0; y < H; y += CELL) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    /* draw land as uniform cells — background gaps = 1 px border */
+    ctx.fillStyle = '#2c2c32';
+    for (let row = 0; row * CELL < H; row++) {
+      for (let col = 0; col * CELL < W; col++) {
+        const cx = col * CELL + CELL / 2;
+        const cy = row * CELL + CELL / 2;
+        if (isLand(cx, cy)) {
+          ctx.fillRect(col * CELL + 1, row * CELL + 1, CELL - 2, CELL - 2);
+        }
+      }
     }
 
     drawRegionLabels();
-
-    /* arc + selection cells */
     if (originPt && destPt) drawArc(originPt.cx, originPt.cy, destPt.cx, destPt.cy);
-    if (originPt) drawCell(originPt.cx, originPt.cy, '#f5a623', 28);
-    if (destPt)   drawCell(destPt.cx,   destPt.cy,   '#fbbf24', 28);
+    if (originPt) drawSelectedCell(originPt.cx, originPt.cy, '#f5a623');
+    if (destPt)   drawSelectedCell(destPt.cx,   destPt.cy,   '#fbbf24');
   }
 
   function sizeCanvas() {
-    const wrap  = cvs.parentElement;
-    cvs.width   = wrap.clientWidth  || 900;
-    cvs.height  = wrap.clientHeight || 460;
+    /* Use CSS-rendered size so aspect-ratio: 2/1 is already applied */
+    const rect = cvs.getBoundingClientRect();
+    cvs.width  = Math.round(rect.width)  || 900;
+    cvs.height = Math.round(rect.height) || 450;
   }
 
   async function initPixelMap() {
