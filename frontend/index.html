@@ -310,13 +310,53 @@
     .tab-panel { display: none; padding: 16px; flex-direction: column; gap: 12px; }
     .tab-panel.active { display: flex; animation: panelIn 120ms ease both; }
     @keyframes panelIn { from { opacity: 0; } to { opacity: 1; } }
-    #tab-overview { padding: 0; gap: 0; }
+    #tab-overview { padding: 0; gap: 0; overflow: hidden; }
+
+    /* ── Overview horizontal carousel ── */
+    .ov-track {
+      display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+      scrollbar-width: none; height: calc(100dvh - 46px); width: 100%;
+    }
+    .ov-track::-webkit-scrollbar { display: none; }
+    .ov-panel { flex: 0 0 100%; scroll-snap-align: start; position: relative; height: 100%; }
+    .ov-scroll-prompt {
+      position: absolute; bottom: 32px; right: 40px; z-index: 3;
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);
+      color: var(--text-m); padding: 9px 18px; border-radius: 99px;
+      font-size: 0.8rem; font-family: var(--font); cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+      animation: promptPulse 2.6s ease-in-out infinite;
+    }
+    .ov-scroll-prompt:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.28); color: var(--text); }
+    @keyframes promptPulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+    .ov-features {
+      display: flex; flex-direction: column; padding: clamp(40px, 7vw, 80px);
+      background: var(--bg); overflow-y: auto; gap: 32px;
+    }
+    .ov-feat-header h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 300; letter-spacing: -0.02em; color: #fff; line-height: 1.15;
+    }
+    .ov-feat-sub { color: var(--text-m); font-size: 1rem; margin-top: 10px; }
+    .ov-feat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+    .feat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-lg); padding: 22px 22px 24px;
+      display: flex; flex-direction: column; gap: 10px;
+      transition: border-color 120ms ease, background 120ms ease;
+    }
+    .feat-card:hover { border-color: var(--border-2); background: var(--surface-2); }
+    .feat-tag { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+    .feat-title { font-size: 1rem; font-weight: 500; color: var(--text); line-height: 1.3; }
+    .feat-desc { font-size: 0.82rem; color: var(--text-m); line-height: 1.6; }
 
     /* ── Hero (overview) ── */
     .hero-wrap {
       position: relative; width: 100%; overflow: hidden;
       min-height: calc(100dvh - 46px);
-      background-color: #06040b;
+      background-color: var(--bg);
       /* tiny base dots — low opacity field across the whole panel */
       background-image: radial-gradient(circle, rgba(158,76,4,0.22) 0.7px, transparent 0.7px);
       background-size: 21px 21px;
@@ -341,8 +381,8 @@
     .hero-wrap::after {
       content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
       background:
-        radial-gradient(ellipse 48% 68% at 22% 54%, rgba(6,4,11,1.0) 0%, rgba(6,4,11,0.96) 32%, rgba(6,4,11,0.65) 58%, transparent 78%),
-        linear-gradient(to top, rgba(6,4,11,0.55) 0%, transparent 28%);
+        radial-gradient(ellipse 48% 68% at 22% 54%, rgba(17,17,19,1.0) 0%, rgba(17,17,19,0.96) 32%, rgba(17,17,19,0.65) 58%, transparent 78%),
+        linear-gradient(to top, rgba(17,17,19,0.55) 0%, transparent 28%);
     }
     .hero-content {
       position: relative; z-index: 2;
@@ -741,10 +781,66 @@
            OVERVIEW — HERO
       ════════════════════════════════════════════ -->
       <div class="tab-panel active" id="tab-overview">
-        <div class="hero-wrap">
-          <div class="hero-content">
-            <h1 class="hero-headline">Your edge in a<br>competitive market.</h1>
+        <div class="ov-track" id="ov-track">
+
+          <!-- Panel 1: Hero -->
+          <div class="ov-panel">
+            <div class="hero-wrap">
+              <div class="hero-content">
+                <h1 class="hero-headline">Your edge in a<br>competitive market.</h1>
+              </div>
+            </div>
+            <button class="ov-scroll-prompt" id="ov-next-btn" aria-label="View feature breakdown">
+              <span>What's inside</span>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><polyline points="4 2 10 7 4 12"/></svg>
+            </button>
           </div>
+
+          <!-- Panel 2: Feature breakdown -->
+          <div class="ov-panel ov-features">
+            <div class="ov-feat-header">
+              <h2>Platform overview.</h2>
+              <p class="ov-feat-sub">Seven capabilities, one dashboard.</p>
+            </div>
+            <div class="ov-feat-grid">
+              <div class="feat-card">
+                <span class="feat-tag">Quantitative</span>
+                <div class="feat-title">Monte Carlo Forecasting</div>
+                <p class="feat-desc">p05/p50/p95 confidence bands from historical freight rates across any shipping lane.</p>
+              </div>
+              <div class="feat-card">
+                <span class="feat-tag">Quantitative</span>
+                <div class="feat-title">Brent Crude Intelligence</div>
+                <p class="feat-desc">8-week multi-model oil price forecast with live yfinance data and p10/p90 confidence band.</p>
+              </div>
+              <div class="feat-card">
+                <span class="feat-tag">Risk</span>
+                <div class="feat-title">News &amp; Risk Analysis</div>
+                <p class="feat-desc">GDELT-powered event risk scoring, LLM-generated narrative, and port congestion monitoring.</p>
+              </div>
+              <div class="feat-card">
+                <span class="feat-tag">Trends</span>
+                <div class="feat-title">Macro Trend Movements</div>
+                <p class="feat-desc">Rising and fading macroeconomic signals tracked as time-series with weekly velocity scoring.</p>
+              </div>
+              <div class="feat-card">
+                <span class="feat-tag">Trends</span>
+                <div class="feat-title">Competitor Saturation</div>
+                <p class="feat-desc">Budget, mid, and premium tier bubble chart revealing market saturation and velocity gaps.</p>
+              </div>
+              <div class="feat-card">
+                <span class="feat-tag">Trends</span>
+                <div class="feat-title">Materials Intelligence</div>
+                <p class="feat-desc">Price tier and velocity tracking across raw materials with sparkline charts and quality signals.</p>
+              </div>
+              <div class="feat-card">
+                <span class="feat-tag">Trends</span>
+                <div class="feat-title">Keyword Search</div>
+                <p class="feat-desc">Custom trend queries returning 7-day sparklines, source breakdowns, and directional flags.</p>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -2187,6 +2283,12 @@ function escHtml(str) {
 ========================================================= */
 document.getElementById('sb-toggle-btn').addEventListener('click', function () {
   document.getElementById('sidebar').classList.toggle('collapsed');
+});
+
+/* ── Overview carousel scroll prompt ── */
+document.getElementById('ov-next-btn').addEventListener('click', function () {
+  const track = document.getElementById('ov-track');
+  track.scrollTo({ left: track.clientWidth, behavior: 'smooth' });
 });
 </script>
 </body>
