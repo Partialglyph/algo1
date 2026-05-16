@@ -113,10 +113,10 @@
     #progress-bar-wrap.visible { opacity: 1; }
     #progress-bar {
       height: 100%; width: 0%;
-      background: linear-gradient(90deg, var(--accent), #a78bfa);
+      background: #fff;
       border-radius: 0 2px 2px 0;
       transition: width 400ms cubic-bezier(0.16,1,0.3,1);
-      box-shadow: 0 0 10px rgba(79,124,255,0.6);
+      box-shadow: 0 0 10px rgba(255,255,255,0.4);
     }
     #progress-bar.indeterminate {
       width: 40% !important;
@@ -310,13 +310,96 @@
     .tab-panel { display: none; padding: 16px; flex-direction: column; gap: 12px; }
     .tab-panel.active { display: flex; animation: panelIn 120ms ease both; }
     @keyframes panelIn { from { opacity: 0; } to { opacity: 1; } }
-    #tab-overview { padding: 0; gap: 0; }
+    #tab-overview { padding: 0; gap: 0; height: calc(100dvh - 46px); overflow: hidden; animation: none !important; }
+
+    /* ── Horizontal scroll track ── */
+    .ov-track {
+      display: flex; width: 200%; height: 100%;
+      transform: translateX(0);
+      transition: transform 540ms cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
+    }
+    .ov-track.snapped { transition: transform 540ms cubic-bezier(0.16, 1, 0.3, 1); }
+    .ov-page { width: 50%; flex-shrink: 0; height: 100%; overflow: hidden; position: relative; }
+
+    /* ── Scroll hint ── */
+    .scroll-hint {
+      position: absolute; bottom: 36px; right: 40px;
+      z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 6px;
+      pointer-events: none;
+    }
+    .scroll-hint-chevron {
+      width: 12px; height: 12px;
+      border-right: 1px solid rgba(255,255,255,0.18);
+      border-bottom: 1px solid rgba(255,255,255,0.18);
+      transform: rotate(45deg);
+      animation: hint-bob 2.4s ease-in-out infinite;
+    }
+    @keyframes hint-bob {
+      0%, 100% { opacity: 0.2; transform: rotate(45deg) translate(0,0); }
+      50% { opacity: 0.55; transform: rotate(45deg) translate(2px,2px); }
+    }
+
+    /* ── Bento page ── */
+    .bento-page {
+      width: 100%; height: 100%; position: relative;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      padding: clamp(28px,4vw,52px) clamp(28px,5vw,64px);
+      gap: 20px; box-sizing: border-box;
+    }
+    .bento-page::before {
+      content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background-image: radial-gradient(circle, rgba(184,94,5,0.88) 2.3px, transparent 2.3px);
+      background-size: 21px 21px;
+      mask-image:
+        radial-gradient(ellipse 38% 50% at 82% 12%, black 0%, transparent 54%),
+        radial-gradient(ellipse 26% 36% at 58% 90%, black 0%, transparent 50%),
+        radial-gradient(ellipse 18% 26% at 94% 58%, black 0%, transparent 44%);
+      mask-composite: add;
+      -webkit-mask-image:
+        radial-gradient(ellipse 38% 50% at 82% 12%, black 0%, transparent 54%),
+        radial-gradient(ellipse 26% 36% at 58% 90%, black 0%, transparent 50%),
+        radial-gradient(ellipse 18% 26% at 94% 58%, black 0%, transparent 44%);
+      -webkit-mask-composite: source-over;
+    }
+    .bento-page-inner { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; gap: 20px; }
+    .bento-hdr { display: flex; justify-content: space-between; align-items: flex-end; flex-shrink: 0; }
+    .bento-hdr-left { display: flex; flex-direction: column; gap: 10px; }
+    .bento-eyebrow { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.38); }
+    .bento-headline { font-size: clamp(1.5rem, 2.8vw, 2.6rem); font-weight: 300; color: #fff; line-height: 1.1; letter-spacing: -0.022em; }
+    .bento-back {
+      display: flex; align-items: center; gap: 7px;
+      color: rgba(255,255,255,0.28); font-size: 0.65rem; letter-spacing: 0.12em;
+      text-transform: uppercase; font-family: var(--font); cursor: pointer;
+      border: none; background: none; padding: 0; align-self: flex-end;
+      transition: color 200ms ease;
+    }
+    .bento-back:hover { color: rgba(255,255,255,0.6); }
+    .bento-back-arrow { display: inline-block; transform: rotate(180deg); }
+    .b-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; flex: 1; min-height: 0; }
+    .b-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px; padding: 22px 24px;
+      display: flex; flex-direction: column; position: relative; overflow: hidden;
+    }
+    .b-card-lines {
+      position: absolute; inset: 0; pointer-events: none; opacity: 0.55;
+    }
+    .b-card-num {
+      font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.28);
+      letter-spacing: 0.06em; flex-shrink: 0;
+    }
+    .b-card-body { margin-top: auto; }
+    .b-card-title { font-size: 1.05rem; font-weight: 500; color: #fff; margin-bottom: 10px; line-height: 1.25; }
+    .b-card-desc { font-size: 0.76rem; line-height: 1.65; color: rgba(255,255,255,0.42); }
 
     /* ── Hero (overview) ── */
     .hero-wrap {
       position: relative; width: 100%; overflow: hidden;
-      min-height: calc(100dvh - 46px);
-      background-color: #06040b;
+      height: 100%;
+      background-color: var(--bg);
       /* tiny base dots — low opacity field across the whole panel */
       background-image: radial-gradient(circle, rgba(158,76,4,0.22) 0.7px, transparent 0.7px);
       background-size: 21px 21px;
@@ -341,8 +424,8 @@
     .hero-wrap::after {
       content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
       background:
-        radial-gradient(ellipse 48% 68% at 22% 54%, rgba(6,4,11,1.0) 0%, rgba(6,4,11,0.96) 32%, rgba(6,4,11,0.65) 58%, transparent 78%),
-        linear-gradient(to top, rgba(6,4,11,0.55) 0%, transparent 28%);
+        radial-gradient(ellipse 48% 68% at 22% 54%, rgba(10,10,10,1.0) 0%, rgba(10,10,10,0.96) 32%, rgba(10,10,10,0.65) 58%, transparent 78%),
+        linear-gradient(to top, rgba(10,10,10,0.55) 0%, transparent 28%);
     }
     .hero-content {
       position: relative; z-index: 2;
@@ -637,9 +720,9 @@
     .lane-modal-box {
       display: flex; flex-direction: column;
       width: 90vw; height: 82vh; max-width: 1100px;
-      background: #0a0a0c; border: 1px solid rgba(245,166,35,0.15);
+      background: var(--surface); border: 1px solid var(--border);
       border-radius: 18px; overflow: hidden;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(245,166,35,0.06);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.7);
     }
     .lane-modal-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -816,10 +899,81 @@
            OVERVIEW — HERO
       ════════════════════════════════════════════ -->
       <div class="tab-panel active" id="tab-overview">
-        <div class="hero-wrap">
-          <div class="hero-content">
-            <h1 class="hero-headline">Your edge in a<br>competitive market.</h1>
+        <div class="ov-track" id="ov-track">
+
+          <!-- Page 1: Hero -->
+          <div class="ov-page">
+            <div class="hero-wrap">
+              <div class="hero-content">
+                <h1 class="hero-headline">Your edge in a<br>competitive market.</h1>
+              </div>
+            </div>
+            <!-- Scroll hint — right side -->
+            <div class="scroll-hint">
+              <div class="scroll-hint-chevron"></div>
+            </div>
           </div>
+
+          <!-- Page 2: Bento capabilities -->
+          <div class="ov-page">
+            <div class="bento-page">
+              <div class="bento-page-inner">
+
+                <div class="bento-hdr">
+                  <div class="bento-hdr-left">
+                    <h2 class="bento-headline">Freight intelligence,<br>built to win.</h2>
+                  </div>
+                </div>
+
+                <div class="b-cards">
+
+                  <!-- 01 -->
+                  <div class="b-card">
+                    <svg class="b-card-lines" viewBox="0 0 400 300" fill="none" preserveAspectRatio="xMidYMid slice">
+                      <path d="M-20 280 C80 200, 160 240, 220 160 C280 80, 340 120, 420 60" stroke="rgba(255,255,255,0.07)" stroke-width="1" stroke-dasharray="6 5"/>
+                      <circle cx="220" cy="160" r="4" fill="rgba(255,255,255,0.12)"/>
+                      <circle cx="340" cy="116" r="3" fill="rgba(255,255,255,0.08)"/>
+                    </svg>
+                    <div class="b-card-num">01.</div>
+                    <div class="b-card-body">
+                      <div class="b-card-title">Monte Carlo Forecast</div>
+                      <div class="b-card-desc">10,000-path simulation per lane. p05 / p50 / p95 confidence bands projected across an 8-week horizon, recalculated on every run.</div>
+                    </div>
+                  </div>
+
+                  <!-- 02 -->
+                  <div class="b-card">
+                    <svg class="b-card-lines" viewBox="0 0 400 300" fill="none" preserveAspectRatio="xMidYMid slice">
+                      <path d="M420 20 C320 80, 260 40, 200 120 C140 200, 80 160, -20 220" stroke="rgba(255,255,255,0.07)" stroke-width="1" stroke-dasharray="6 5"/>
+                      <circle cx="200" cy="120" r="4" fill="rgba(255,255,255,0.12)"/>
+                      <circle cx="80"  cy="166" r="3" fill="rgba(255,255,255,0.08)"/>
+                    </svg>
+                    <div class="b-card-num">02.</div>
+                    <div class="b-card-body">
+                      <div class="b-card-title">Geopolitical Intelligence</div>
+                      <div class="b-card-desc">GDELT-powered real-time event risk scoring. Lane-specific keyword filtering, tone analysis, and live drift &amp; volatility adjustments.</div>
+                    </div>
+                  </div>
+
+                  <!-- 03 -->
+                  <div class="b-card">
+                    <svg class="b-card-lines" viewBox="0 0 400 300" fill="none" preserveAspectRatio="xMidYMid slice">
+                      <path d="M-20 60 C60 140, 140 100, 200 180 C260 260, 340 220, 420 280" stroke="rgba(255,255,255,0.07)" stroke-width="1" stroke-dasharray="6 5"/>
+                      <circle cx="200" cy="180" r="4" fill="rgba(255,255,255,0.12)"/>
+                      <circle cx="340" cy="225" r="3" fill="rgba(255,255,255,0.08)"/>
+                    </svg>
+                    <div class="b-card-num">03.</div>
+                    <div class="b-card-body">
+                      <div class="b-card-title">Market Trend Signals</div>
+                      <div class="b-card-desc">Daily-scraped fashion &amp; freight signals from 15+ retail and media sources. Rising, fading, and saturated niche detection.</div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -1276,6 +1430,44 @@ window.selectLaneIdx = function (i) {
 };
 
 /* =========================================================
+   OVERVIEW HORIZONTAL SCROLL
+========================================================= */
+(function () {
+  let page = 0, busy = false;
+  const track = document.getElementById('ov-track');
+  const el    = document.getElementById('tab-overview');
+
+  window.ovGoTo = function (n) {
+    page = n;
+    track.style.transform = n === 1 ? 'translateX(-50%)' : 'translateX(0)';
+  };
+
+  el.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    if (busy) return;
+    const dir = e.deltaY > 0 ? 1 : -1;
+    const next = Math.max(0, Math.min(1, page + dir));
+    if (next === page) return;
+    busy = true;
+    ovGoTo(next);
+    setTimeout(() => { busy = false; }, 600);
+  }, { passive: false });
+
+  let ty = 0;
+  el.addEventListener('touchstart', e => { ty = e.touches[0].clientY; }, { passive: true });
+  el.addEventListener('touchend', function (e) {
+    if (busy) return;
+    const dy = ty - e.changedTouches[0].clientY;
+    if (Math.abs(dy) < 30) return;
+    const next = Math.max(0, Math.min(1, page + (dy > 0 ? 1 : -1)));
+    if (next === page) return;
+    busy = true;
+    ovGoTo(next);
+    setTimeout(() => { busy = false; }, 600);
+  }, { passive: true });
+})();
+
+/* =========================================================
    PROGRESS BAR
 ========================================================= */
 const Progress = (() => {
@@ -1429,6 +1621,7 @@ function switchTab(name) {
   document.getElementById('tab-' + name).classList.add('active');
   const btn = document.getElementById('tab-' + name + '-btn');
   if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected','true'); moveIndicator(btn); }
+  if (name === 'overview') ovGoTo(0);
   if (name === 'quant') {
     requestAnimationFrame(() => requestAnimationFrame(() => {
       if (chartInstance) chartInstance.resize();
