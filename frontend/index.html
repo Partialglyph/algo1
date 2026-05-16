@@ -612,6 +612,80 @@
 
     #tr-bubble-area { min-height: 320px; }
     #tr-bubble-canvas { width: 100% !important; }
+
+    /* ---- Lane map trigger button ---- */
+    .lane-map-trigger {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; background: #2a2a2a; border: 1px solid transparent;
+      border-radius: 12px; padding: 9px 10px;
+      font-size: 0.85rem; font-family: var(--font); color: #c8cad0;
+      cursor: pointer; text-align: left;
+      transition: border-color var(--t), background var(--t);
+    }
+    .lane-map-trigger:hover { border-color: rgba(245,166,35,0.35); background: #323232; }
+    .lane-pin-icon { width: 14px; height: 14px; flex-shrink: 0; color: var(--amber); }
+    .lane-map-label-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #5a5e6b; }
+    .lane-map-label-text.has-value { color: #c8cad0; }
+
+    /* ---- Lane map modal ---- */
+    .lane-modal-overlay {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,0.72); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lane-modal-overlay[hidden] { display: none; }
+    .lane-modal-box {
+      display: flex; flex-direction: column;
+      width: 90vw; height: 82vh; max-width: 1100px;
+      background: #0a0a0c; border: 1px solid rgba(245,166,35,0.15);
+      border-radius: 18px; overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(245,166,35,0.06);
+    }
+    .lane-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+    }
+    .lane-modal-title { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+    .lane-modal-close-btn {
+      background: none; border: none; color: var(--text-m); cursor: pointer;
+      font-size: 1.1rem; line-height: 1; padding: 4px 8px; border-radius: 6px;
+      transition: background var(--t), color var(--t);
+    }
+    .lane-modal-close-btn:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+    .lane-modal-hint {
+      padding: 9px 18px; font-size: 0.8rem; color: var(--text-m);
+      border-bottom: 1px solid rgba(255,255,255,0.04); flex-shrink: 0;
+      background: rgba(245,166,35,0.03);
+    }
+    .lane-modal-hint strong { color: var(--amber); font-weight: 600; }
+    .lane-modal-map { flex: 1; min-height: 0; display: block; }
+    #lane-map-canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
+    .lane-modal-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 18px; border-top: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0; gap: 10px;
+    }
+    .lane-matched-label {
+      flex: 1; font-size: 0.8rem; color: var(--text-m);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .lane-matched-label span { color: var(--amber); font-weight: 500; }
+    .lane-btn-secondary {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+      color: var(--text-m); border-radius: 9px; padding: 7px 14px;
+      font-size: 0.82rem; font-family: var(--font); cursor: pointer;
+      transition: background var(--t), color var(--t);
+    }
+    .lane-btn-secondary:hover { background: rgba(255,255,255,0.10); color: var(--text); }
+    .lane-btn-primary {
+      background: var(--amber); border: none; color: #000;
+      border-radius: 9px; padding: 7px 18px;
+      font-size: 0.82rem; font-weight: 700; font-family: var(--font); cursor: pointer;
+      transition: opacity var(--t), background var(--t);
+    }
+    .lane-btn-primary:disabled { opacity: 0.28; cursor: not-allowed; }
+    .lane-btn-primary:not(:disabled):hover { background: #fbbf24; }
   </style>
 </head>
 <body>
@@ -660,18 +734,10 @@
 
         <div class="field">
           <label>Lane</label>
-          <div class="dd-wrapper" id="dd-lane-wrapper">
-            <button class="dd-trigger" id="dd-lane-btn" type="button"
-                    aria-haspopup="listbox" aria-expanded="false" aria-controls="dd-lane-menu">
-              <span class="dd-trigger-text" id="dd-lane-label">Select a lane</span>
-              <svg class="dd-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <polyline points="4 6 8 10 12 6"/>
-              </svg>
-            </button>
-            <div class="dd-menu" id="dd-lane-menu" role="listbox" aria-label="Shipping lanes">
-              <ul class="dd-list" id="dd-lane-list"></ul>
-            </div>
-          </div>
+          <button class="lane-map-trigger" id="lane-map-btn" type="button">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" class="lane-pin-icon"><path d="M8 1.5C5.51 1.5 3.5 3.51 3.5 6c0 3.5 4.5 8.5 4.5 8.5S12.5 9.5 12.5 6c0-2.49-2.01-4.5-4.5-4.5z"/><circle cx="8" cy="6" r="1.5"/></svg>
+            <span id="lane-map-label" class="lane-map-label-text">Select a lane</span>
+          </button>
           <input type="hidden" id="inp-lane" />
         </div>
 
@@ -1092,6 +1158,7 @@
   </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
@@ -1172,69 +1239,15 @@ const LANES = [
 })();
 
 /* =========================================================
-   DROPDOWN
+   LANE SELECT HELPER (used by map picker)
 ========================================================= */
-(function () {
-  const btn    = document.getElementById('dd-lane-btn');
-  const menu   = document.getElementById('dd-lane-menu');
-  const list   = document.getElementById('dd-lane-list');
-  const label  = document.getElementById('dd-lane-label');
-  const hidden = document.getElementById('inp-lane');
-  let open = false, focusedIdx = -1;
-
-  list.innerHTML = LANES.map((lane, i) => `
-    <li class="dd-item" data-idx="${i}" role="option" aria-selected="false"
-        data-tooltip-title="${lane.label}"
-        data-tooltip="${lane.tooltip}">
-      <span>${lane.label}</span>
-      <svg class="dd-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="2 8 6 12 14 4"/></svg>
-    </li>`).join('');
-
-  const items = Array.from(list.querySelectorAll('.dd-item'));
-
-  function openMenu() {
-    open = true; menu.classList.add('open');
-    btn.setAttribute('aria-expanded', 'true');
-    const sel = list.querySelector('.selected');
-    if (sel) sel.scrollIntoView({ block: 'nearest' });
-  }
-  function closeMenu() {
-    open = false; menu.classList.remove('open');
-    btn.setAttribute('aria-expanded', 'false');
-    focusedIdx = -1;
-    items.forEach(el => el.classList.remove('focused'));
-  }
-  function selectIdx(i) {
-    const lane = LANES[i]; if (!lane) return;
-    hidden.value = lane.value;
-    label.textContent = lane.label;
-    label.classList.add('has-value');
-    btn.dataset.tooltipTitle = lane.label;
-    btn.dataset.tooltip = lane.tooltip;
-    items.forEach((el, j) => {
-      el.classList.toggle('selected', j === i);
-      el.setAttribute('aria-selected', j === i ? 'true' : 'false');
-    });
-    closeMenu();
-  }
-  function setFocus(i) {
-    items.forEach(el => el.classList.remove('focused'));
-    if (i >= 0 && i < items.length) { items[i].classList.add('focused'); items[i].scrollIntoView({ block:'nearest' }); focusedIdx = i; }
-  }
-
-  btn.addEventListener('click', () => open ? closeMenu() : openMenu());
-  items.forEach((el, i) => { el.addEventListener('click', () => selectIdx(i)); el.addEventListener('mouseenter', () => setFocus(i)); });
-  document.addEventListener('mousedown', e => { if (open && !document.getElementById('dd-lane-wrapper').contains(e.target)) closeMenu(); });
-  document.addEventListener('keydown', e => {
-    if (!open) { if ((e.key==='Enter'||e.key===' ') && document.activeElement===btn) { e.preventDefault(); openMenu(); } return; }
-    if (e.key==='Escape')     { closeMenu(); btn.focus(); }
-    else if (e.key==='ArrowDown') { e.preventDefault(); setFocus(focusedIdx < items.length-1 ? focusedIdx+1 : 0); }
-    else if (e.key==='ArrowUp')   { e.preventDefault(); setFocus(focusedIdx > 0 ? focusedIdx-1 : items.length-1); }
-    else if (e.key==='Enter' && focusedIdx>=0) { e.preventDefault(); selectIdx(focusedIdx); }
-    else if (e.key==='Home')  { e.preventDefault(); setFocus(0); }
-    else if (e.key==='End')   { e.preventDefault(); setFocus(items.length-1); }
-  });
-})();
+window.selectLaneIdx = function (i) {
+  const lane = LANES[i]; if (!lane) return;
+  document.getElementById('inp-lane').value = lane.value;
+  const lbl = document.getElementById('lane-map-label');
+  lbl.textContent = lane.label;
+  lbl.classList.add('has-value');
+};
 
 /* =========================================================
    PROGRESS BAR
@@ -2183,11 +2196,272 @@ function escHtml(str) {
 }
 
 /* =========================================================
+   LANE MAP PICKER
+========================================================= */
+(function () {
+  const REGIONS = {
+    ao:  { lat: -25,  lng:  135 },
+    eu:  { lat:  50,  lng:   10 },
+    na:  { lat:  40,  lng: -100 },
+    sca: { lat: -15,  lng:  -60 },
+    fe:  { lat:  35,  lng:  115 },
+    ssa: { lat: -10,  lng:   25 },
+    isc: { lat:  20,  lng:   70 },
+  };
+
+  const REGION_LABELS = {
+    ao: 'Oceania', eu: 'Europe', na: 'N. America',
+    sca: 'S. America', fe: 'Far East', ssa: 'Africa', isc: 'ISC / M. East',
+  };
+
+  function distSq(a, b) {
+    const dLat = a.lat - b.lat, dLng = a.lng - b.lng;
+    return dLat * dLat + dLng * dLng;
+  }
+  function closestRegion(pt) {
+    let best = null, bestD = Infinity;
+    for (const [id, c] of Object.entries(REGIONS)) {
+      const d = distSq(pt, c); if (d < bestD) { bestD = d; best = id; }
+    }
+    return best;
+  }
+  function closestLane(fromReg, toReg) {
+    const exact = LANES.findIndex(l => l.id === fromReg + '-' + toReg);
+    if (exact !== -1) return exact;
+    let best = 0, bestD = Infinity;
+    LANES.forEach((l, i) => {
+      const [f, t] = l.id.split('-');
+      const fR = REGIONS[f], tR = REGIONS[t]; if (!fR || !tR) return;
+      const d = distSq(REGIONS[fromReg], fR) + distSq(REGIONS[toReg], tR);
+      if (d < bestD) { bestD = d; best = i; }
+    });
+    return best;
+  }
+
+  /* DOM refs */
+  const modal    = document.getElementById('lane-modal');
+  const hint     = document.getElementById('lane-modal-hint');
+  const matched  = document.getElementById('lane-matched-label');
+  const confirmBtn = document.getElementById('lane-modal-confirm');
+  const resetBtn = document.getElementById('lane-modal-reset');
+  const closeBtn = document.getElementById('lane-modal-close');
+  const openBtn  = document.getElementById('lane-map-btn');
+  const labelEl  = document.getElementById('lane-map-label');
+
+  /* Canvas state */
+  let cvs = null, ctx = null, landMask = null, mapReady = false;
+  const GRID = 6, DOT = 2;          // dot grid spacing and dot size (px)
+  let originPt = null, destPt = null, pendingIdx = -1;
+
+  function project(lat, lng, W, H) {
+    return [((lng + 180) / 360) * W, ((90 - lat) / 180) * H];
+  }
+  function unproject(x, y, W, H) {
+    return { lat: 90 - (y / H) * 180, lng: (x / W) * 360 - 180 };
+  }
+
+  function buildPath(geometry) {
+    const p = new Path2D();
+    const polys = geometry.type === 'MultiPolygon' ? geometry.coordinates
+                : geometry.type === 'Polygon'      ? [geometry.coordinates] : [];
+    polys.forEach(poly => {
+      poly.forEach(ring => {
+        ring.forEach(([lng, lat], i) => {
+          const [x, y] = project(lat, lng, cvs.width, cvs.height);
+          i === 0 ? p.moveTo(x, y) : p.lineTo(x, y);
+        });
+        p.closePath();
+      });
+    });
+    return p;
+  }
+
+  async function buildLandMask() {
+    const world = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json').then(r => r.json());
+    const land  = topojson.feature(world, world.objects.land);
+    const off   = document.createElement('canvas');
+    off.width = cvs.width; off.height = cvs.height;
+    const octx  = off.getContext('2d');
+    octx.fillStyle = '#fff';
+    land.features.forEach(f => { if (f.geometry) octx.fill(buildPath(f.geometry)); });
+    landMask = octx.getImageData(0, 0, cvs.width, cvs.height);
+    mapReady = true;
+    drawMap();
+  }
+
+  function isLand(x, y) {
+    if (!landMask) return false;
+    const i = (Math.round(y) * landMask.width + Math.round(x)) * 4;
+    return landMask.data[i] > 128;
+  }
+
+  function drawMarker(cx, cy, color) {
+    const S = 7;
+    ctx.shadowColor = color; ctx.shadowBlur = 14;
+    ctx.fillStyle = color;
+    ctx.fillRect(cx - S / 2, cy - S / 2, S, S);
+    ctx.shadowBlur = 0;
+  }
+
+  function drawArc(ax, ay, bx, by) {
+    const steps = 80;
+    ctx.beginPath();
+    ctx.setLineDash([3, 5]);
+    ctx.strokeStyle = 'rgba(245,166,35,0.35)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      /* slight arc using midpoint elevation */
+      const mx = ax + (bx - ax) * t;
+      const my = ay + (by - ay) * t - Math.sin(t * Math.PI) * 28;
+      i === 0 ? ctx.moveTo(mx, my) : ctx.lineTo(mx, my);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function drawRegionLabels() {
+    ctx.font = '500 9px "SF Pro Display", sans-serif';
+    ctx.textAlign = 'center';
+    for (const [id, r] of Object.entries(REGIONS)) {
+      const [x, y] = project(r.lat, r.lng, cvs.width, cvs.height);
+      ctx.fillStyle = 'rgba(245,166,35,0.28)';
+      ctx.fillText(REGION_LABELS[id], x, y + 14);
+    }
+    ctx.textAlign = 'left';
+  }
+
+  function drawMap() {
+    if (!cvs) return;
+    const W = cvs.width, H = cvs.height;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#0a0a0c';
+    ctx.fillRect(0, 0, W, H);
+
+    if (!mapReady) {
+      ctx.fillStyle = 'rgba(245,166,35,0.18)';
+      ctx.font = '13px "SF Pro Display", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Loading map…', W / 2, H / 2);
+      ctx.textAlign = 'left';
+      return;
+    }
+
+    /* Land dots */
+    for (let x = GRID / 2; x < W; x += GRID) {
+      for (let y = GRID / 2; y < H; y += GRID) {
+        if (isLand(x, y)) {
+          ctx.fillStyle = 'rgba(184,94,5,0.55)';
+          ctx.fillRect(x - DOT / 2, y - DOT / 2, DOT, DOT);
+        }
+      }
+    }
+
+    drawRegionLabels();
+
+    if (originPt && destPt) drawArc(originPt.cx, originPt.cy, destPt.cx, destPt.cy);
+    if (originPt) drawMarker(originPt.cx, originPt.cy, '#f5a623');
+    if (destPt)   drawMarker(destPt.cx,   destPt.cy,   '#ffffff');
+  }
+
+  function sizeCanvas() {
+    const wrap = cvs.parentElement;
+    cvs.width  = wrap.clientWidth  || 800;
+    cvs.height = wrap.clientHeight || 400;
+  }
+
+  async function initPixelMap() {
+    if (mapReady) { drawMap(); return; }
+    cvs = document.getElementById('lane-map-canvas');
+    sizeCanvas();
+    ctx = cvs.getContext('2d');
+    drawMap(); /* shows loading */
+    cvs.addEventListener('click', onCanvasClick);
+    await buildLandMask();
+  }
+
+  function onCanvasClick(e) {
+    const r  = cvs.getBoundingClientRect();
+    const sx = cvs.width  / r.width;
+    const sy = cvs.height / r.height;
+    const x  = (e.clientX - r.left) * sx;
+    const y  = (e.clientY - r.top)  * sy;
+    const pt = unproject(x, y, cvs.width, cvs.height);
+    pt.cx = Math.round(x); pt.cy = Math.round(y);
+
+    if (!originPt) {
+      originPt = pt;
+      hint.innerHTML = 'Origin set. Now click your <strong>destination</strong>';
+    } else if (!destPt) {
+      destPt = pt;
+      const fromReg = closestRegion(originPt);
+      const toReg   = closestRegion(destPt);
+      pendingIdx    = closestLane(fromReg, toReg);
+      hint.innerHTML = 'Route mapped — confirm to apply.';
+      matched.innerHTML = 'Matched: <span>' + LANES[pendingIdx].label + '</span>';
+      confirmBtn.disabled = false;
+    }
+    drawMap();
+  }
+
+  function resetPicker() {
+    originPt = null; destPt = null; pendingIdx = -1;
+    hint.innerHTML = 'Click on the map to set your <strong>origin</strong>';
+    matched.textContent = '';
+    confirmBtn.disabled = true;
+    drawMap();
+  }
+
+  function openModal() {
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(initPixelMap);
+  }
+  function closeModal() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  openBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  resetBtn.addEventListener('click', resetPicker);
+  modal.addEventListener('mousedown', e => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', e => { if (!modal.hidden && e.key === 'Escape') closeModal(); });
+
+  confirmBtn.addEventListener('click', () => {
+    if (pendingIdx === -1) return;
+    const lane = LANES[pendingIdx];
+    document.getElementById('inp-lane').value = lane.value;
+    labelEl.textContent = lane.label;
+    labelEl.classList.add('has-value');
+    resetPicker();
+    closeModal();
+  });
+})();
+
+/* =========================================================
    SIDEBAR TOGGLE
 ========================================================= */
 document.getElementById('sb-toggle-btn').addEventListener('click', function () {
   document.getElementById('sidebar').classList.toggle('collapsed');
 });
 </script>
+
+<!-- Lane map modal -->
+<div id="lane-modal" class="lane-modal-overlay" hidden>
+  <div class="lane-modal-box">
+    <div class="lane-modal-header">
+      <span class="lane-modal-title">Select a shipping lane</span>
+      <button class="lane-modal-close-btn" id="lane-modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="lane-modal-hint" id="lane-modal-hint">Click on the map to set your <strong>origin</strong></div>
+    <div class="lane-modal-map"><canvas id="lane-map-canvas"></canvas></div>
+    <div class="lane-modal-footer">
+      <span class="lane-matched-label" id="lane-matched-label"></span>
+      <button class="lane-btn-secondary" id="lane-modal-reset">Reset</button>
+      <button class="lane-btn-primary" id="lane-modal-confirm" disabled>Confirm lane</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
