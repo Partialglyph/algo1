@@ -2225,7 +2225,6 @@ function escHtml(str) {
     ssa: { lat: -10,  lng:   25 },
     isc: { lat:  20,  lng:   70 },
   };
-
   const REGION_LABELS = {
     ao: 'Oceania', eu: 'Europe', na: 'N. America',
     sca: 'S. America', fe: 'Far East', ssa: 'Africa', isc: 'ISC / M. East',
@@ -2243,13 +2242,10 @@ function escHtml(str) {
     return best;
   }
   function closestLane(fromReg, toReg) {
-    // 1. Exact direction
     let idx = LANES.findIndex(l => l.id === fromReg + '-' + toReg);
     if (idx !== -1) return idx;
-    // 2. Reverse direction (lane exists but user clicked origin/dest the other way)
     idx = LANES.findIndex(l => l.id === toReg + '-' + fromReg);
     if (idx !== -1) return idx;
-    // 3. Fallback: smallest combined distance, considering both orientations
     let best = 0, bestD = Infinity;
     LANES.forEach((l, i) => {
       const [f, t] = l.id.split('-');
@@ -2264,18 +2260,19 @@ function escHtml(str) {
   }
 
   /* DOM refs */
-  const modal    = document.getElementById('lane-modal');
-  const hint     = document.getElementById('lane-modal-hint');
-  const matched  = document.getElementById('lane-matched-label');
+  const modal      = document.getElementById('lane-modal');
+  const hint       = document.getElementById('lane-modal-hint');
+  const matched    = document.getElementById('lane-matched-label');
   const confirmBtn = document.getElementById('lane-modal-confirm');
-  const resetBtn = document.getElementById('lane-modal-reset');
-  const closeBtn = document.getElementById('lane-modal-close');
-  const openBtn  = document.getElementById('lane-map-btn');
-  const labelEl  = document.getElementById('lane-map-label');
+  const resetBtn   = document.getElementById('lane-modal-reset');
+  const closeBtn   = document.getElementById('lane-modal-close');
+  const openBtn    = document.getElementById('lane-map-btn');
+  const labelEl    = document.getElementById('lane-map-label');
 
-  /* Canvas state */
-  let cvs = null, ctx = null, landMask = null, mapReady = false;
-  const GRID = 15, DOT = 6;         // dot grid spacing and dot size (px)
+  /* Canvas / map state */
+  const CELL = 18;                      // pixel grid cell size (px)
+  let cvs = null, ctx = null;
+  let landPath = null, mapReady = false;
   let originPt = null, destPt = null, pendingIdx = -1;
 
   function project(lat, lng, W, H) {
@@ -2284,126 +2281,129 @@ function escHtml(str) {
   function unproject(x, y, W, H) {
     return { lat: 90 - (y / H) * 180, lng: (x / W) * 360 - 180 };
   }
+  function snapCell(x, y) {
+    /* snap raw canvas coords to the nearest cell centre */
+    const cx = Math.floor(x / CELL) * CELL + CELL / 2;
+    const cy = Math.floor(y / CELL) * CELL + CELL / 2;
+    return { cx, cy, ...unproject(cx, cy, cvs.width, cvs.height) };
+  }
 
-  function buildPath(geometry) {
+  function buildLandPath(features) {
     const p = new Path2D();
-    const polys = geometry.type === 'MultiPolygon' ? geometry.coordinates
-                : geometry.type === 'Polygon'      ? [geometry.coordinates] : [];
-    polys.forEach(poly => {
-      poly.forEach(ring => {
+    features.forEach(({ geometry: g }) => {
+      if (!g) return;
+      const polys = g.type === 'MultiPolygon' ? g.coordinates
+                  : g.type === 'Polygon'      ? [g.coordinates] : [];
+      polys.forEach(poly => poly.forEach(ring => {
         ring.forEach(([lng, lat], i) => {
           const [x, y] = project(lat, lng, cvs.width, cvs.height);
           i === 0 ? p.moveTo(x, y) : p.lineTo(x, y);
         });
         p.closePath();
-      });
+      }));
     });
     return p;
   }
 
-  async function buildLandMask() {
+  async function loadMap() {
     const world = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json').then(r => r.json());
     const land  = topojson.feature(world, world.objects.land);
-    const off   = document.createElement('canvas');
-    off.width = cvs.width; off.height = cvs.height;
-    const octx  = off.getContext('2d');
-    octx.fillStyle = '#fff';
-    land.features.forEach(f => { if (f.geometry) octx.fill(buildPath(f.geometry)); });
-    landMask = octx.getImageData(0, 0, cvs.width, cvs.height);
-    mapReady = true;
+    landPath    = buildLandPath(land.features);
+    mapReady    = true;
     drawMap();
   }
 
-  function isLand(x, y) {
-    if (!landMask) return false;
-    const i = (Math.round(y) * landMask.width + Math.round(x)) * 4;
-    return landMask.data[i] > 128;
-  }
+  /* ── drawing ─────────────────────────────────────── */
 
-  function drawMarker(cx, cy, color) {
-    const S = 7;
-    ctx.shadowColor = color; ctx.shadowBlur = 14;
-    ctx.fillStyle = color;
-    ctx.fillRect(cx - S / 2, cy - S / 2, S, S);
-    ctx.shadowBlur = 0;
+  function drawCell(cx, cy, color, glowRadius) {
+    const S = CELL - 2, x = cx - S / 2, y = cy - S / 2;
+    ctx.save();
+    ctx.shadowColor  = color;
+    ctx.shadowBlur   = glowRadius;
+    ctx.fillStyle    = color;
+    ctx.fillRect(x, y, S, S);
+    ctx.restore();
   }
 
   function drawArc(ax, ay, bx, by) {
-    const steps = 80;
+    ctx.save();
     ctx.beginPath();
-    ctx.setLineDash([3, 5]);
-    ctx.strokeStyle = 'rgba(245,166,35,0.35)';
-    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 6]);
+    ctx.strokeStyle = 'rgba(245,166,35,0.4)';
+    ctx.lineWidth   = 1.5;
+    const steps = 80;
     for (let i = 0; i <= steps; i++) {
-      const t = i / steps;
-      /* slight arc using midpoint elevation */
+      const t  = i / steps;
       const mx = ax + (bx - ax) * t;
-      const my = ay + (by - ay) * t - Math.sin(t * Math.PI) * 28;
+      const my = ay + (by - ay) * t - Math.sin(t * Math.PI) * 36;
       i === 0 ? ctx.moveTo(mx, my) : ctx.lineTo(mx, my);
     }
     ctx.stroke();
-    ctx.setLineDash([]);
+    ctx.restore();
   }
 
   function drawRegionLabels() {
-    ctx.font = '600 10px "SF Pro Display", sans-serif';
+    ctx.save();
+    ctx.font      = '600 10px "SF Pro Display", sans-serif';
     ctx.textAlign = 'center';
-    const PAD_X = 8, PAD_Y = 4, H_TEXT = 10, R = 4;
+    const PX = 8, PY = 4, TH = 10, R = 4;
     for (const [id, r] of Object.entries(REGIONS)) {
       const [x, y] = project(r.lat, r.lng, cvs.width, cvs.height);
-      const label = REGION_LABELS[id];
-      const tw = ctx.measureText(label).width;
-      const bx = x - tw / 2 - PAD_X, by = y + 6 - H_TEXT - PAD_Y;
-      const bw = tw + PAD_X * 2,      bh = H_TEXT + PAD_Y * 2;
-      // dark pill background
-      ctx.fillStyle = 'rgba(8,7,10,0.82)';
-      ctx.beginPath();
-      ctx.roundRect(bx, by, bw, bh, R);
-      ctx.fill();
-      // amber text
-      ctx.fillStyle = 'rgba(245,166,35,0.75)';
-      ctx.fillText(label, x, y + 6);
+      const lbl = REGION_LABELS[id];
+      const tw  = ctx.measureText(lbl).width;
+      const bx  = x - tw / 2 - PX, by = y - TH - PY + 4;
+      ctx.fillStyle = 'rgba(6,5,8,0.88)';
+      ctx.beginPath(); ctx.roundRect(bx, by, tw + PX * 2, TH + PY * 2, R); ctx.fill();
+      ctx.fillStyle = 'rgba(245,166,35,0.8)';
+      ctx.fillText(lbl, x, y + 4);
     }
-    ctx.textAlign = 'left';
+    ctx.restore();
   }
 
   function drawMap() {
     if (!cvs) return;
     const W = cvs.width, H = cvs.height;
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#0a0a0c';
+
+    /* background */
+    ctx.fillStyle = '#09090b';
     ctx.fillRect(0, 0, W, H);
 
     if (!mapReady) {
-      ctx.fillStyle = 'rgba(245,166,35,0.18)';
+      ctx.fillStyle = 'rgba(245,166,35,0.2)';
       ctx.font = '13px "SF Pro Display", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Loading map…', W / 2, H / 2);
+      ctx.fillText('Loading…', W / 2, H / 2);
       ctx.textAlign = 'left';
       return;
     }
 
-    /* Land dots */
-    for (let x = GRID / 2; x < W; x += GRID) {
-      for (let y = GRID / 2; y < H; y += GRID) {
-        if (isLand(x, y)) {
-          ctx.fillStyle = 'rgba(184,94,5,0.55)';
-          ctx.fillRect(x - DOT / 2, y - DOT / 2, DOT, DOT);
-        }
-      }
+    /* solid gray land fill */
+    ctx.fillStyle = '#2e2e33';
+    ctx.fill(landPath);
+
+    /* pixel grid overlay — dark lines cut the fill into cells */
+    ctx.strokeStyle = 'rgba(9,9,11,0.75)';
+    ctx.lineWidth   = 1;
+    for (let x = 0; x < W; x += CELL) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y < H; y += CELL) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
     }
 
     drawRegionLabels();
 
+    /* arc + selection cells */
     if (originPt && destPt) drawArc(originPt.cx, originPt.cy, destPt.cx, destPt.cy);
-    if (originPt) drawMarker(originPt.cx, originPt.cy, '#f5a623');
-    if (destPt)   drawMarker(destPt.cx,   destPt.cy,   '#ffffff');
+    if (originPt) drawCell(originPt.cx, originPt.cy, '#f5a623', 28);
+    if (destPt)   drawCell(destPt.cx,   destPt.cy,   '#fbbf24', 28);
   }
 
   function sizeCanvas() {
-    const wrap = cvs.parentElement;
-    cvs.width  = wrap.clientWidth  || 800;
-    cvs.height = wrap.clientHeight || 400;
+    const wrap  = cvs.parentElement;
+    cvs.width   = wrap.clientWidth  || 900;
+    cvs.height  = wrap.clientHeight || 460;
   }
 
   async function initPixelMap() {
@@ -2411,9 +2411,9 @@ function escHtml(str) {
     cvs = document.getElementById('lane-map-canvas');
     sizeCanvas();
     ctx = cvs.getContext('2d');
-    drawMap(); /* shows loading */
+    drawMap();
     cvs.addEventListener('click', onCanvasClick);
-    await buildLandMask();
+    await loadMap();
   }
 
   function onCanvasClick(e) {
@@ -2422,8 +2422,7 @@ function escHtml(str) {
     const sy = cvs.height / r.height;
     const x  = (e.clientX - r.left) * sx;
     const y  = (e.clientY - r.top)  * sy;
-    const pt = unproject(x, y, cvs.width, cvs.height);
-    pt.cx = Math.round(x); pt.cy = Math.round(y);
+    const pt = snapCell(x, y);
 
     if (!originPt) {
       originPt = pt;
