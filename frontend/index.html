@@ -2275,7 +2275,7 @@ function escHtml(str) {
 
   /* Canvas state */
   let cvs = null, ctx = null, landMask = null, mapReady = false;
-  const GRID = 11, DOT = 4;         // dot grid spacing and dot size (px)
+  const GRID = 15, DOT = 6;         // dot grid spacing and dot size (px)
   let originPt = null, destPt = null, pendingIdx = -1;
 
   function project(lat, lng, W, H) {
@@ -2346,12 +2346,23 @@ function escHtml(str) {
   }
 
   function drawRegionLabels() {
-    ctx.font = '500 9px "SF Pro Display", sans-serif';
+    ctx.font = '600 10px "SF Pro Display", sans-serif';
     ctx.textAlign = 'center';
+    const PAD_X = 8, PAD_Y = 4, H_TEXT = 10, R = 4;
     for (const [id, r] of Object.entries(REGIONS)) {
       const [x, y] = project(r.lat, r.lng, cvs.width, cvs.height);
-      ctx.fillStyle = 'rgba(245,166,35,0.28)';
-      ctx.fillText(REGION_LABELS[id], x, y + 14);
+      const label = REGION_LABELS[id];
+      const tw = ctx.measureText(label).width;
+      const bx = x - tw / 2 - PAD_X, by = y + 6 - H_TEXT - PAD_Y;
+      const bw = tw + PAD_X * 2,      bh = H_TEXT + PAD_Y * 2;
+      // dark pill background
+      ctx.fillStyle = 'rgba(8,7,10,0.82)';
+      ctx.beginPath();
+      ctx.roundRect(bx, by, bw, bh, R);
+      ctx.fill();
+      // amber text
+      ctx.fillStyle = 'rgba(245,166,35,0.75)';
+      ctx.fillText(label, x, y + 6);
     }
     ctx.textAlign = 'left';
   }
