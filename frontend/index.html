@@ -1158,6 +1158,23 @@
   </main>
 </div>
 
+<!-- Lane map modal -->
+<div id="lane-modal" class="lane-modal-overlay" hidden>
+  <div class="lane-modal-box">
+    <div class="lane-modal-header">
+      <span class="lane-modal-title">Select a shipping lane</span>
+      <button class="lane-modal-close-btn" id="lane-modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="lane-modal-hint" id="lane-modal-hint">Click on the map to set your <strong>origin</strong></div>
+    <div class="lane-modal-map"><canvas id="lane-map-canvas"></canvas></div>
+    <div class="lane-modal-footer">
+      <span class="lane-matched-label" id="lane-matched-label"></span>
+      <button class="lane-btn-secondary" id="lane-modal-reset">Reset</button>
+      <button class="lane-btn-primary" id="lane-modal-confirm" disabled>Confirm lane</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -2447,21 +2464,5 @@ document.getElementById('sb-toggle-btn').addEventListener('click', function () {
 });
 </script>
 
-<!-- Lane map modal -->
-<div id="lane-modal" class="lane-modal-overlay" hidden>
-  <div class="lane-modal-box">
-    <div class="lane-modal-header">
-      <span class="lane-modal-title">Select a shipping lane</span>
-      <button class="lane-modal-close-btn" id="lane-modal-close" aria-label="Close">✕</button>
-    </div>
-    <div class="lane-modal-hint" id="lane-modal-hint">Click on the map to set your <strong>origin</strong></div>
-    <div class="lane-modal-map"><canvas id="lane-map-canvas"></canvas></div>
-    <div class="lane-modal-footer">
-      <span class="lane-matched-label" id="lane-matched-label"></span>
-      <button class="lane-btn-secondary" id="lane-modal-reset">Reset</button>
-      <button class="lane-btn-primary" id="lane-modal-confirm" disabled>Confirm lane</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
