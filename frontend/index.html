@@ -939,12 +939,39 @@
 
                 <div class="b-cards">
 
-                  <!-- 01 -->
+                  <!-- 01 — Monte Carlo formula + simulation paths -->
                   <div class="b-card">
-                    <svg class="b-card-lines" viewBox="0 0 400 300" fill="none" preserveAspectRatio="xMidYMid slice">
-                      <path d="M-20 280 C80 200, 160 240, 220 160 C280 80, 340 120, 420 60" stroke="rgba(255,255,255,0.07)" stroke-width="1" stroke-dasharray="6 5"/>
-                      <circle cx="220" cy="160" r="4" fill="rgba(255,255,255,0.12)"/>
-                      <circle cx="340" cy="116" r="3" fill="rgba(255,255,255,0.08)"/>
+                    <svg class="b-card-lines" viewBox="0 0 400 300" fill="none" preserveAspectRatio="xMidYMid slice" style="opacity:0.7">
+                      <!-- Simulation fan paths from origin -->
+                      <path d="M0,230 C70,222 140,205 210,178 C280,151 340,132 400,122" stroke="rgba(255,255,255,0.22)" stroke-width="1.4" fill="none"/>
+                      <path d="M0,230 C65,218 130,196 200,164 C270,132 335,110 400,98"  stroke="rgba(255,255,255,0.13)" stroke-width="1" fill="none"/>
+                      <path d="M0,230 C75,228 148,224 218,218 C288,212 348,208 400,206" stroke="rgba(255,255,255,0.13)" stroke-width="1" fill="none"/>
+                      <path d="M0,230 C55,208 115,178 185,145 C255,112 325,90 400,78"   stroke="rgba(255,255,255,0.07)" stroke-width="1" fill="none"/>
+                      <path d="M0,230 C85,235 158,242 228,252 C298,262 355,270 400,276" stroke="rgba(255,255,255,0.07)" stroke-width="1" fill="none"/>
+                      <path d="M0,230 C45,192 100,154 168,122 C238,90 318,72 400,62"    stroke="rgba(255,255,255,0.04)" stroke-width="1" fill="none"/>
+                      <path d="M0,230 C95,245 175,265 248,278 C318,290 370,296 400,298" stroke="rgba(255,255,255,0.04)" stroke-width="1" fill="none"/>
+                      <!-- Origin dot -->
+                      <circle cx="0" cy="230" r="3.5" fill="rgba(255,255,255,0.5)"/>
+                      <!-- Band labels -->
+                      <text x="396" y="96"  font-family="monospace" font-size="8.5" fill="rgba(255,255,255,0.38)" text-anchor="end">p95</text>
+                      <text x="396" y="119" font-family="monospace" font-size="8.5" fill="rgba(255,255,255,0.6)"  text-anchor="end">p50</text>
+                      <text x="396" y="209" font-family="monospace" font-size="8.5" fill="rgba(255,255,255,0.38)" text-anchor="end">p05</text>
+                      <!-- Formula box -->
+                      <rect x="18" y="18" width="364" height="88" rx="7" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.1)" stroke-width="0.75"/>
+                      <!-- GBM formula line 1 -->
+                      <text font-family="Georgia,'Times New Roman',serif" font-size="13.5" fill="rgba(255,255,255,0.88)">
+                        <tspan x="200" y="52" text-anchor="middle">S</tspan>
+                        <tspan font-size="9.5" dy="3.5">t+Δt</tspan>
+                        <tspan dy="-3.5" font-size="13.5"> = S</tspan>
+                        <tspan font-size="9.5" dy="3.5">t</tspan>
+                        <tspan dy="-3.5" font-size="13.5"> · exp[(μ − σ</tspan>
+                        <tspan font-size="9.5" dy="-5">2</tspan>
+                        <tspan dy="5" font-size="13.5">/2)Δt + σ√Δt · ε]</tspan>
+                      </text>
+                      <!-- Formula line 2 -->
+                      <text x="200" y="76" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-size="10.5" fill="rgba(255,255,255,0.4)">ε ~ N(0, 1)</text>
+                      <!-- Labels row -->
+                      <text x="200" y="96" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(255,255,255,0.22)" letter-spacing="0.5">μ = drift    σ = volatility    Δt = time step</text>
                     </svg>
                     <div class="b-card-num">01.</div>
                     <div class="b-card-body">
@@ -953,12 +980,43 @@
                     </div>
                   </div>
 
-                  <!-- 02 -->
+                  <!-- 02 — Globe with shipping chokepoints -->
                   <div class="b-card">
-                    <svg class="b-card-lines" viewBox="0 0 400 300" fill="none" preserveAspectRatio="xMidYMid slice">
-                      <path d="M420 20 C320 80, 260 40, 200 120 C140 200, 80 160, -20 220" stroke="rgba(255,255,255,0.07)" stroke-width="1" stroke-dasharray="6 5"/>
-                      <circle cx="200" cy="120" r="4" fill="rgba(255,255,255,0.12)"/>
-                      <circle cx="80"  cy="166" r="3" fill="rgba(255,255,255,0.08)"/>
+                    <svg class="b-card-lines" viewBox="0 0 400 300" fill="none" preserveAspectRatio="xMidYMid slice" style="opacity:0.75">
+                      <!-- Globe body -->
+                      <circle cx="200" cy="148" r="118" fill="rgba(255,255,255,0.025)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+                      <!-- Latitude rings -->
+                      <ellipse cx="200" cy="78"  rx="78"  ry="19" stroke="rgba(255,255,255,0.07)" stroke-width="0.75"/>
+                      <ellipse cx="200" cy="108" rx="103" ry="26" stroke="rgba(255,255,255,0.07)" stroke-width="0.75"/>
+                      <ellipse cx="200" cy="148" rx="118" ry="30" stroke="rgba(255,255,255,0.09)" stroke-width="0.75"/>
+                      <ellipse cx="200" cy="188" rx="103" ry="26" stroke="rgba(255,255,255,0.07)" stroke-width="0.75"/>
+                      <ellipse cx="200" cy="222" rx="78"  ry="19" stroke="rgba(255,255,255,0.07)" stroke-width="0.75"/>
+                      <!-- Meridian arcs -->
+                      <path d="M200,30 C222,88 228,148 222,218 C218,248 210,262 200,266" stroke="rgba(255,255,255,0.07)" stroke-width="0.75"/>
+                      <path d="M200,30 C178,88 172,148 178,218 C182,248 190,262 200,266" stroke="rgba(255,255,255,0.07)" stroke-width="0.75"/>
+                      <path d="M200,30 C256,72 308,118 314,148 C318,170 298,222 258,254" stroke="rgba(255,255,255,0.05)" stroke-width="0.75"/>
+                      <path d="M200,30 C148,72 98,114 88,148 C82,172 102,222 145,254"  stroke="rgba(255,255,255,0.05)" stroke-width="0.75"/>
+                      <!-- Shipping routes (dashed) -->
+                      <path d="M148,96 C178,88 196,88 218,94"   stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-dasharray="4 3"/>
+                      <path d="M220,96 C252,112 278,128 294,146" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-dasharray="4 3"/>
+                      <path d="M146,98 C142,145 148,190 157,232" stroke="rgba(255,255,255,0.18)" stroke-width="1"   stroke-dasharray="4 4"/>
+                      <path d="M158,234 C200,248 258,218 293,148" stroke="rgba(255,255,255,0.18)" stroke-width="1"  stroke-dasharray="4 4"/>
+                      <!-- Suez Canal -->
+                      <circle cx="147" cy="94"  r="5" fill="rgba(255,255,255,0.9)"/>
+                      <circle cx="147" cy="94"  r="10" stroke="rgba(255,255,255,0.22)" stroke-width="0.75"/>
+                      <text x="130" y="84" font-family="monospace" font-size="7.5" fill="rgba(255,255,255,0.6)" text-anchor="middle">SUEZ</text>
+                      <!-- Strait of Hormuz -->
+                      <circle cx="220" cy="94"  r="5" fill="rgba(255,255,255,0.9)"/>
+                      <circle cx="220" cy="94"  r="10" stroke="rgba(255,255,255,0.22)" stroke-width="0.75"/>
+                      <text x="238" y="84" font-family="monospace" font-size="7.5" fill="rgba(255,255,255,0.6)">HORMUZ</text>
+                      <!-- Strait of Malacca -->
+                      <circle cx="295" cy="147" r="5" fill="rgba(255,255,255,0.9)"/>
+                      <circle cx="295" cy="147" r="10" stroke="rgba(255,255,255,0.22)" stroke-width="0.75"/>
+                      <text x="308" y="144" font-family="monospace" font-size="7.5" fill="rgba(255,255,255,0.6)">MALACCA</text>
+                      <!-- Cape of Good Hope -->
+                      <circle cx="157" cy="234" r="5" fill="rgba(255,255,255,0.9)"/>
+                      <circle cx="157" cy="234" r="10" stroke="rgba(255,255,255,0.22)" stroke-width="0.75"/>
+                      <text x="157" y="252" font-family="monospace" font-size="7.5" fill="rgba(255,255,255,0.6)" text-anchor="middle">C. OF GOOD HOPE</text>
                     </svg>
                     <div class="b-card-num">02.</div>
                     <div class="b-card-body">
@@ -967,12 +1025,17 @@
                     </div>
                   </div>
 
-                  <!-- 03 -->
+                  <!-- 03 — Trend arrow (reference-style) -->
                   <div class="b-card">
-                    <svg class="b-card-lines" viewBox="0 0 400 300" fill="none" preserveAspectRatio="xMidYMid slice">
-                      <path d="M-20 60 C60 140, 140 100, 200 180 C260 260, 340 220, 420 280" stroke="rgba(255,255,255,0.07)" stroke-width="1" stroke-dasharray="6 5"/>
-                      <circle cx="200" cy="180" r="4" fill="rgba(255,255,255,0.12)"/>
-                      <circle cx="340" cy="225" r="3" fill="rgba(255,255,255,0.08)"/>
+                    <svg class="b-card-lines" viewBox="0 0 400 300" fill="none" preserveAspectRatio="xMidYMid slice" style="opacity:0.82">
+                      <!-- Outermost band (most transparent) -->
+                      <path d="M338,300 C310,215 272,126 200,40 C366,126 404,215 440,300 Z" fill="rgba(255,255,255,0.05)"/>
+                      <!-- Band B -->
+                      <path d="M264,300 C244,214 224,124 200,40 C272,124 308,214 338,300 Z" fill="rgba(255,255,255,0.10)"/>
+                      <!-- Band A (adjacent to shaft) -->
+                      <path d="M212,300 C212,212 208,122 200,40 C224,122 244,212 264,300 Z" fill="rgba(255,255,255,0.18)"/>
+                      <!-- Main arrow shaft + head -->
+                      <path d="M188,300 L188,96 L155,96 L200,40 L245,96 L212,96 L212,300 Z" fill="rgba(255,255,255,0.82)"/>
                     </svg>
                     <div class="b-card-num">03.</div>
                     <div class="b-card-body">
