@@ -28,6 +28,3 @@ htmlcov/
 
 # Claude Code
 .claude/
-
-# StoreScan response cache
-.storescan-cache/
