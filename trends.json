@@ -1,72 +1,72 @@
 {
-  "generated_at": "2026-09-12T00:00:00Z",
-  "scrape_date": "2026-09-12",
+  "generated_at": "2026-09-13T00:00:00Z",
+  "scrape_date": "2026-09-13",
   "summary": {
-    "macro_rising": 11,
-    "macro_fading": 12,
+    "macro_rising": 14,
+    "macro_fading": 14,
     "saturated_niches": 0,
-    "material_rising": 4
+    "material_rising": 5
   },
   "macro_trends": [
     {
-      "keyword": "midi",
-      "flag": "Rising",
-      "trend_pct": 68.4,
-      "sentiment_score": 0.589,
-      "composite_score": 40.29,
-      "today_count": 33,
-      "avg_7d": 19.6,
-      "sparkline": [
-        28,
-        25,
-        25,
-        19,
-        9,
-        21,
-        37
-      ],
-      "source_breakdown": {
-        "retail": 33,
-        "media": 0
-      }
-    },
-    {
       "keyword": "crop",
       "flag": "Fading",
-      "trend_pct": -52.3,
-      "sentiment_score": 0.732,
-      "composite_score": 38.28,
-      "today_count": 41,
-      "avg_7d": 85.9,
+      "trend_pct": -49.5,
+      "sentiment_score": 0.696,
+      "composite_score": 34.45,
+      "today_count": 39,
+      "avg_7d": 77.3,
       "sparkline": [
-        111,
         122,
         111,
         122,
         50,
         41,
-        46
+        46,
+        44
       ],
       "source_breakdown": {
-        "retail": 8,
+        "retail": 6,
         "media": 33
+      }
+    },
+    {
+      "keyword": "retro",
+      "flag": "Rising",
+      "trend_pct": 46.2,
+      "sentiment_score": 0.446,
+      "composite_score": 20.61,
+      "today_count": 25,
+      "avg_7d": 17.1,
+      "sparkline": [
+        16,
+        29,
+        41,
+        33,
+        37,
+        48,
+        44
+      ],
+      "source_breakdown": {
+        "retail": 0,
+        "media": 25
       }
     },
     {
       "keyword": "loafer",
       "flag": "Rising",
-      "trend_pct": 400.0,
+      "trend_pct": 212.5,
       "sentiment_score": 0.089,
-      "composite_score": 35.6,
+      "composite_score": 18.91,
       "today_count": 5,
-      "avg_7d": 1.0,
+      "avg_7d": 1.6,
       "sparkline": [
         1,
         1,
         1,
         1,
         1,
-        1,
+        5,
         5
       ],
       "source_breakdown": {
@@ -75,43 +75,65 @@
       }
     },
     {
-      "keyword": "retro",
+      "keyword": "pleated",
       "flag": "Rising",
-      "trend_pct": 78.6,
-      "sentiment_score": 0.446,
-      "composite_score": 35.06,
-      "today_count": 25,
-      "avg_7d": 14.0,
+      "trend_pct": 75.7,
+      "sentiment_score": 0.232,
+      "composite_score": 17.56,
+      "today_count": 13,
+      "avg_7d": 7.4,
       "sparkline": [
-        13,
         16,
+        13,
+        21,
         29,
-        41,
-        33,
-        37,
-        48
+        16,
+        19,
+        24
       ],
       "source_breakdown": {
-        "retail": 0,
-        "media": 25
+        "retail": 12,
+        "media": 1
       }
     },
     {
-      "keyword": "pleated",
+      "keyword": "midi",
       "flag": "Rising",
-      "trend_pct": 90.5,
-      "sentiment_score": 0.214,
-      "composite_score": 19.37,
-      "today_count": 12,
-      "avg_7d": 6.3,
+      "trend_pct": 29.2,
+      "sentiment_score": 0.482,
+      "composite_score": 14.07,
+      "today_count": 27,
+      "avg_7d": 20.9,
       "sparkline": [
+        25,
+        25,
+        19,
+        9,
         21,
-        16,
-        13,
-        21,
-        29,
-        16,
-        19
+        37,
+        31
+      ],
+      "source_breakdown": {
+        "retail": 27,
+        "media": 0
+      }
+    },
+    {
+      "keyword": "cardigan",
+      "flag": "Fading",
+      "trend_pct": -63.7,
+      "sentiment_score": 0.214,
+      "composite_score": 13.63,
+      "today_count": 12,
+      "avg_7d": 33.1,
+      "sparkline": [
+        46,
+        56,
+        61,
+        30,
+        44,
+        22,
+        21
       ],
       "source_breakdown": {
         "retail": 12,
@@ -119,65 +141,43 @@
       }
     },
     {
-      "keyword": "straight leg",
-      "flag": "Rising",
-      "trend_pct": 140.0,
-      "sentiment_score": 0.107,
-      "composite_score": 14.98,
-      "today_count": 6,
-      "avg_7d": 2.5,
-      "sparkline": [
-        2,
-        2,
-        2,
-        2,
-        8,
-        0,
-        6
-      ],
-      "source_breakdown": {
-        "retail": 6,
-        "media": 0
-      }
-    },
-    {
-      "keyword": "vest",
-      "flag": "Rising",
-      "trend_pct": 41.8,
-      "sentiment_score": 0.339,
-      "composite_score": 14.17,
-      "today_count": 19,
-      "avg_7d": 13.4,
-      "sparkline": [
-        17,
-        23,
-        22,
-        40,
-        35,
-        29,
-        52
-      ],
-      "source_breakdown": {
-        "retail": 11,
-        "media": 8
-      }
-    },
-    {
-      "keyword": "cardigan",
-      "flag": "Fading",
-      "trend_pct": -73.2,
-      "sentiment_score": 0.179,
-      "composite_score": 13.1,
-      "today_count": 10,
+      "keyword": "mini",
+      "flag": "Staple",
+      "trend_pct": -11.5,
+      "sentiment_score": 0.589,
+      "composite_score": 6.77,
+      "today_count": 33,
       "avg_7d": 37.3,
       "sparkline": [
-        54,
-        46,
-        56,
-        61,
-        30,
-        44,
-        22
+        39,
+        43,
+        49,
+        49,
+        40,
+        36,
+        36
+      ],
+      "source_breakdown": {
+        "retail": 18,
+        "media": 15
+      }
+    },
+    {
+      "keyword": "wide leg",
+      "flag": "Rising",
+      "trend_pct": 37.0,
+      "sentiment_score": 0.179,
+      "composite_score": 6.62,
+      "today_count": 10,
+      "avg_7d": 7.3,
+      "sparkline": [
+        7,
+        11,
+        10,
+        7,
+        14,
+        27,
+        16
       ],
       "source_breakdown": {
         "retail": 10,
@@ -187,19 +187,19 @@
     {
       "keyword": "stripe",
       "flag": "Fading",
-      "trend_pct": -34.4,
+      "trend_pct": -30.6,
       "sentiment_score": 0.214,
-      "composite_score": 7.36,
+      "composite_score": 6.55,
       "today_count": 12,
-      "avg_7d": 18.3,
+      "avg_7d": 17.3,
       "sparkline": [
-        45,
         44,
         48,
         52,
         39,
         36,
-        28
+        28,
+        40
       ],
       "source_breakdown": {
         "retail": 11,
@@ -207,42 +207,130 @@
       }
     },
     {
-      "keyword": "crochet",
+      "keyword": "maxi",
+      "flag": "Fading",
+      "trend_pct": -36.2,
+      "sentiment_score": 0.161,
+      "composite_score": 5.83,
+      "today_count": 9,
+      "avg_7d": 14.1,
+      "sparkline": [
+        22,
+        19,
+        27,
+        20,
+        38,
+        15,
+        13
+      ],
+      "source_breakdown": {
+        "retail": 9,
+        "media": 0
+      }
+    },
+    {
+      "keyword": "slim fit",
+      "flag": "Rising",
+      "trend_pct": 50.0,
+      "sentiment_score": 0.107,
+      "composite_score": 5.35,
+      "today_count": 6,
+      "avg_7d": 4.0,
+      "sparkline": [
+        13,
+        3,
+        16,
+        10,
+        11,
+        12,
+        17
+      ],
+      "source_breakdown": {
+        "retail": 6,
+        "media": 0
+      }
+    },
+    {
+      "keyword": "floral",
+      "flag": "Fading",
+      "trend_pct": -30.0,
+      "sentiment_score": 0.125,
+      "composite_score": 3.75,
+      "today_count": 7,
+      "avg_7d": 10.0,
+      "sparkline": [
+        25,
+        19,
+        25,
+        9,
+        17,
+        15,
+        7
+      ],
+      "source_breakdown": {
+        "retail": 4,
+        "media": 3
+      }
+    },
+    {
+      "keyword": "barrel fit",
       "flag": "Rising",
       "trend_pct": 100.0,
-      "sentiment_score": 0.071,
-      "composite_score": 7.1,
-      "today_count": 4,
-      "avg_7d": 2.0,
+      "sentiment_score": 0.036,
+      "composite_score": 3.6,
+      "today_count": 2,
+      "avg_7d": 0.0,
       "sparkline": [
         0,
-        2,
         0,
         0,
-        2,
-        2,
-        4
+        0,
+        0,
+        0,
+        2
       ],
       "source_breakdown": {
         "retail": 2,
-        "media": 2
+        "media": 0
+      }
+    },
+    {
+      "keyword": "animal print",
+      "flag": "Rising",
+      "trend_pct": 100.0,
+      "sentiment_score": 0.036,
+      "composite_score": 3.6,
+      "today_count": 2,
+      "avg_7d": 0.0,
+      "sparkline": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        10,
+        2
+      ],
+      "source_breakdown": {
+        "retail": 2,
+        "media": 0
       }
     },
     {
       "keyword": "utility",
       "flag": "Rising",
-      "trend_pct": 100.0,
+      "trend_pct": 48.1,
       "sentiment_score": 0.071,
-      "composite_score": 7.1,
+      "composite_score": 3.42,
       "today_count": 4,
-      "avg_7d": 2.0,
+      "avg_7d": 2.7,
       "sparkline": [
-        2,
         0,
         0,
         0,
         2,
         0,
+        4,
         4
       ],
       "source_breakdown": {
@@ -253,18 +341,18 @@
     {
       "keyword": "cargo",
       "flag": "Rising",
-      "trend_pct": 100.0,
+      "trend_pct": 48.1,
       "sentiment_score": 0.071,
-      "composite_score": 7.1,
+      "composite_score": 3.42,
       "today_count": 4,
-      "avg_7d": 2.0,
+      "avg_7d": 2.7,
       "sparkline": [
         0,
         0,
-        0,
         2,
         0,
         2,
+        4,
         4
       ],
       "source_breakdown": {
@@ -275,19 +363,19 @@
     {
       "keyword": "sequin",
       "flag": "Rising",
-      "trend_pct": 81.8,
+      "trend_pct": 42.9,
       "sentiment_score": 0.071,
-      "composite_score": 5.81,
+      "composite_score": 3.05,
       "today_count": 4,
-      "avg_7d": 2.2,
+      "avg_7d": 2.8,
       "sparkline": [
-        6,
         6,
         4,
         9,
         3,
         11,
-        7
+        7,
+        4
       ],
       "source_breakdown": {
         "retail": 4,
@@ -297,63 +385,19 @@
     {
       "keyword": "blazer",
       "flag": "Fading",
-      "trend_pct": -75.6,
+      "trend_pct": -74.0,
       "sentiment_score": 0.036,
-      "composite_score": 2.72,
+      "composite_score": 2.66,
       "today_count": 2,
-      "avg_7d": 8.2,
+      "avg_7d": 7.7,
       "sparkline": [
-        14,
         12,
         10,
         10,
         8,
         27,
-        3
-      ],
-      "source_breakdown": {
-        "retail": 2,
-        "media": 0
-      }
-    },
-    {
-      "keyword": "preppy",
-      "flag": "Rising",
-      "trend_pct": 42.9,
-      "sentiment_score": 0.054,
-      "composite_score": 2.32,
-      "today_count": 3,
-      "avg_7d": 2.1,
-      "sparkline": [
-        2,
-        2,
-        2,
-        1,
         3,
-        3,
-        3
-      ],
-      "source_breakdown": {
-        "retail": 0,
-        "media": 3
-      }
-    },
-    {
-      "keyword": "ruched",
-      "flag": "Fading",
-      "trend_pct": -63.0,
-      "sentiment_score": 0.036,
-      "composite_score": 2.27,
-      "today_count": 2,
-      "avg_7d": 5.4,
-      "sparkline": [
-        4,
-        0,
-        2,
-        9,
-        11,
-        0,
-        2
+        6
       ],
       "source_breakdown": {
         "retail": 2,
@@ -363,19 +407,19 @@
     {
       "keyword": "halter",
       "flag": "Fading",
-      "trend_pct": -54.5,
+      "trend_pct": -53.5,
       "sentiment_score": 0.036,
-      "composite_score": 1.96,
+      "composite_score": 1.93,
       "today_count": 2,
-      "avg_7d": 4.4,
+      "avg_7d": 4.3,
       "sparkline": [
-        27,
         30,
         33,
         64,
         28,
         31,
-        49
+        49,
+        40
       ],
       "source_breakdown": {
         "retail": 2,
@@ -383,84 +427,128 @@
       }
     },
     {
-      "keyword": "floral",
-      "flag": "Staple",
-      "trend_pct": 8.9,
-      "sentiment_score": 0.196,
-      "composite_score": 1.74,
-      "today_count": 11,
-      "avg_7d": 10.1,
+      "keyword": "trench coat",
+      "flag": "Fading",
+      "trend_pct": -50.0,
+      "sentiment_score": 0.036,
+      "composite_score": 1.8,
+      "today_count": 2,
+      "avg_7d": 4.0,
       "sparkline": [
-        26,
-        25,
-        19,
-        25,
-        9,
-        17,
-        15
+        13,
+        5,
+        3,
+        3,
+        3,
+        1,
+        7
       ],
       "source_breakdown": {
-        "retail": 8,
+        "retail": 2,
+        "media": 0
+      }
+    },
+    {
+      "keyword": "straight leg",
+      "flag": "Rising",
+      "trend_pct": 25.0,
+      "sentiment_score": 0.071,
+      "composite_score": 1.77,
+      "today_count": 4,
+      "avg_7d": 3.2,
+      "sparkline": [
+        2,
+        2,
+        2,
+        8,
+        0,
+        6,
+        7
+      ],
+      "source_breakdown": {
+        "retail": 4,
+        "media": 0
+      }
+    },
+    {
+      "keyword": "preppy",
+      "flag": "Rising",
+      "trend_pct": 30.4,
+      "sentiment_score": 0.054,
+      "composite_score": 1.64,
+      "today_count": 3,
+      "avg_7d": 2.3,
+      "sparkline": [
+        2,
+        2,
+        1,
+        3,
+        3,
+        3,
+        3
+      ],
+      "source_breakdown": {
+        "retail": 0,
         "media": 3
       }
     },
     {
       "keyword": "asymmetric",
-      "flag": "Fading",
-      "trend_pct": -42.9,
-      "sentiment_score": 0.036,
-      "composite_score": 1.54,
-      "today_count": 2,
-      "avg_7d": 3.5,
+      "flag": "Rising",
+      "trend_pct": 21.2,
+      "sentiment_score": 0.071,
+      "composite_score": 1.51,
+      "today_count": 4,
+      "avg_7d": 3.3,
       "sparkline": [
-        7,
         7,
         5,
         3,
         10,
         12,
-        3
+        3,
+        9
       ],
       "source_breakdown": {
-        "retail": 2,
+        "retail": 4,
         "media": 0
       }
     },
     {
-      "keyword": "maxi",
-      "flag": "Staple",
-      "trend_pct": -5.7,
-      "sentiment_score": 0.268,
-      "composite_score": 1.53,
-      "today_count": 15,
-      "avg_7d": 15.9,
+      "keyword": "ruched",
+      "flag": "Fading",
+      "trend_pct": -20.0,
+      "sentiment_score": 0.071,
+      "composite_score": 1.42,
+      "today_count": 4,
+      "avg_7d": 5.0,
       "sparkline": [
-        23,
-        22,
-        19,
-        27,
-        20,
-        38,
-        15
+        0,
+        2,
+        9,
+        11,
+        0,
+        2,
+        4
       ],
       "source_breakdown": {
-        "retail": 15,
+        "retail": 4,
         "media": 0
       }
     },
     {
       "keyword": "micro",
       "flag": "Fading",
-      "trend_pct": -70.6,
+      "trend_pct": -66.7,
       "sentiment_score": 0.018,
-      "composite_score": 1.27,
+      "composite_score": 1.2,
       "today_count": 1,
-      "avg_7d": 3.4,
+      "avg_7d": 3.0,
       "sparkline": [
-        4,
         5,
         5,
         4,
+        1,
         1,
         1,
         1
@@ -468,28 +556,6 @@
       "source_breakdown": {
         "retail": 0,
         "media": 1
-      }
-    },
-    {
-      "keyword": "wide leg",
-      "flag": "Staple",
-      "trend_pct": 8.1,
-      "sentiment_score": 0.143,
-      "composite_score": 1.16,
-      "today_count": 8,
-      "avg_7d": 7.4,
-      "sparkline": [
-        15,
-        7,
-        11,
-        10,
-        7,
-        14,
-        27
-      ],
-      "source_breakdown": {
-        "retail": 8,
-        "media": 0
       }
     },
     {
@@ -501,13 +567,13 @@
       "today_count": 2,
       "avg_7d": 2.9,
       "sparkline": [
-        5,
         9,
         13,
         16,
         7,
         4,
-        20
+        20,
+        16
       ],
       "source_breakdown": {
         "retail": 2,
@@ -517,16 +583,16 @@
     {
       "keyword": "athleisure",
       "flag": "Fading",
-      "trend_pct": -58.3,
+      "trend_pct": -52.4,
       "sentiment_score": 0.018,
-      "composite_score": 1.05,
+      "composite_score": 0.94,
       "today_count": 1,
-      "avg_7d": 2.4,
+      "avg_7d": 2.1,
       "sparkline": [
         3,
         3,
         3,
-        3,
+        1,
         1,
         1,
         1
@@ -537,40 +603,40 @@
       }
     },
     {
-      "keyword": "platform",
+      "keyword": "crochet",
       "flag": "Fading",
-      "trend_pct": -50.0,
-      "sentiment_score": 0.018,
-      "composite_score": 0.9,
-      "today_count": 1,
-      "avg_7d": 2.0,
+      "trend_pct": -20.0,
+      "sentiment_score": 0.036,
+      "composite_score": 0.72,
+      "today_count": 2,
+      "avg_7d": 2.5,
       "sparkline": [
         2,
-        2,
-        2,
-        2,
         0,
         0,
-        1
+        2,
+        2,
+        4,
+        2
       ],
       "source_breakdown": {
         "retail": 0,
-        "media": 1
+        "media": 2
       }
     },
     {
       "keyword": "streetwear",
       "flag": "Fading",
-      "trend_pct": -41.2,
+      "trend_pct": -37.5,
       "sentiment_score": 0.018,
-      "composite_score": 0.74,
+      "composite_score": 0.67,
       "today_count": 1,
-      "avg_7d": 1.7,
+      "avg_7d": 1.6,
       "sparkline": [
         2,
         2,
         2,
-        2,
+        1,
         1,
         1,
         1
@@ -590,8 +656,8 @@
       "avg_7d": 3.3,
       "sparkline": [
         3,
-        3,
         5,
+        3,
         3,
         3,
         3,
@@ -603,69 +669,25 @@
       }
     },
     {
-      "keyword": "off shoulder",
-      "flag": "Staple",
-      "trend_pct": -4.8,
-      "sentiment_score": 0.071,
-      "composite_score": 0.34,
-      "today_count": 4,
-      "avg_7d": 4.2,
-      "sparkline": [
-        8,
-        6,
-        13,
-        3,
-        6,
-        3,
-        7
-      ],
-      "source_breakdown": {
-        "retail": 4,
-        "media": 0
-      }
-    },
-    {
-      "keyword": "mini",
-      "flag": "Staple",
-      "trend_pct": -0.3,
-      "sentiment_score": 0.643,
-      "composite_score": 0.19,
-      "today_count": 36,
-      "avg_7d": 36.1,
-      "sparkline": [
-        35,
-        39,
-        43,
-        49,
-        49,
-        40,
-        36
-      ],
-      "source_breakdown": {
-        "retail": 20,
-        "media": 16
-      }
-    },
-    {
-      "keyword": "slim fit",
+      "keyword": "vest",
       "flag": "Staple",
       "trend_pct": 0.0,
-      "sentiment_score": 0.071,
+      "sentiment_score": 0.268,
       "composite_score": 0.0,
-      "today_count": 4,
-      "avg_7d": 4.0,
+      "today_count": 15,
+      "avg_7d": 15.0,
       "sparkline": [
-        19,
-        13,
-        3,
-        16,
-        10,
-        11,
-        12
+        23,
+        22,
+        40,
+        35,
+        29,
+        52,
+        37
       ],
       "source_breakdown": {
-        "retail": 4,
-        "media": 0
+        "retail": 7,
+        "media": 8
       }
     },
     {
@@ -723,7 +745,7 @@
       "sparkline": [
         0,
         0,
-        0,
+        1,
         1,
         1,
         1,
@@ -739,82 +761,82 @@
     {
       "keyword": "halter",
       "flag": "Niche",
-      "saturation_score": 47,
-      "trend_pct": 51.6,
+      "saturation_score": 38,
+      "trend_pct": 14.8,
       "site_count": 1,
       "total_suppliers": 9,
-      "avg_7d": 31.0,
+      "avg_7d": 33.1,
       "sparkline": [
-        27,
         30,
         33,
         64,
         28,
         31,
-        49
+        49,
+        40
       ],
       "site_breakdown": {
-        "fondmart": 47
+        "fondmart": 38
+      }
+    },
+    {
+      "keyword": "stripe",
+      "flag": "Niche",
+      "saturation_score": 28,
+      "trend_pct": 14.8,
+      "site_count": 1,
+      "total_suppliers": 9,
+      "avg_7d": 24.4,
+      "sparkline": [
+        44,
+        48,
+        52,
+        39,
+        36,
+        28,
+        40
+      ],
+      "site_breakdown": {
+        "fondmart": 28
       }
     },
     {
       "keyword": "vest",
       "flag": "Niche",
-      "saturation_score": 33,
-      "trend_pct": 121.5,
+      "saturation_score": 22,
+      "trend_pct": 36.6,
       "site_count": 1,
       "total_suppliers": 9,
-      "avg_7d": 14.9,
+      "avg_7d": 16.1,
       "sparkline": [
-        17,
         23,
         22,
         40,
         35,
         29,
-        52
+        52,
+        37
       ],
       "site_breakdown": {
-        "fondmart": 33
+        "fondmart": 22
       }
     },
     {
       "keyword": "retro",
       "flag": "Niche",
-      "saturation_score": 23,
-      "trend_pct": 81.1,
+      "saturation_score": 19,
+      "trend_pct": 36.7,
       "site_count": 1,
       "total_suppliers": 9,
-      "avg_7d": 12.7,
+      "avg_7d": 13.9,
       "sparkline": [
-        13,
         16,
         29,
         41,
         33,
         37,
-        48
-      ],
-      "site_breakdown": {
-        "fondmart": 23
-      }
-    },
-    {
-      "keyword": "wide leg",
-      "flag": "Niche",
-      "saturation_score": 19,
-      "trend_pct": 160.3,
-      "site_count": 1,
-      "total_suppliers": 9,
-      "avg_7d": 7.3,
-      "sparkline": [
-        15,
-        7,
-        11,
-        10,
-        7,
-        14,
-        27
+        48,
+        44
       ],
       "site_breakdown": {
         "fondmart": 19
@@ -823,148 +845,148 @@
     {
       "keyword": "patchwork",
       "flag": "Niche",
-      "saturation_score": 18,
-      "trend_pct": 176.9,
+      "saturation_score": 14,
+      "trend_pct": 55.6,
       "site_count": 1,
       "total_suppliers": 9,
-      "avg_7d": 6.5,
+      "avg_7d": 9.0,
       "sparkline": [
-        5,
         9,
         13,
         16,
         7,
         4,
-        20
+        20,
+        16
       ],
       "site_breakdown": {
-        "fondmart": 18
+        "fondmart": 14
       }
     },
     {
-      "keyword": "stripe",
+      "keyword": "cutout",
       "flag": "Niche",
-      "saturation_score": 16,
-      "trend_pct": -41.0,
+      "saturation_score": 13,
+      "trend_pct": 71.1,
       "site_count": 1,
       "total_suppliers": 9,
-      "avg_7d": 27.1,
+      "avg_7d": 7.6,
       "sparkline": [
-        45,
-        44,
-        48,
-        52,
-        39,
-        36,
-        28
+        7,
+        4,
+        11,
+        13,
+        4,
+        4,
+        13
       ],
       "site_breakdown": {
-        "fondmart": 16
-      }
-    },
-    {
-      "keyword": "cardigan",
-      "flag": "Niche",
-      "saturation_score": 12,
-      "trend_pct": 5.3,
-      "site_count": 1,
-      "total_suppliers": 9,
-      "avg_7d": 11.4,
-      "sparkline": [
-        54,
-        46,
-        56,
-        61,
-        30,
-        44,
-        22
-      ],
-      "site_breakdown": {
-        "fondmart": 12
-      }
-    },
-    {
-      "keyword": "animal print",
-      "flag": "Niche",
-      "saturation_score": 10,
-      "trend_pct": 900.0,
-      "site_count": 1,
-      "total_suppliers": 9,
-      "avg_7d": 0.0,
-      "sparkline": [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        10
-      ],
-      "site_breakdown": {
-        "fondmart": 10
+        "fondmart": 13
       }
     },
     {
       "keyword": "slim fit",
       "flag": "Niche",
-      "saturation_score": 8,
-      "trend_pct": -23.1,
+      "saturation_score": 11,
+      "trend_pct": 6.8,
       "site_count": 1,
       "total_suppliers": 9,
-      "avg_7d": 10.4,
+      "avg_7d": 10.3,
       "sparkline": [
-        19,
         13,
         3,
         16,
         10,
         11,
-        12
-      ],
-      "site_breakdown": {
-        "fondmart": 8
-      }
-    },
-    {
-      "keyword": "corset",
-      "flag": "Niche",
-      "saturation_score": 8,
-      "trend_pct": -40.3,
-      "site_count": 1,
-      "total_suppliers": 9,
-      "avg_7d": 13.4,
-      "sparkline": [
-        11,
-        21,
-        11,
-        11,
-        9,
         12,
-        8
+        17
       ],
       "site_breakdown": {
-        "fondmart": 8
+        "fondmart": 11
       }
     },
     {
       "keyword": "pleated",
       "flag": "Niche",
-      "saturation_score": 7,
-      "trend_pct": -40.2,
+      "saturation_score": 11,
+      "trend_pct": -7.6,
       "site_count": 1,
       "total_suppliers": 9,
-      "avg_7d": 11.7,
+      "avg_7d": 11.9,
       "sparkline": [
-        21,
         16,
         13,
         21,
         29,
         16,
-        19
+        19,
+        24
       ],
       "site_breakdown": {
-        "fondmart": 7
+        "fondmart": 11
+      }
+    },
+    {
+      "keyword": "off shoulder",
+      "flag": "Niche",
+      "saturation_score": 11,
+      "trend_pct": 182.1,
+      "site_count": 1,
+      "total_suppliers": 9,
+      "avg_7d": 3.9,
+      "sparkline": [
+        6,
+        13,
+        3,
+        6,
+        3,
+        7,
+        11
+      ],
+      "site_breakdown": {
+        "fondmart": 11
+      }
+    },
+    {
+      "keyword": "cardigan",
+      "flag": "Niche",
+      "saturation_score": 9,
+      "trend_pct": -22.4,
+      "site_count": 1,
+      "total_suppliers": 9,
+      "avg_7d": 11.6,
+      "sparkline": [
+        46,
+        56,
+        61,
+        30,
+        44,
+        22,
+        21
+      ],
+      "site_breakdown": {
+        "fondmart": 9
+      }
+    },
+    {
+      "keyword": "wide leg",
+      "flag": "Niche",
+      "saturation_score": 6,
+      "trend_pct": -10.4,
+      "site_count": 1,
+      "total_suppliers": 9,
+      "avg_7d": 6.7,
+      "sparkline": [
+        7,
+        11,
+        10,
+        7,
+        14,
+        27,
+        16
+      ],
+      "site_breakdown": {
+        "fondmart": 6
       }
     },
     {
@@ -989,21 +1011,84 @@
       }
     },
     {
+      "keyword": "asymmetric",
+      "flag": "Niche",
+      "saturation_score": 5,
+      "trend_pct": 47.1,
+      "site_count": 1,
+      "total_suppliers": 9,
+      "avg_7d": 3.4,
+      "sparkline": [
+        7,
+        5,
+        3,
+        10,
+        12,
+        3,
+        9
+      ],
+      "site_breakdown": {
+        "fondmart": 5
+      }
+    },
+    {
+      "keyword": "corset",
+      "flag": "Niche",
+      "saturation_score": 5,
+      "trend_pct": -51.9,
+      "site_count": 1,
+      "total_suppliers": 9,
+      "avg_7d": 10.4,
+      "sparkline": [
+        21,
+        11,
+        11,
+        9,
+        12,
+        8,
+        5
+      ],
+      "site_breakdown": {
+        "fondmart": 5
+      }
+    },
+    {
+      "keyword": "trench coat",
+      "flag": "Niche",
+      "saturation_score": 5,
+      "trend_pct": 354.5,
+      "site_count": 1,
+      "total_suppliers": 9,
+      "avg_7d": 1.1,
+      "sparkline": [
+        13,
+        5,
+        3,
+        3,
+        3,
+        1,
+        7
+      ],
+      "site_breakdown": {
+        "fondmart": 5
+      }
+    },
+    {
       "keyword": "crop",
       "flag": "Niche",
       "saturation_score": 5,
-      "trend_pct": -46.8,
+      "trend_pct": -43.8,
       "site_count": 1,
       "total_suppliers": 9,
-      "avg_7d": 9.4,
+      "avg_7d": 8.9,
       "sparkline": [
-        111,
         122,
         111,
         122,
         50,
         41,
-        46
+        46,
+        44
       ],
       "site_breakdown": {
         "fondmart": 5
@@ -1018,12 +1103,12 @@
       "total_suppliers": 9,
       "avg_7d": 4.0,
       "sparkline": [
-        15,
         13,
         20,
         19,
         12,
         8,
+        4,
         4
       ],
       "site_breakdown": {
@@ -1031,42 +1116,21 @@
       }
     },
     {
-      "keyword": "cutout",
+      "keyword": "blazer",
       "flag": "Niche",
       "saturation_score": 4,
-      "trend_pct": -53.5,
+      "trend_pct": -25.9,
       "site_count": 1,
       "total_suppliers": 9,
-      "avg_7d": 8.6,
+      "avg_7d": 5.4,
       "sparkline": [
         12,
-        7,
-        4,
-        11,
-        13,
-        4,
-        4
-      ],
-      "site_breakdown": {
-        "fondmart": 4
-      }
-    },
-    {
-      "keyword": "floral",
-      "flag": "Niche",
-      "saturation_score": 4,
-      "trend_pct": -60.4,
-      "site_count": 1,
-      "total_suppliers": 9,
-      "avg_7d": 10.1,
-      "sparkline": [
-        26,
-        25,
-        19,
-        25,
-        9,
-        17,
-        15
+        10,
+        10,
+        8,
+        27,
+        3,
+        6
       ],
       "site_breakdown": {
         "fondmart": 4
@@ -1076,59 +1140,59 @@
       "keyword": "midi",
       "flag": "Niche",
       "saturation_score": 4,
-      "trend_pct": 0.0,
+      "trend_pct": 11.1,
       "site_count": 1,
       "total_suppliers": 9,
-      "avg_7d": 4.0,
+      "avg_7d": 3.6,
       "sparkline": [
-        28,
         25,
         25,
         19,
         9,
         21,
-        37
+        37,
+        31
       ],
       "site_breakdown": {
         "fondmart": 4
       }
     },
     {
-      "keyword": "sequin",
+      "keyword": "maxi",
       "flag": "Niche",
-      "saturation_score": 3,
-      "trend_pct": -34.8,
+      "saturation_score": 4,
+      "trend_pct": -63.0,
       "site_count": 1,
       "total_suppliers": 9,
-      "avg_7d": 4.6,
+      "avg_7d": 10.8,
       "sparkline": [
-        6,
-        6,
-        4,
-        9,
-        3,
-        11,
-        7
+        22,
+        19,
+        27,
+        20,
+        38,
+        15,
+        13
       ],
       "site_breakdown": {
-        "fondmart": 3
+        "fondmart": 4
       }
     },
     {
-      "keyword": "off shoulder",
+      "keyword": "straight leg",
       "flag": "Niche",
       "saturation_score": 3,
-      "trend_pct": -23.1,
+      "trend_pct": 0.0,
       "site_count": 1,
       "total_suppliers": 9,
-      "avg_7d": 3.9,
+      "avg_7d": 3.0,
       "sparkline": [
+        2,
+        2,
+        2,
         8,
+        0,
         6,
-        13,
-        3,
-        6,
-        3,
         7
       ],
       "site_breakdown": {
@@ -1136,24 +1200,45 @@
       }
     },
     {
-      "keyword": "asymmetric",
+      "keyword": "bomber",
       "flag": "Niche",
-      "saturation_score": 1,
-      "trend_pct": -70.6,
+      "saturation_score": 3,
+      "trend_pct": -33.3,
       "site_count": 1,
       "total_suppliers": 9,
-      "avg_7d": 3.4,
+      "avg_7d": 4.5,
       "sparkline": [
-        7,
-        7,
-        5,
+        2,
+        2,
+        8,
+        4,
         3,
-        10,
-        12,
+        0,
         3
       ],
       "site_breakdown": {
-        "fondmart": 1
+        "fondmart": 3
+      }
+    },
+    {
+      "keyword": "mini",
+      "flag": "Niche",
+      "saturation_score": 3,
+      "trend_pct": -40.0,
+      "site_count": 1,
+      "total_suppliers": 9,
+      "avg_7d": 5.0,
+      "sparkline": [
+        39,
+        43,
+        49,
+        49,
+        40,
+        36,
+        36
+      ],
+      "site_breakdown": {
+        "fondmart": 3
       }
     },
     {
@@ -1165,55 +1250,13 @@
       "total_suppliers": 9,
       "avg_7d": 1.0,
       "sparkline": [
-        10,
         8,
         8,
         3,
         7,
         7,
+        1,
         1
-      ],
-      "site_breakdown": {
-        "fondmart": 1
-      }
-    },
-    {
-      "keyword": "trench coat",
-      "flag": "Niche",
-      "saturation_score": 1,
-      "trend_pct": -23.1,
-      "site_count": 1,
-      "total_suppliers": 9,
-      "avg_7d": 1.3,
-      "sparkline": [
-        4,
-        13,
-        5,
-        3,
-        3,
-        3,
-        1
-      ],
-      "site_breakdown": {
-        "fondmart": 1
-      }
-    },
-    {
-      "keyword": "blazer",
-      "flag": "Niche",
-      "saturation_score": 1,
-      "trend_pct": -85.9,
-      "site_count": 1,
-      "total_suppliers": 9,
-      "avg_7d": 7.1,
-      "sparkline": [
-        14,
-        12,
-        10,
-        10,
-        8,
-        27,
-        3
       ],
       "site_breakdown": {
         "fondmart": 1
@@ -1222,11 +1265,95 @@
   ],
   "materials": [
     {
+      "material": "satin",
+      "flag": "Rising",
+      "trend_pct": 84.5,
+      "today_count": 19,
+      "avg_7d": 10.3,
+      "price_tier": "premium",
+      "price_score": 2,
+      "quality_signals": [
+        "thin",
+        "eco",
+        "knitted"
+      ],
+      "sparkline": [
+        18,
+        11,
+        9,
+        4,
+        8,
+        6,
+        19
+      ],
+      "source_breakdown": {
+        "dropship": 14,
+        "media": 1,
+        "retail": 4
+      }
+    },
+    {
+      "material": "cotton",
+      "flag": "Rising",
+      "trend_pct": 75.9,
+      "today_count": 54,
+      "avg_7d": 30.7,
+      "price_tier": "mid",
+      "price_score": 1,
+      "quality_signals": [
+        "thin",
+        "eco",
+        "knitted"
+      ],
+      "sparkline": [
+        28,
+        29,
+        30,
+        31,
+        29,
+        36,
+        54
+      ],
+      "source_breakdown": {
+        "dropship": 36,
+        "media": 0,
+        "retail": 18
+      }
+    },
+    {
+      "material": "chiffon",
+      "flag": "Rising",
+      "trend_pct": 73.1,
+      "today_count": 9,
+      "avg_7d": 5.2,
+      "price_tier": "premium",
+      "price_score": 2,
+      "quality_signals": [
+        "thin",
+        "eco",
+        "knitted"
+      ],
+      "sparkline": [
+        3,
+        3,
+        3,
+        0,
+        0,
+        0,
+        9
+      ],
+      "source_breakdown": {
+        "dropship": 7,
+        "media": 0,
+        "retail": 2
+      }
+    },
+    {
       "material": "mesh",
       "flag": "Rising",
-      "trend_pct": 237.8,
-      "today_count": 25,
-      "avg_7d": 7.4,
+      "trend_pct": 69.8,
+      "today_count": 18,
+      "avg_7d": 10.6,
       "price_tier": "budget",
       "price_score": 0,
       "quality_signals": [
@@ -1235,26 +1362,54 @@
         "knitted"
       ],
       "sparkline": [
-        5,
         12,
         5,
         5,
         8,
         14,
-        25
+        25,
+        18
       ],
       "source_breakdown": {
-        "dropship": 23,
+        "dropship": 16,
         "media": 0,
         "retail": 2
       }
     },
     {
-      "material": "viscose",
+      "material": "suede",
       "flag": "Rising",
-      "trend_pct": 100.0,
+      "trend_pct": 61.3,
+      "today_count": 15,
+      "avg_7d": 9.3,
+      "price_tier": "premium",
+      "price_score": 2,
+      "quality_signals": [
+        "thin",
+        "eco",
+        "knitted"
+      ],
+      "sparkline": [
+        4,
+        15,
+        16,
+        8,
+        10,
+        6,
+        15
+      ],
+      "source_breakdown": {
+        "dropship": 9,
+        "media": 0,
+        "retail": 6
+      }
+    },
+    {
+      "material": "viscose",
+      "flag": "Staple",
+      "trend_pct": 0.0,
       "today_count": 2,
-      "avg_7d": 0.0,
+      "avg_7d": 2.0,
       "price_tier": "mid",
       "price_score": 1,
       "quality_signals": [
@@ -1267,6 +1422,230 @@
         0,
         0,
         0,
+        0,
+        2,
+        2
+      ],
+      "source_breakdown": {
+        "dropship": 0,
+        "media": 0,
+        "retail": 2
+      }
+    },
+    {
+      "material": "wool",
+      "flag": "Staple",
+      "trend_pct": -1.1,
+      "today_count": 56,
+      "avg_7d": 56.6,
+      "price_tier": "premium",
+      "price_score": 2,
+      "quality_signals": [
+        "thin",
+        "eco",
+        "knitted"
+      ],
+      "sparkline": [
+        57,
+        57,
+        60,
+        45,
+        58,
+        54,
+        56
+      ],
+      "source_breakdown": {
+        "dropship": 42,
+        "media": 0,
+        "retail": 14
+      }
+    },
+    {
+      "material": "denim",
+      "flag": "Staple",
+      "trend_pct": -1.1,
+      "today_count": 35,
+      "avg_7d": 35.4,
+      "price_tier": "mid",
+      "price_score": 1,
+      "quality_signals": [
+        "thin",
+        "eco",
+        "knitted"
+      ],
+      "sparkline": [
+        42,
+        37,
+        42,
+        32,
+        20,
+        34,
+        35
+      ],
+      "source_breakdown": {
+        "dropship": 11,
+        "media": 2,
+        "retail": 22
+      }
+    },
+    {
+      "material": "knit",
+      "flag": "Staple",
+      "trend_pct": -7.7,
+      "today_count": 49,
+      "avg_7d": 53.1,
+      "price_tier": "mid",
+      "price_score": 1,
+      "quality_signals": [
+        "thin",
+        "eco",
+        "knitted"
+      ],
+      "sparkline": [
+        42,
+        62,
+        62,
+        56,
+        44,
+        59,
+        49
+      ],
+      "source_breakdown": {
+        "dropship": 28,
+        "media": 1,
+        "retail": 20
+      }
+    },
+    {
+      "material": "leather",
+      "flag": "Staple",
+      "trend_pct": -9.1,
+      "today_count": 24,
+      "avg_7d": 26.4,
+      "price_tier": "premium",
+      "price_score": 2,
+      "quality_signals": [
+        "thin",
+        "eco",
+        "knitted"
+      ],
+      "sparkline": [
+        25,
+        25,
+        40,
+        34,
+        16,
+        22,
+        24
+      ],
+      "source_breakdown": {
+        "dropship": 0,
+        "media": 0,
+        "retail": 24
+      }
+    },
+    {
+      "material": "linen",
+      "flag": "Fading",
+      "trend_pct": -35.1,
+      "today_count": 5,
+      "avg_7d": 7.7,
+      "price_tier": "mid",
+      "price_score": 1,
+      "quality_signals": [
+        "thin",
+        "eco",
+        "knitted"
+      ],
+      "sparkline": [
+        7,
+        7,
+        7,
+        9,
+        9,
+        8,
+        5
+      ],
+      "source_breakdown": {
+        "dropship": 2,
+        "media": 3,
+        "retail": 0
+      }
+    },
+    {
+      "material": "cashmere",
+      "flag": "Fading",
+      "trend_pct": -47.4,
+      "today_count": 2,
+      "avg_7d": 3.8,
+      "price_tier": "premium",
+      "price_score": 2,
+      "quality_signals": [
+        "thin",
+        "eco",
+        "knitted"
+      ],
+      "sparkline": [
+        4,
+        4,
+        0,
+        0,
+        0,
+        3,
+        2
+      ],
+      "source_breakdown": {
+        "dropship": 0,
+        "media": 0,
+        "retail": 2
+      }
+    },
+    {
+      "material": "jersey",
+      "flag": "Fading",
+      "trend_pct": -54.5,
+      "today_count": 7,
+      "avg_7d": 15.4,
+      "price_tier": "mid",
+      "price_score": 1,
+      "quality_signals": [
+        "thin",
+        "eco",
+        "knitted"
+      ],
+      "sparkline": [
+        21,
+        21,
+        21,
+        3,
+        3,
+        16,
+        7
+      ],
+      "source_breakdown": {
+        "dropship": 0,
+        "media": 1,
+        "retail": 6
+      }
+    },
+    {
+      "material": "faux leather",
+      "flag": "Fading",
+      "trend_pct": -72.2,
+      "today_count": 2,
+      "avg_7d": 7.2,
+      "price_tier": "mid",
+      "price_score": 1,
+      "quality_signals": [
+        "thin",
+        "eco",
+        "knitted"
+      ],
+      "sparkline": [
+        2,
+        10,
+        12,
+        7,
         0,
         0,
         2
@@ -1278,39 +1657,11 @@
       }
     },
     {
-      "material": "velvet",
-      "flag": "Rising",
-      "trend_pct": 100.0,
-      "today_count": 3,
-      "avg_7d": 1.5,
-      "price_tier": "premium",
-      "price_score": 2,
-      "quality_signals": [
-        "thin",
-        "eco",
-        "knitted"
-      ],
-      "sparkline": [
-        1,
-        1,
-        1,
-        3,
-        0,
-        2,
-        3
-      ],
-      "source_breakdown": {
-        "dropship": 3,
-        "media": 0,
-        "retail": 0
-      }
-    },
-    {
       "material": "fleece",
-      "flag": "Rising",
-      "trend_pct": 35.1,
-      "today_count": 5,
-      "avg_7d": 3.7,
+      "flag": "Fading",
+      "trend_pct": -75.0,
+      "today_count": 1,
+      "avg_7d": 4.0,
       "price_tier": "mid",
       "price_score": 1,
       "quality_signals": [
@@ -1319,278 +1670,26 @@
         "knitted"
       ],
       "sparkline": [
-        5,
         3,
         3,
         3,
         8,
         1,
-        5
+        5,
+        1
       ],
       "source_breakdown": {
         "dropship": 0,
         "media": 0,
-        "retail": 5
-      }
-    },
-    {
-      "material": "cotton",
-      "flag": "Staple",
-      "trend_pct": 13.9,
-      "today_count": 36,
-      "avg_7d": 31.6,
-      "price_tier": "mid",
-      "price_score": 1,
-      "quality_signals": [
-        "thin",
-        "eco",
-        "knitted"
-      ],
-      "sparkline": [
-        32,
-        28,
-        29,
-        30,
-        31,
-        29,
-        36
-      ],
-      "source_breakdown": {
-        "dropship": 18,
-        "media": 0,
-        "retail": 18
-      }
-    },
-    {
-      "material": "knit",
-      "flag": "Staple",
-      "trend_pct": 8.1,
-      "today_count": 59,
-      "avg_7d": 54.6,
-      "price_tier": "mid",
-      "price_score": 1,
-      "quality_signals": [
-        "thin",
-        "eco",
-        "knitted"
-      ],
-      "sparkline": [
-        47,
-        42,
-        62,
-        62,
-        56,
-        44,
-        59
-      ],
-      "source_breakdown": {
-        "dropship": 26,
-        "media": 1,
-        "retail": 32
-      }
-    },
-    {
-      "material": "linen",
-      "flag": "Staple",
-      "trend_pct": 5.3,
-      "today_count": 8,
-      "avg_7d": 7.6,
-      "price_tier": "mid",
-      "price_score": 1,
-      "quality_signals": [
-        "thin",
-        "eco",
-        "knitted"
-      ],
-      "sparkline": [
-        7,
-        7,
-        7,
-        7,
-        9,
-        9,
-        8
-      ],
-      "source_breakdown": {
-        "dropship": 5,
-        "media": 3,
-        "retail": 0
-      }
-    },
-    {
-      "material": "jersey",
-      "flag": "Staple",
-      "trend_pct": -4.2,
-      "today_count": 16,
-      "avg_7d": 16.7,
-      "price_tier": "mid",
-      "price_score": 1,
-      "quality_signals": [
-        "thin",
-        "eco",
-        "knitted"
-      ],
-      "sparkline": [
-        23,
-        21,
-        21,
-        21,
-        3,
-        3,
-        16
-      ],
-      "source_breakdown": {
-        "dropship": 0,
-        "media": 2,
-        "retail": 14
-      }
-    },
-    {
-      "material": "wool",
-      "flag": "Staple",
-      "trend_pct": -5.3,
-      "today_count": 54,
-      "avg_7d": 57.0,
-      "price_tier": "premium",
-      "price_score": 2,
-      "quality_signals": [
-        "thin",
-        "eco",
-        "knitted"
-      ],
-      "sparkline": [
-        65,
-        57,
-        57,
-        60,
-        45,
-        58,
-        54
-      ],
-      "source_breakdown": {
-        "dropship": 39,
-        "media": 0,
-        "retail": 15
-      }
-    },
-    {
-      "material": "denim",
-      "flag": "Staple",
-      "trend_pct": -6.6,
-      "today_count": 34,
-      "avg_7d": 36.4,
-      "price_tier": "mid",
-      "price_score": 1,
-      "quality_signals": [
-        "thin",
-        "eco",
-        "knitted"
-      ],
-      "sparkline": [
-        41,
-        42,
-        37,
-        42,
-        32,
-        20,
-        34
-      ],
-      "source_breakdown": {
-        "dropship": 14,
-        "media": 2,
-        "retail": 18
-      }
-    },
-    {
-      "material": "leather",
-      "flag": "Fading",
-      "trend_pct": -15.4,
-      "today_count": 22,
-      "avg_7d": 26.0,
-      "price_tier": "premium",
-      "price_score": 2,
-      "quality_signals": [
-        "thin",
-        "eco",
-        "knitted"
-      ],
-      "sparkline": [
-        23,
-        25,
-        25,
-        40,
-        34,
-        16,
-        22
-      ],
-      "source_breakdown": {
-        "dropship": 0,
-        "media": 0,
-        "retail": 22
-      }
-    },
-    {
-      "material": "cashmere",
-      "flag": "Fading",
-      "trend_pct": -25.0,
-      "today_count": 3,
-      "avg_7d": 4.0,
-      "price_tier": "premium",
-      "price_score": 2,
-      "quality_signals": [
-        "thin",
-        "eco",
-        "knitted"
-      ],
-      "sparkline": [
-        4,
-        4,
-        4,
-        0,
-        0,
-        0,
-        3
-      ],
-      "source_breakdown": {
-        "dropship": 3,
-        "media": 0,
-        "retail": 0
-      }
-    },
-    {
-      "material": "suede",
-      "flag": "Fading",
-      "trend_pct": -38.1,
-      "today_count": 6,
-      "avg_7d": 9.7,
-      "price_tier": "premium",
-      "price_score": 2,
-      "quality_signals": [
-        "thin",
-        "eco",
-        "knitted"
-      ],
-      "sparkline": [
-        6,
-        4,
-        15,
-        16,
-        8,
-        10,
-        6
-      ],
-      "source_breakdown": {
-        "dropship": 0,
-        "media": 0,
-        "retail": 6
+        "retail": 1
       }
     },
     {
       "material": "silk",
       "flag": "Fading",
-      "trend_pct": -45.2,
-      "today_count": 4,
-      "avg_7d": 7.3,
+      "trend_pct": -85.1,
+      "today_count": 1,
+      "avg_7d": 6.7,
       "price_tier": "premium",
       "price_score": 2,
       "quality_signals": [
@@ -1599,46 +1698,18 @@
         "knitted"
       ],
       "sparkline": [
-        8,
         8,
         8,
         8,
         5,
         6,
-        4
+        4,
+        1
       ],
       "source_breakdown": {
-        "dropship": 3,
+        "dropship": 0,
         "media": 1,
         "retail": 0
-      }
-    },
-    {
-      "material": "satin",
-      "flag": "Fading",
-      "trend_pct": -46.9,
-      "today_count": 6,
-      "avg_7d": 11.3,
-      "price_tier": "premium",
-      "price_score": 2,
-      "quality_signals": [
-        "thin",
-        "eco",
-        "knitted"
-      ],
-      "sparkline": [
-        16,
-        18,
-        11,
-        9,
-        4,
-        8,
-        6
-      ],
-      "source_breakdown": {
-        "dropship": 4,
-        "media": 0,
-        "retail": 2
       }
     }
   ]
